@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .views import *
+from authorization.views import *
 urlpatterns = [
     path('',views.loginView,name='login-red'),
     # path('own/',ContractOwnerView.as_view(),name='own'),
@@ -33,4 +34,13 @@ urlpatterns = [
     path('hospital-documents-view/<str:doc_id>/', HospitalDocumentView.as_view(), name='hospital-document-view'),
     path('hospital-document-check/<int:id>',getHospitalDocStatus.as_view(),name='hospital-document-check'),
     path('add-acc/',Accidentadd.as_view(),name='add-acc'),
-]
+    path('change-patient-document/',changepatientDocumentView.as_view(),name='change-patient-document'),
+    path('change-hospital-document/', changeHospitalDocumentView.as_view(),name='change-hospital-document'),
+    path('create-patient-req/',createPatientAccessreq.as_view(),name="createHospitalPatientteHospitalAccessreq"),
+    path('change-patient-access/',changePatientDocumentAccess.as_view(),name="changePatientDocumentAccess"),
+    path('change-hospital-acces/',createHospitalAccessreq.as_view(),name="changeHospitalDocumentAccess"),
+    path('decline-patient-req/',declinePatientDocumentReq.as_view(),name="declinePatientDocumentReq"),
+    path('decline-hospital-request/',declineHospitalDocumentReq.as_view(),name="declineHospitalDocumentReq"),
+    path('patient-req-list/',PatientDocumentRequestList.as_view(),name="PatientDocumentRequestList"),
+    path('hospital-request-list',HospitalDocumentRequestList.as_view(),name="HospitalDocumentRequestList"),
+    ]

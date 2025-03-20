@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Access Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .tab-active {
+            border-bottom: 2px solid #4F46E5;
+            color: #4F46E5;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8">Document Access Management</h1>
+        
+        <!-- Tabs -->
+        <div class="flex border-b mb-6">
+            <button id="patientDocTab" class="px-6 py-2 font-medium tab-active" onclick="switchTab('patientDoc')">
+                Patient Document Requests
+            </button>
+            <button id="hospitalDocTab" class="px-6 py-2 font-medium" onclick="switchTab('hospitalDoc')">
+                Hospital Document Requests
+            </button>
+        </div>
+        
+        <!-- Patient Document Requests Section -->
+        <div id="patientDocSection" class="mb-8">
+            <div id="patientRequestList" class="grid gap-4">
+                <p class="text-center text-gray-500">Loading patient document requests...</p>
+            </div>
+        </div>
+        
+        <!-- Hospital Document Requests Section -->
+        <div id="hospitalDocSection" class="mb-8 hidden">
+            <div id="hospitalRequestList" class="grid gap-4">
+                <p class="text-center text-gray-500">Loading hospital document requests...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to get cookie by name
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Get auth token from cookies
+        const authToken = getCookie('authToken');
+        
+        // Current active tab
+        let currentTab = 'patientDoc';
+        
+        // Helper function for making authenticated API requests
+        async function makeAuthRequest(url, method = 'GET', body = null) {
+            const headers = {
+                'Authorization': `Token ${authToken}`,
+                'Content-Type': 'application/json'
+            };
+            
+            const options = {
+                method,
+                headers,
+                credentials: 'include'
+            };
+            
+            if (body && (method === 'POST' || method === 'PUT')) {
+                options.body = JSON.stringify(body);
+            }
+            
+            const response = await fetch(url, options);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Something went wrong');
+            }
+            
+            return response.json();
+        }
+        
+        // Function to fetch patient document requests
+        async function fetchPatientRequests() {
+            try {
+                const data = await makeAuthRequest('/patient-req-list/');
+                renderPatientRequests(data);
+            } catch (error) {
+                showError('patientRequestList', error.message);
+            }
+        }
+        
+        // Function to fetch hospital document requests
+        async function fetchHospitalRequests() {
+            try {
+                const data = await makeAuthRequest('/hospital-request-list');
+                renderHospitalRequests(data);
+            } catch (error) {
+                showError('hospitalRequestList', error.message);
+            }
+        }
+        
+        // Function to handle patient document access change
+        async function changePatientAccess(requestId) {
+            try {
+                await makeAuthRequest('/change-patient-access/', 'POST', {
+                    doc: requestId
+                });
+                
+                showNotification('Access permission updated successfully');
+                fetchPatientRequests(); // Refresh the list
+            } catch (error) {
+                showNotification(error.message, true);
+            }
+        }
+        
+        // Function to handle hospital document access change
+        async function changeHospitalAccess(docId, userId) {
+            try {
+                await makeAuthRequest('/change-hospital-acces/', 'POST', {
+                    doc: docId,
+                    user: userId
+                });
+                
+                showNotification('Access permission updated successfully');
+                fetchHospitalRequests(); // Refresh the list
+            } catch (error) {
+                showNotification(error.message, true);
+            }
+        }
+        
+        // Function to decline patient document request
+        async function declinePatientRequest(requestId) {
+            try {
+                await makeAuthRequest('/decline-patient-req/', 'POST', {
+                    id: requestId
+                });
+                
+                showNotification('Request declined successfully');
+                fetchPatientRequests(); // Refresh the list
+            } catch (error) {
+                showNotification(error.message, true);
+            }
+        }
+        
+        // Function to decline hospital document request
+        async function declineHospitalRequest(requestId) {
+            try {
+                await makeAuthRequest('/decline-hospital-request/', 'POST', {
+                    id: requestId
+                });
+                
+                showNotification('Request declined successfully');
+                fetchHospitalRequests(); // Refresh the list
+            } catch (error) {
+                showNotification(error.message, true);
+            }
+        }
+        
+        // Function to change document privacy (for both patient and hospital)
+        async function changeDocumentPrivacy(docId, type) {
+            try {
+                const endpoint = type === 'patient' 
+                    ? '/change-patient-document/' 
+                    : '/change-hospital-document/';
+                
+                await makeAuthRequest(endpoint, 'POST', {
+                    doc: docId
+                });
+                
+                showNotification('Document privacy updated successfully');
+                
+                // Refresh the appropriate list
+                if (type === 'patient') {
+                    fetchPatientRequests();
+                } else {
+                    fetchHospitalRequests();
+                }
+            } catch (error) {
+                showNotification(error.message, true);
+            }
+        }
+        
+        // Function to render patient requests
+        function renderPatientRequests(requests) {
+            const container = document.getElementById('patientRequestList');
+            if (!requests || requests.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500">No patient document requests found</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            requests.forEach(req => {
+                html += `
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-lg">${req.doc.title || 'Document ' + req.doc.name}</h3>
+                            <p class="text-gray-600 text-sm">Requested by: ${req.to.username || 'User ' + req.to.username}</p>
+                            <p class="text-gray-600 text-sm">Status: 
+                                <span class="${getStatusClass(req.sanctioned, req.declined)}">
+                                    ${getStatusText(req.sanctioned, req.declined)}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="flex space-x-2">
+                            ${!req.declined ? `
+                                <button onclick="changePatientAccess(${req.id})"
+                                    class="${req.sanctioned ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white py-1 px-3 rounded text-sm">
+                                    ${req.sanctioned ? 'Revoke' : 'Approve'}
+                                </button>
+                                ${!req.sanctioned ? `
+                                <button onclick="declinePatientRequest(${req.id})"
+                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm">
+                                    Decline
+                                </button>` : ''}
+                            ` : ''}
+                            
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Function to render hospital requests
+        function renderHospitalRequests(requests) {
+            const container = document.getElementById('hospitalRequestList');
+            if (!requests || requests.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500">No hospital document requests found</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            requests.forEach(req => {
+                html += `
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-semibold text-lg">${req.doc.title || 'Document ' + req.doc.nname}</h3>
+                            <p class="text-gray-600 text-sm">Hospital: ${req.doc.hospitalLedger.hospital.name || 'Unknown'}</p>
+                            <p class="text-gray-600 text-sm">Requested by: ${req.to.username}</p>
+                                <span class="${getStatusClass(req.sanctioned, req.declined)}">
+                                    ${getStatusText(req.sanctioned, req.declined)}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="flex space-x-2">
+                            ${!req.declined ? `
+                                <button onclick="changeHospitalAccess(${req.doc.id}, ${req.to.id})"
+                                    class="${req.sanctioned ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white py-1 px-3 rounded text-sm">
+                                    ${req.sanctioned ? 'Revoke' : 'Approve'}
+                                </button>
+                                ${!req.sanctioned ? `
+                                <button onclick="declineHospitalRequest(${req.id})"
+                                    class="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded text-sm">
+                                    Decline
+                                </button>` : ''}
+                            ` : ''}
+                            
+                        </div>
+                    </div>
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Helper function for status text
+        function getStatusText(sanctioned, declined) {
+            if (declined) return 'Declined';
+            if (sanctioned) return 'Approved';
+            return 'Pending';
+        }
+        
+        // Helper function for status color
+        function getStatusClass(sanctioned, declined) {
+            if (declined) return 'text-red-600 font-medium';
+            if (sanctioned) return 'text-green-600 font-medium';
+            return 'text-yellow-600 font-medium';
+        }
+        
+        // Function to show error messages
+        function showError(containerId, message) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<p class="text-center text-red-500">${message || 'Failed to load data'}</p>`;
+        }
+        
+        // Function to show notification
+        function showNotification(message, isError = false) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg ${isError ? 'bg-red-500' : 'bg-green-500'} text-white`;
+            notification.textContent = message;
+            
+            // Add to body
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Function to switch tabs
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab styling
+            document.getElementById('patientDocTab').classList.toggle('tab-active', tab === 'patientDoc');
+            document.getElementById('hospitalDocTab').classList.toggle('tab-active', tab === 'hospitalDoc');
+            
+            // Show/hide sections
+            document.getElementById('patientDocSection').classList.toggle('hidden', tab !== 'patientDoc');
+            document.getElementById('hospitalDocSection').classList.toggle('hidden', tab !== 'hospitalDoc');
+            
+            // Refresh data if needed
+            if (tab === 'patientDoc') {
+                fetchPatientRequests();
+            } else {
+                fetchHospitalRequests();
+            }
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add csrf token for Django REST Framework compatibility
+            const csrftoken = getCookie('csrftoken');
+            if (csrftoken) {
+                // Add CSRF token to all future fetch requests
+                const originalFetch = window.fetch;
+                window.fetch = function(url, options = {}) {
+                    if (!options.headers) {
+                        options.headers = {};
+                    }
+                    
+                    // Django REST Framework requires X-CSRFToken header
+                    if (!(options.headers instanceof Headers)) {
+                        options.headers['X-CSRFToken'] = csrftoken;
+                    } else {
+                        options.headers.append('X-CSRFToken', csrftoken);
+                    }
+                    
+                    return originalFetch(url, options);
+                };
+            }
+            
+            fetchPatientRequests();
+        });
+    </script>
+</body>
+</html>

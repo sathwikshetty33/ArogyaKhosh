@@ -4,9 +4,9 @@ from django.shortcuts import render
 def loginView(request):
     return render(request, 'router/login.html')
 def doctorDashboard(request, id):
-    return render(request, 'router/doctorDashboard1.html',{'id' : id})
+    return render(request, 'router/doctorDashboard.html',{'id' : id})
 def hospitalDashboard(request, id):
-    return render(request, 'router/hospitalDashboard1.html',{'id' : id})
+    return render(request, 'router/hospitalDashboard.html',{'id' : id})
 def patientDashboard(request, id):
     return render(request, 'router/patientDashboard.html',{'id' : id})
 def addPatient(request):
@@ -19,3 +19,5 @@ def patientUpload(request):
     return render(request, 'router/patientUpload.html')
 def chat_page(request):
     return render(request, 'router/bot.html')
+def accessPage(request):
+    return render(request,'router/viewDocument.html' )

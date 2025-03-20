@@ -56,12 +56,20 @@ class patientDocument(models.Model):
     hash = models.CharField(max_length=100,blank=True,null=True)
     def __str__(self):
         return f"{self.patient.name}-{self.id}"
-class documentAcess(models.Model):
+class HospitalDocumentAcess(models.Model):
     doc = models.ForeignKey(hospitalDocument, on_delete=models.CASCADE)
-    to = models.ForeignKey(hospital, on_delete=models.CASCADE)
+    to = models.ForeignKey(User, on_delete=models.CASCADE)
     sanctioned = models.BooleanField(default=False)
+    declined = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.doc.hospitalLedger.hospital.name}-{self.doc.hospitalLedger}"
+class PatinetDocumentAcess(models.Model):
+    doc = models.ForeignKey(patientDocument, on_delete=models.CASCADE)
+    to = models.ForeignKey(User, on_delete=models.CASCADE)
+    sanctioned = models.BooleanField(default=False)
+    declined = models.BooleanField(default=False)
+    def __str__(self):
+        return f"{self.doc.patient.name}-{self.doc.id}"
 class HospitalDoctors(models.Model):
     hospital = models.ForeignKey(hospital, on_delete=models.CASCADE,blank=True,null=True)
     doctor = models.ForeignKey(doctor, on_delete=models.CASCADE,blank=True,null=True)

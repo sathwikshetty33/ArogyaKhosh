@@ -575,18 +575,34 @@ class UploadToIPFS(APIView):
                 return Response({"error": f"Error getting gas price: {str(e)}"}, status=500)
                 
             # Build transaction
+# Fix for the transaction in the UploadToIPFS class
+
+# Replace the "Build transaction" section with this code:
             try:
-                print(f"Building transaction with params: patient_id={pat.id}, doc_id={patd.id}, cid={cid}, timestamp={current_timestamp}")
+                print(f"Building transaction with params: patient_id={pat.id}, doc_id={patd.id}, cid={hashcid}, timestamp={current_timestamp}")
+                
+                # Estimate gas required for the transaction
+                estimated_gas = contract.functions.addPatientDocument(
+                    pat.id, patd.id, str(hashcid), current_timestamp, False
+                ).estimate_gas({
+                    'from': sender_address,
+                })
+                
+                # Add some buffer to ensure enough gas (20% more)
+                gas_limit = int(estimated_gas * 1.2)
+                print(f"Estimated gas: {estimated_gas}, Using gas limit: {gas_limit}")
+                
+                # Build the transaction with estimated gas
                 transaction = contract.functions.addPatientDocument(
                     pat.id, patd.id, str(hashcid), current_timestamp, False
                 ).build_transaction({
                     'from': sender_address,
                     'nonce': nonce,
-                    'gas': 3292736,  # Adjust gas as needed
+                    'gas': gas_limit,  # Use calculated gas limit instead of hardcoded value
                     'gasPrice': gas_price,
                     'chainId': 11155111  # Sepolia chain ID
                 })
-                print(f"Transaction built successfully: {transaction}")
+                print(f"Transaction built successfully")
             except Exception as e:
                 print(f"ERROR building transaction: {str(e)}")
                 patd.delete()
@@ -709,12 +725,11 @@ class UploadToIPFSHospital(APIView):
 
                 ipfs_data = response.json()
                 cid = ipfs_data["IpfsHash"]
-
+                hashcid = encrypt_url(cid)
                 # Save document metadata in the database
                 hosp_doc = hospitalDocument.objects.create(
                     name=name,
                     hospitalLedger=ledger,
-                    isPrivate=is_private,
                 )
                 hosp_doc.save()
                 document_id = hosp_doc.id
@@ -759,14 +774,22 @@ class UploadToIPFSHospital(APIView):
                 
                 # Get the nonce for the transaction
                 nonce = web3.eth.get_transaction_count(sender_address)
+                estimated_gas = contract.functions.addHospitalDocument(
+                    ledger.patient.id, str(hashcid), document_id, current_timestamp, is_private
+                ).estimate_gas({
+                    'from': sender_address,
+                })
                 
+                # Add some buffer to ensure enough gas (20% more)
+                gas_limit = int(estimated_gas * 1.2)
+                print(f"Estimated gas: {estimated_gas}, Using gas limit: {gas_limit}")
                 # Build transaction
                 transaction = contract.functions.addHospitalDocument(
-                    ledger.patient.id, cid, document_id, current_timestamp, is_private
+                    ledger.patient.id, str(hashcid), document_id, current_timestamp, is_private
                 ).build_transaction({
                     'from': sender_address,
                     'nonce': nonce,
-                    'gas': 322736,  # Adjust gas as needed
+                    'gas': int(1.2*estimated_gas),  # Adjust gas as needed
                     'gasPrice': web3.eth.gas_price,
                     'chainId': 11155111  # Sepolia chain ID
                 })
@@ -1007,7 +1030,8 @@ class HospitalDocumentView(APIView):
                 }, status=status.HTTP_404_NOT_FOUND)
             
             # Construct complete IPFS URL with Pinata gateway
-            ipfs_url = f"https://gateway.pinata.cloud/ipfs/{document_cid}"
+            dc = decrypt_url(document_cid)
+            ipfs_url = f"https://gateway.pinata.cloud/ipfs/{dc}"
             print(f"Returning IPFS URL: {ipfs_url}")
             
             # Return the URL in the response with more details
@@ -1026,17 +1050,6 @@ class HospitalDocumentView(APIView):
             return Response({
                 "error": f"Failed to retrieve document: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-
-
-
-
-
-
 
 
 
