@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AROGYAKOSH Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://kit.fontawesome.com/a81368914c.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background-color: #f5f7fa;
+        }
+
+        .backgroundimg {
+         position: fixed;
+         width: 20%;
+         height: 100vh;
+         background: url('https://i.ibb.co/5ffp7qF/wave.png') no-repeat center center;
+         background-size: cover;
+         z-index: -1;
+        }
+
+        .wave {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            width: 100vw;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 7rem;
+            padding: 0 2rem;
+        }
+
+        .img {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .login-content {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+        }
+
+        .img img {
+            width: 430px;
+        }
+
+        form {
+            width: 360px;
+        }
+
+        .login-content img {
+            height: 90px;
+        }
+
+        .login-content h2 {
+            margin: 15px 0;
+            color: #0cadfe;
+            text-transform: uppercase;
+            font-size: 2.9rem;
+        }
+
+        .login-content .input-div {
+            position: relative;
+            display: grid;
+            grid-template-columns: 7% 93%;
+            margin: 25px 0;
+            padding: 5px 0;
+            border-bottom: 2px solid #d9d9d9;
+        }
+
+        .login-content .input-div.one {
+            margin-top: 0;
+        }
+
+        .i {
+            color: #d9d9d9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .i i {
+            transition: .3s;
+        }
+
+        .input-div > div {
+            position: relative;
+            height: 45px;
+        }
+
+        .input-div > div > h5 {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+            transition: .3s;
+        }
+
+        .input-div:before, .input-div:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            width: 0%;
+            height: 2px;
+            background-color: #7ec6ea;
+            transition: .4s;
+        }
+
+        .input-div:before {
+            right: 50%;
+        }
+
+        .input-div:after {
+            left: 50%;
+        }
+
+        .input-div.focus:before, .input-div.focus:after {
+            width: 50%;
+        }
+
+        .input-div.focus > div > h5 {
+            top: -5px;
+            font-size: 15px;
+        }
+
+        .input-div.focus > .i > i {
+            color: #38d39f;
+        }
+
+        .input-div > div > input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            background: none;
+            padding: 0.5rem 0.7rem;
+            font-size: 1.2rem;
+            color: #555;
+            font-family: 'poppins', sans-serif;
+        }
+
+        .input-div.pass {
+            margin-bottom: 4px;
+        }
+
+        a {
+            display: block;
+            text-align: right;
+            text-decoration: none;
+            color: #999;
+            font-size: 0.9rem;
+            transition: .3s;
+        }
+
+        a:hover {
+            color: #B9DEF1;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            height: 50px;
+            border-radius: 25px;
+            outline: none;
+            border: none;
+            background-image: linear-gradient(to right, #2da5e0, #0CC6FE, #BCE1F3);
+            background-size: 200%;
+            font-size: 1.2rem;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: .5s;
+        }
+
+        .btn:hover {
+            background-position: right;
+        }
+
+        .metamask-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            height: 50px;
+            border-radius: 25px;
+            outline: none;
+            border: none;
+            background-image: linear-gradient(to right, #FF8C00, #FFA500, #FF8C00);
+            background-size: 200%;
+            font-size: 1.1rem;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: .5s;
+        }
+
+        .metamask-btn:hover {
+            background-position: right;
+        }
+
+        .metamask-icon {
+            width: 140px;
+            height: 0px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            padding: 10px 15px;
+            background: transparent;
+            border: none;
+            color: #999;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #0CC6FE;
+            border-bottom: 2px solid #0cadfe;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        .confirmation {
+            margin-top: 10px;
+            color: #38d39f;
+            font-size: 14px;
+            display: none;
+        }
+
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            color: #0cadfe;
+            margin-top: 10px;
+        }
+
+        .error-message {
+            display: none;
+            color: #ff4136;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .metamask-address {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #666;
+            word-break: break-all;
+            display: none; /* Hidden by default, will be shown by JavaScript */
+        }
+
+        
+        @media screen and (max-width: 1050px) {
+            .container {
+                grid-gap: 5rem;
+            }
+        }
+
+        @media screen and (max-width: 1000px) {
+            form {
+                width: 290px;
+            }
+
+            .login-content h2 {
+                font-size: 2.4rem;
+                margin: 8px 0;
+            }
+
+            .img img {
+                width: 400px;
+            }
+        }
+
+        @media screen and (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .img {
+                display: none;
+            }
+
+            .wave {
+                display: none;
+            }
+
+            .login-content {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="backgroundimg">
+        <img src="https://i.ibb.co/5ffp7qF/wave.png" alt="wave">
+    </div>
+    
+    <div class="container">
+        <div class="img">
+            <img src="https://i.ibb.co/wZCxpzRg/bg.png" alt="bg">
+        </div>
+        <div class="login-content">
+            <div>
+                <img src="https://i.ibb.co/27BtpVrK/avatar.png" alt="avatar">
+              
+                <h2 class="title">Welcome</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" data-form="hospital-form" data-type="hospital">Hospital</button>
+                    <button class="tab-btn" data-form="doctor-form" data-type="doctor">Doctor</button>
+                    <button class="tab-btn" data-form="patient-form" data-type="patient">Patient</button>
+                </div>
+                
+                <!-- Hospital Login Form -->
+                <form id="hospital-form" class="form-container active">
+                    <div class="input-div one">
+                        <div class="i">
+                            <i class="fas fa-hospital"></i>
+                        </div>
+                        <div class="div">
+                            <h5>Hospital ID</h5>
+                            <input type="text" class="input" id="hospital-username">
+                        </div>
+                    </div>
+                    <div class="input-div pass">
+                        <div class="i">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="div">
+                            <h5>Password</h5>
+                            <input type="password" class="input" id="hospital-password">
+                        </div>
+                    </div>
+                    <button type="button" class="metamask-btn" id="hospital-metamask-btn">
+                        <div class="metamask-icon">🦊</div>Connect MetaMask
+                    </button>
+                    <div id="hospital-metamask-confirmation" class="confirmation"></div>
+                    <div id="hospital-metamask-address" class="metamask-address"></div>
+                    <input type="submit" class="btn" value="Login" id="hospital-login-btn">
+                    <div class="loading-indicator" id="hospital-loading">Loading...</div>
+                    <div class="error-message" id="hospital-error"></div>
+                </form>
+                
+                <!-- Doctor Login Form -->
+                <form id="doctor-form" class="form-container">
+                    <div class="input-div one">
+                        <div class="i">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="div">
+                            <h5>Doctor ID</h5>
+                            <input type="text" class="input" id="doctor-username">
+                        </div>
+                    </div>
+                    <div class="input-div pass">
+                        <div class="i">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="div">
+                            <h5>Password</h5>
+                            <input type="password" class="input" id="doctor-password">
+                        </div>
+                    </div>
+                    <button type="button" class="metamask-btn" id="doctor-metamask-btn">
+                        <div class="metamask-icon">🦊</div>Connect MetaMask
+                    </button>
+                    <div id="doctor-metamask-confirmation" class="confirmation"></div>
+                    <div id="doctor-metamask-address" class="metamask-address"></div>
+                    <input type="submit" class="btn" value="Login" id="doctor-login-btn">
+                    <div class="loading-indicator" id="doctor-loading">Loading...</div>
+                    <div class="error-message" id="doctor-error"></div>
+                </form>
+                
+                <!-- Patient Login Form -->
+                <form id="patient-form" class="form-container">
+                    <div class="input-div one">
+                        <div class="i">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="div">
+                            <h5>Patient ID</h5>
+                            <input type="text" class="input" id="patient-username">
+                        </div>
+                    </div>
+                    <div class="input-div pass">
+                        <div class="i">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="div">
+                            <h5>Password</h5>
+                            <input type="password" class="input" id="patient-password">
+                        </div>
+                    </div>
+                    <input type="submit" class="btn" value="Login" id="patient-login-btn">
+                    <div class="loading-indicator" id="patient-loading">Loading...</div>
+                    <div class="error-message" id="patient-error"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API Configuration
+        const API_ENDPOINTS = {
+            hospital: '/hospital-login/',
+            doctor: '/doctor-login/',
+            patient: '/patient-login/'
+        };
+
+        // Dashboard URLs
+        const DASHBOARDS = {
+            hospital: 'hospital-dashboard/',
+            doctor: 'doctor-dashboard/',
+            patient: 'patient-dashboard/'
+        };
+
+        // Global variables
+        let currentUserType = 'hospital';
+        let web3Account = null;
+
+        // Input animations
+        const inputs = document.querySelectorAll(".input");
+        
+        function addcl() {
+            let parent = this.parentNode.parentNode;
+            parent.classList.add("focus");
+        }
+        
+        function remcl() {
+            let parent = this.parentNode.parentNode;
+            if (this.value == "") {
+                parent.classList.remove("focus");
+            }
+        }
+        
+        inputs.forEach(input => {
+            input.addEventListener("focus", addcl);
+            input.addEventListener("blur", remcl);
+        });
+        
+        // Tab switching functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const forms = document.querySelectorAll('.form-container');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons and forms
+                tabBtns.forEach(b => b.classList.remove('active'));
+                forms.forEach(f => f.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding form
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.form).classList.add('active');
+                
+                // Update current user type
+                setActiveTab(btn.dataset.type);
+            });
+        });
+        
+        // MetaMask connection function
+        async function connectMetaMask(userType) {
+            const metamaskBtn = document.getElementById(`${userType}-metamask-btn`);
+            const addressDisplay = document.getElementById(`${userType}-metamask-address`);
+            const confirmation = document.getElementById(`${userType}-metamask-confirmation`);
+            const errorMessage = document.getElementById(`${userType}-error`);
+            
+            // Reset any previous connection display
+            confirmation.style.display = 'none';
+            addressDisplay.style.display = 'none';
+            addressDisplay.textContent = '';
+            errorMessage.style.display = 'none';
+            
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Show loading state
+                    metamaskBtn.disabled = true;
+                    metamaskBtn.innerHTML = '<div class="metamask-icon">🦊</div>Connecting...';
+                    
+                    // Request accounts with retries
+                    let accounts = [];
+                    let retries = 3;
+                    
+                    while (retries > 0 && accounts.length === 0) {
+                        try {
+                            accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                            break;
+                        } catch (err) {
+                            // If user rejected, don't retry
+                            if (err.code === 4001) {
+                                throw err;
+                            }
+                            retries--;
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                        }
+                    }
+                    
+                    if (accounts.length === 0) {
+                        throw new Error("Failed to get accounts after retries");
+                    }
+                    
+                    // Get the first account
+                    web3Account = accounts[0];
+                    
+                    // Update UI after successful connection
+                    metamaskBtn.innerHTML = '<div class="metamask-icon">🦊</div>Connected';
+                    addressDisplay.textContent = `Wallet Address: ${web3Account}`;
+                    addressDisplay.style.display = 'block';
+                    confirmation.style.display = 'block';
+                    metamaskBtn.style.backgroundImage = 'linear-gradient(to right, #2ecc71, #27ae60, #2ecc71)';
+                    
+                    // Listen for account changes
+                    window.ethereum.on('accountsChanged', function (accounts) {
+                        if (accounts.length === 0) {
+                            // User disconnected
+                            resetMetaMaskConnection(userType);
+                        } else {
+                            // Account changed
+                            web3Account = accounts[0];
+                            addressDisplay.textContent = `Wallet Address: ${web3Account}`;
+                        }
+                    });
+                    
+                    // Add this to debug
+                    console.log("MetaMask connected with address:", web3Account);
+                    
+                    return web3Account;
+                } catch (error) {
+                    console.error('MetaMask connection failed:', error);
+                    showError(userType, error.message || 'Failed to connect MetaMask. Please try again.');
+                    
+                    // Reset button on error
+                    resetMetaMaskConnection(userType);
+                    return null;
+                }
+            } else {
+                showError(userType, 'MetaMask is not installed. Please install it first.');
+                return null;
+            }
+        }
+
+        function resetMetaMaskConnection(userType) {
+            const metamaskBtn = document.getElementById(`${userType}-metamask-btn`);
+            const addressDisplay = document.getElementById(`${userType}-metamask-address`);
+            const confirmation = document.getElementById(`${userType}-metamask-confirmation`);
+            
+            web3Account = null;
+            metamaskBtn.disabled = false;
+            metamaskBtn.innerHTML = '<div class="metamask-icon">🦊</div>Connect MetaMask';
+            metamaskBtn.style.backgroundImage = 'linear-gradient(to right, #FF8C00, #FFA500, #FF8C00)';
+            addressDisplay.style.display = 'none';
+            confirmation.style.display = 'none';
+        }
+
+        // Login handlers
+        async function handleLogin(userType) {
+            const usernameInput = document.getElementById(`${userType}-username`);
+            const passwordInput = document.getElementById(`${userType}-password`);
+            const loadingIndicator = document.getElementById(`${userType}-loading`);
+            const loginBtn = document.getElementById(`${userType}-login-btn`);
+            const errorMessage = document.getElementById(`${userType}-error`);
+
+            // Clear previous error messages
+            errorMessage.style.display = 'none';
+            
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            loginBtn.disabled = true;
+
+            // Prepare request data
+            const requestData = {
+                username: usernameInput.value,
+                password: passwordInput.value
+            };
+
+            // Add wallet address for hospital and doctor
+            if (userType !== 'patient') {
+                // Check if MetaMask is connected
+                if (!web3Account) {
+                    try {
+                        // Attempt to get accounts in case MetaMask is connected but web3Account wasn't set
+                        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                        if (accounts && accounts.length > 0) {
+                            web3Account = accounts[0];
+                        } else {
+                            showError(userType, 'Please connect your MetaMask wallet.');
+                            loadingIndicator.style.display = 'none';
+                            loginBtn.disabled = false;
+                            return;
+                        }
+                    } catch (error) {
+                        showError(userType, 'Please connect your MetaMask wallet.');
+                        loadingIndicator.style.display = 'none';
+                        loginBtn.disabled = false;
+                        return;
+                    }
+                }
+                
+                // Ensure address is in the correct format (lowercase for consistency)
+                requestData.address = web3Account.toLowerCase();
+                console.log("Using wallet address for login:", requestData.address);
+            }
+
+            try {
+                // Make API request
+                const response = await fetch(API_ENDPOINTS[userType], {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData),
+                    credentials: 'include' // Include cookies in the request
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store token and ID in cookies
+                    setCookie('authToken', data.token, 7);
+
+                    // Store appropriate ID based on user type
+                    let id;
+                    if (userType === 'hospital') {
+                        setCookie('hospId', data.hospId, 7);
+                        id = data.hospId;
+                    } else if (userType === 'doctor') {
+                        setCookie('docId', data.docId, 7);
+                        id = data.docId;
+                    } else {
+                        setCookie('patId', data.patId, 7);
+                        id = data.patId;
+                    }
+
+                    // Store user type
+                    setCookie('userType', userType, 7);
+
+                    // Redirect to appropriate dashboard with ID
+                    window.location.href = `/route/${DASHBOARDS[userType]}${id}`;
+                } else {
+                    // Show error message
+                    showError(userType, data.error || 'Login failed. Please check your credentials and MetaMask connection.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(userType, 'An error occurred. Please try again later.');
+            } finally {
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+                loginBtn.disabled = false;
+            }
+        }
+
+        // Add event listeners for MetaMask buttons
+        document.getElementById('hospital-metamask-btn').addEventListener('click', () => {
+            connectMetaMask('hospital');
+        });
+
+        document.getElementById('doctor-metamask-btn').addEventListener('click', () => {
+            connectMetaMask('doctor');
+        });
+
+        // Attach login event listeners
+        document.getElementById('hospital-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleLogin('hospital');
+        });
+
+        document.getElementById('doctor-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleLogin('doctor');
+        });
+
+        document.getElementById('patient-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleLogin('patient');
+        });
+
+        // Utility functions
+        function setActiveTab(userType) {
+            currentUserType = userType;
+
+            // Update active tab
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            forms.forEach(form => form.classList.remove('active'));
+
+            const activeTabBtn = document.querySelector(`[data-type="${userType}"]`);
+            const activeForm = document.getElementById(`${userType}-form`);
+
+            activeTabBtn.classList.add('active');
+            activeForm.classList.add('active');
+
+            // Hide/show MetaMask related elements
+            const hospitalMetamaskElements = document.querySelectorAll('#hospital-metamask-btn, #hospital-metamask-confirmation, #hospital-metamask-address');
+            const doctorMetamaskElements = document.querySelectorAll('#doctor-metamask-btn, #doctor-metamask-confirmation, #doctor-metamask-address');
+
+            if (userType === 'hospital') {
+                hospitalMetamaskElements.forEach(el => el.style.display = 'block');
+                doctorMetamaskElements.forEach(el => el.style.display = 'none');
+            } else if (userType === 'doctor') {
+                hospitalMetamaskElements.forEach(el => el.style.display = 'none');
+                doctorMetamaskElements.forEach(el => el.style.display = 'block');
+            } else {
+                hospitalMetamaskElements.forEach(el => el.style.display = 'none');
+                doctorMetamaskElements.forEach(el => el.style.display = 'none');
+            }
+
+            // Clear previous error messages
+            const errorMessage = document.getElementById(`${userType}-error`);
+            if (errorMessage) errorMessage.style.display = 'none';
+        }
+
+        function showError(userType, message) {
+            const errorMessage = document.getElementById(`${userType}-error`);
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function setCookie(name, value, days) {
+            let expires = '';
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = '; expires=' + date.toUTCString();
+            }
+            document.cookie = name + '=' + (value || '')  + expires + '; path=/';
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            setActiveTab('hospital');
+            
+            // Check if MetaMask is already connected
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(accounts => {
+                        if (accounts.length > 0) {
+                            web3Account = accounts[0];
+                            console.log("MetaMask already connected with account:", web3Account);
+                            
+                            // Update UI for the active tab
+                            const userType = currentUserType;
+                            const metamaskBtn = document.getElementById(`${userType}-metamask-btn`);
+                            const addressDisplay = document.getElementById(`${userType}-metamask-address`);
+                            const confirmation = document.getElementById(`${userType}-metamask-confirmation`);
+                            
+                            metamaskBtn.innerHTML = '<div class="metamask-icon">🦊</div>Connected';
+                            metamaskBtn.style.backgroundImage = 'linear-gradient(to right, #2ecc71, #27ae60, #2ecc71)';
+                            addressDisplay.textContent = `Wallet Address: ${web3Account}`;
+                            addressDisplay.style.display = 'block';
+                            confirmation.style.display = 'block';
+                        }
+                    })
+                    .catch(err => console.error("Error checking MetaMask connection:", err));
+            }
+        });
+    </script>
+</body>
+</html>
