@@ -1,0 +1,2498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AROGYAKOSH - Patient Dashboard</title>
+    <style>
+      
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f9fc;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Sidebar styles - enhanced */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: linear-gradient(to bottom, #0082a3, #00a0c6);
+    position: fixed;
+    left: 0;
+    top: 0;
+    border-right: none;
+    padding-top: 0;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Hamburger menu styles - improved */
+.hamburger-menu {
+    display: none;
+    cursor: pointer;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    background-color: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.hamburger-menu span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #00a0c6;
+    margin: 5px 0;
+    transition: 0.3s;
+    border-radius: 3px;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.3s;
+}
+
+/* Logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    padding: 25px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00a0c6;
+    font-weight: bold;
+    margin-right: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo-text {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Menu items styling */
+.menu-item {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.85);
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+    margin: 5px 0;
+}
+
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.menu-item.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-left: 3px solid white;
+    font-weight: 600;
+}
+
+.menu-item i {
+    margin-right: 15px;
+    font-size: 18px;
+}
+
+/* Main content area */
+.main-content {
+    margin-left: 260px;
+    padding: 30px 40px;
+    transition: margin-left 0.3s ease;
+    min-height: calc(100vh - 100px);
+}
+
+.content-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    margin-bottom: 30px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.content-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #222;
+    display: flex;
+    align-items: center;
+}
+
+.card-title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 24px;
+    background-color: #00a0c6;
+    margin-right: 12px;
+    border-radius: 4px;
+}
+
+/* Status indicators */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-success {
+    background-color: #4caf50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.status-pending {
+    background-color: #ff9800;
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+}
+
+/* Header section */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #222;
+    position: relative;
+}
+
+.page-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    width: 50px;
+    height: 4px;
+    background-color: #00a0c6;
+    border-radius: 2px;
+}
+
+/* Background styling */
+.bg-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.02;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%2300a0c6" width="50" height="50" x="0" y="0" /><rect fill="%2300a0c6" width="50" height="50" x="50" y="50" /></svg>');
+    background-size: 30px 30px;
+}
+
+/* Document card layout - improved grid layout */
+.slider-container {
+    position: relative;
+    margin: 20px 0 30px;
+}
+
+.slider {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 10px 0;
+    width: 100%;
+}
+
+/* For mobile when we need horizontal scrolling */
+@media (max-width: 768px) {
+    .slider {
+        display: flex;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        padding: 10px 0;
+        gap: 15px;
+        scrollbar-width: none;
+    }
+    
+    .slider::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.document-card {
+    position: relative;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+    background-color: white;
+    width: auto;
+    min-width: 220px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: 180px;
+}
+
+.document-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+.document-icon {
+    font-size: 28px;
+    color: #4285f4;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.document-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #333;
+    font-size: 16px;
+}
+
+.document-date {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 12px;
+}
+
+.document-visibility {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    color: #666;
+    margin-top: auto;
+}
+
+.document-visibility i {
+    margin-right: 8px;
+    color: #00a0c6;
+}
+
+.document-menu {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+.menu-trigger {
+    cursor: pointer;
+    padding: 8px;
+    color: #555;
+    background-color: rgba(240, 240, 240, 0.8);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.menu-trigger:hover {
+    color: #00a0c6;
+    background-color: rgba(0, 160, 198, 0.1);
+}
+
+.document-menu-options {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 180px;
+    display: none;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.document-menu-options.active {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.menu-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.menu-option:hover {
+    background-color: #f8f9fa;
+}
+
+.menu-option i {
+    margin-right: 12px;
+    font-size: 16px;
+}
+
+.edit-option {
+    color: #4285f4;
+}
+
+.delete-option {
+    color: #ea4335;
+}
+
+/* Modal styles - improved */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    transition: opacity 0.3s;
+}
+#google_translate_element {
+    margin: 10px 20px;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 30px;
+    border: none;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: modalIn 0.3s ease-out;
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #777;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: #ea4335;
+}
+
+.verification-input {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 20px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.verification-input:focus {
+    border-color: #00a0c6;
+    box-shadow: 0 0 0 3px rgba(0, 160, 198, 0.2);
+    outline: none;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-secondary {
+    background-color: #f1f1f1;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background-color: #e1e1e1;
+}
+
+.btn-danger {
+    background-color: #ea4335;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #d73125;
+}
+
+/* Search and upload section */
+.search-upload-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+}
+
+.search-container {
+    position: relative;
+    flex: 1;
+    max-width: 450px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 20px;
+    padding-left: 45px;
+    border: 1px solid #e0e0e0;
+    border-radius: 50px;
+    font-size: 15px;
+    color: #333;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #00a0c6;
+    box-shadow: 0 2px 15px rgba(0, 160, 198, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+}
+
+/* Auth section styling */
+.auth-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.auth-section .loading {
+    color: #777;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.auth-section .error {
+    color: #e74c3c;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.add-doc-btn {
+    background-color: #00a0c6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+    box-shadow: 0 3px 12px rgba(0, 160, 198, 0.3);
+}
+
+.add-doc-btn i {
+    margin-right: 8px;
+}
+
+.add-doc-btn:hover {
+    background-color: #0082a3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 160, 198, 0.4);
+}
+
+.login-btn {
+    background-color: #00a0c6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 3px 12px rgba(0, 160, 198, 0.3);
+}
+
+.login-btn:hover {
+    background-color: #0082a3;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 160, 198, 0.4);
+}
+
+/* QR Code styling */
+.qr-code-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    margin-left: auto;
+    background-color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.qr-code-section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.qr-code-title {
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 16px;
+    text-align: center;
+}
+
+.qr-code {
+    width: 150px;
+    height: 150px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: white;
+    padding: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Document navigation */
+.nav-btn {
+    background-color: #00a0c6;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.nav-btn:hover {
+    background-color: #0082a3;
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+    
+.doc-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .view-btn {
+            background-color: #00a0c6;
+            color: white;
+        }
+        
+        .request-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+
+/* Footer styling */
+footer {
+    background: linear-gradient(to right, #0082a3, #00a0c6);
+    color: white;
+    padding: 40px 0 30px;
+    width: calc(100% - 260px);
+    margin-top: 50px;
+    margin-left: 260px;
+    position: relative;
+}
+
+.footer-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.footer-nav a {
+    color: white;
+    text-decoration: none;
+    margin: 0 20px 15px;
+    font-size: 15px;
+    padding: 5px 0;
+    text-transform: uppercase;
+    font-weight: 600;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.footer-nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: white;
+    transition: width 0.3s;
+}
+
+.footer-nav a:hover {
+    color: #c7effb;
+}
+
+.footer-nav a:hover::after {
+    width: 100%;
+}
+
+.mission-statement {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.mission-statement p {
+    font-size: 14px;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.7;
+    opacity: 0.9;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.social-icons a {
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.social-icons a:hover {
+    color: #c7effb;
+    transform: translateY(-5px);
+}
+
+.social-icons i {
+    font-size: 24px;
+}
+
+.contact-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.copyright {
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.8;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile responsiveness - enhanced */
+@media (max-width: 768px) {
+    .hamburger-menu {
+        display: block;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+        width: 280px;
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 20px;
+        padding-top: 70px;
+    }
+    
+    .search-upload-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .search-container {
+        max-width: 100%;
+        margin-right: 0;
+    }
+    
+    .document-card {
+        min-width: 250px;
+    }
+    
+    .auth-section {
+        width: 100%;
+    }
+    
+    .add-doc-btn, .login-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .contact-info {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    footer {
+        margin-left: 0;
+        width: 100%;
+        padding: 30px 0 20px;
+    }
+    
+    .footer-container {
+        padding: 0 20px;
+    }
+    
+    .footer-nav a {
+        margin: 0 10px 10px;
+        font-size: 13px;
+    }
+    
+    .qr-code-section {
+        width: 100%;
+        margin-top: 20px;
+    }
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+      }
+      
+      .toast {
+        min-width: 250px;
+        margin-bottom: 10px;
+        padding: 15px;
+        border-radius: 4px;
+        color: white;
+        background-color: #333;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: all 0.3s ease-in;
+      }
+      
+      .toast.success {
+        background-color: #4CAF50;
+      }
+      
+      .toast.error {
+        background-color: #F44336;
+      }
+      
+      .toast.info {
+        background-color: #2196F3;
+      }
+      
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .toast-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .toast-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+}
+#readAloudBtn {
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#readAloudBtn:hover {
+    background-color: #00a5b9;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .main-content {
+        margin-left: 260px;
+        padding: 25px;
+    }
+    
+    footer {
+        margin-left: 260px;
+        width: calc(100% - 260px);
+    }
+    
+    .slider {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    .search-upload-container {
+        flex-direction: row;
+    }
+}
+
+@media (min-width: 1025px) {
+    .main-content {
+        margin-left: 260px;
+        padding: 35px 40px;
+    }
+    
+    footer {
+        margin-left: 260px;
+        width: calc(100% - 260px);
+    }
+    
+    .contact-info {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .mission-statement p {
+        font-size: 14px;
+    }
+    
+    .footer-nav a {
+        font-size: 15px;
+        padding: 0 24px;
+    }
+    
+    .slider {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+/* Animation enhancements */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.content-card {
+    animation: fadeInUp 0.5s ease-out;
+    animation-fill-mode: both;
+}
+
+.content-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.content-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+/* Empty state styling */
+.empty-message {
+    color: #777;
+    font-style: italic;
+    text-align: center;
+    padding: 40px 20px;
+    background-color: rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+
+#google_translate_element {
+    margin: 10px 20px;
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+   /* Style the Google Translate dropdown to match your UI */
+   .goog-te-gadget {
+            font-family: Arial, sans-serif !important;
+            font-size: 14px !important;
+        }
+        
+        .goog-te-gadget-simple {
+            background-color: #fff !important;
+            border: 1px solid #ddd !important;
+            padding: 5px 8px !important;
+            border-radius: 4px !important;
+            color: #555 !important;
+        }
+        
+        .goog-te-menu-value {
+            color: #555 !important;
+        }
+        
+        /* Style for the translate dropdown menu */
+        .goog-te-menu-frame {
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2) !important;
+        }
+        
+
+#readAloudBtn {
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  
+}
+
+#readAloudBtn:hover {
+    background-color: #00a5b9;
+}.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 350px;
+  }
+  
+  .toast {
+    margin-bottom: 12px;
+    padding: 16px;
+    border-radius: 8px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .toast.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  
+  .toast.success {
+    background-color: #34c759;
+    border-left: 5px solid #2aa048;
+  }
+  
+  .toast.error {
+    background-color: #ff3b30;
+    border-left: 5px solid #d9302a;
+  }
+  
+  .toast.info {
+    background-color: #007aff;
+    border-left: 5px solid #0062cc;
+  }
+  
+  .toast.warning {
+    background-color: #ff9500;
+    border-left: 5px solid #d97e00;
+  }
+  
+  .toast-icon {
+    margin-right: 12px;
+    font-size: 18px;
+  }
+  
+  .toast-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .toast-message {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  
+  .toast-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0 5px;
+    margin-left: 10px;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  
+  .toast-close:hover {
+    color: white;
+  }
+  
+  /* Toast progress bar animation */
+  .toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .toast-progress-bar {
+    height: 100%;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    transform-origin: left;
+    animation: progress-animation linear forwards;
+  }
+  
+  @keyframes progress-animation {
+    0% {
+      transform: scaleX(1);
+    }
+    100% {
+      transform: scaleX(0);
+    }
+  }   
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background image can be added here -->
+  <div class="bg-image">
+      <!-- Add your background image here -->
+      <img src="/api/placeholder/1200/800" alt="background" style="width:100%; height:100%; object-fit:cover;">
+  </div>
+  
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" id="hamburger-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+  </div>
+  
+  <!-- Overlay for mobile -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Sidebar Navigation -->
+  <div class="sidebar" id="sidebar">
+      <div class="logo">
+          <div class="logo-icon">+</div>
+          <div class="logo-text">AROGYAKOSH</div>
+      </div>
+      
+  
+      <div class="menu-item active">
+          <i class="fas fa-user"></i>
+          <span>Patient Dashboard</span>
+      </div>
+
+      
+      
+    <div class="menu-item">
+        <i class="fa-solid fa-user-doctor"></i>
+        <span>
+            <a href="{% url 'chat_page' %}" style="text-decoration: none; color: inherit;">Virtual Dotor</a>
+        </span>
+    </div>
+
+    <div class="menu-item">
+        <i class="fa-solid fa-universal-access"></i>
+        <span>
+            <a href="{% url 'access' %}" style="text-decoration: none; color: inherit;">View Request Access</a>
+        </span>
+    </div>
+   
+    <div id="google_translate_element"></div>
+    </div>
+</div>
+<button onclick="readText()">Read Aloud</button>
+</div>
+
+    <div class="menu-item">
+   <!-- Add this button where you want the read aloud control to appear -->
+<button id="readAloudBtn" title="Read page content aloud">
+    <i class="fas fa-volume-up"></i> Read Aloud
+</button>
+    </div>
+  </div>
+  
+  <!-- Main Content Area -->
+  <div class="main-content" id="main-content">
+      <div class="header">
+          <h1 class="page-title">Patient Documents</h1>
+      </div>
+      
+      <div class="content-card">
+          <h2 class="card-title">Patient Information</h2>
+          <div style="display: flex; align-items: center">
+              <div style="margin-right: 20px; margin-bottom: 10px;">
+                  <h3 style="margin: 0; font-size: 18px;"><span id="patient-name"></span></h3>
+                  <p style="margin: 5px 0; color: #777;"><span id="patient-age"></span></p>
+                  <p style="margin: 5px 0;"><span id="patient-blood-group"></span></p>
+                  <p style="margin: 5px 0;">Contact: <span id="patient-contact"></span></p>
+                  <p style="margin: 5px 0;">Emergency Contact: <span id="patient-emergency-contact"></span></p>
+                  <p style="margin: 5px 0;">Address: <span id="patient-address"></span></p>
+              </div>
+                    <!-- Add the QR code section here -->
+                    <div class="qr-code-section">
+                        <div class="qr-code-title">PATIENT QR CODE</div>
+                        <img id="patient-qr-code" class="qr-code" alt="Patient QR Code" src="">
+                    </div>
+          </div>
+      </div>
+      
+      <div class="content-card">
+        <div class="search-upload-container">
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search documents..." id="document-search">
+            </div>
+            <div id="auth-section" class="auth-section">
+                <div class="loading">Checking authorization...</div>
+            </div>
+        </div>
+        
+        <h2 class="card-title">Patient Documents</h2>
+        
+        <h3>Personal Documents</h3>
+        <div class="slider-container">
+            
+            <div class="slider" id="personal-slider">
+                <!-- Personal documents will be added here via JavaScript -->
+            </div>
+          
+        </div>
+        
+        <h3>Hospital Documents</h3>
+        <div class="slider-container">
+            
+            <div class="slider" id="hospital-slider">
+                <!-- Hospital documents will be added here via JavaScript -->
+            </div>
+          
+        </div>
+    </div>
+      
+      
+    
+  </div>
+  <!-- Add this near the end of your body tag -->
+<div id="toast-container" class="toast-container" color="green"> </div>
+  <!-- Footer -->
+  <footer>
+      <div class="footer-container">
+          <!-- Footer Navigation -->
+          <nav class="footer-nav">
+              <a href="#about">About Us</a>
+              <a href="#services">Services</a>
+              <a href="#awards">Awards</a>
+              <a href="#help">Help</a>
+              <a href="#contact">Contact</a>
+          </nav>
+         
+          <!-- Mission Statement -->
+          <div class="mission-statement">
+              <p>
+                  AROGYAKOSH provides comprehensive medical care with compassion and expertise.
+                  Our mission is to deliver high-quality healthcare tailored to individual patient needs.
+                  We believe in accessible healthcare for all and strive to innovate in providing medical services.
+              </p>
+          </div>
+         
+          <!-- Social Media Icons -->
+          <div class="social-icons">
+              <a href="#">
+                  <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="#">
+                  <i class="fab fa-twitter"></i>
+              </a>
+              <a href="#">
+                  <i class="fab fa-google"></i>
+              </a>
+              <a href="#">
+                  <i class="fab fa-instagram"></i>
+              </a>
+              <a href="#">
+                  <i class="fab fa-linkedin-in"></i>
+              </a>
+              <a href="#">
+                  <i class="fab fa-github"></i>
+              </a>
+          </div>
+         
+          <!-- Contact Information -->
+          <div class="contact-info">
+              <div>
+                  <i class="fas fa-phone-alt"></i> +919620146061
+              </div>
+              <div>
+                  <i class="fas fa-envelope"></i> arogyakoshh@gmail.com
+              </div>
+              <div>
+                  <i class="fas fa-map-marker-alt"></i> Mumbai
+              </div>
+          </div>
+         
+          <!-- Copyright Text -->
+          <div class="copyright">
+              ©️ 2025 AROGYAKOSH. All Rights Reserved.
+          </div>
+      </div>
+  </footer>
+  <script>
+// Get patient ID from URL or set a default
+const urlParams = new URLSearchParams(window.location.search);
+const patientId = {{id}};
+// Global variable to track user authorization state
+let isUserAuthorized = false;
+
+// Mobile sidebar toggle
+const hamburgerMenu = document.getElementById('hamburger-menu');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+if (hamburgerMenu && sidebar && overlay) {
+    hamburgerMenu.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+        overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+    });
+    overlay.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+        overlay.style.display = 'none';
+    });
+}
+
+// Document type selection for existing elements
+const docTypeOptions = document.querySelectorAll('.doc-type-option');
+if (docTypeOptions.length > 0) {
+    docTypeOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            docTypeOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+}
+// Scroll functions for sliders
+function scrollLeft(sliderId) {
+    const slider = document.getElementById(sliderId);
+    if (slider) {
+        slider.scrollBy({ left: -300, behavior: 'smooth' });
+    } else {
+        console.error(`Slider with ID "${sliderId}" not found`);
+    }
+}
+
+function scrollRight(sliderId) {
+    const slider = document.getElementById(sliderId);
+    if (slider) {
+        slider.scrollBy({ left: 300, behavior: 'smooth' });
+    } else {
+        console.error(`Slider with ID "${sliderId}" not found`);
+    }
+}
+
+
+
+// Improved authentication check function
+function validateAuthToken() {
+    const authToken = getCookie('authToken');
+    return authToken && authToken.length > 10; // Basic validation
+}
+
+// Enhanced createDocumentCard function with stronger authorization checks
+function createDocumentCard(doc) {
+    // Only show document menu (three dots) if user is authorized
+    const documentMenu = isUserAuthorized ? `
+        <div class="document-menu">
+            <i class="fas fa-ellipsis-v menu-trigger"></i>
+            <div class="document-menu-options">
+                <div class="menu-option edit-option" onclick="toggleVisibility('${doc.id}', ${doc.isHospital})">
+                    <i class="fas fa-edit"></i> ${doc.isPrivate ? 'Make Public' : 'Make Private'}
+                </div>
+                <div class="menu-option delete-option" onclick="confirmDelete('${doc.id}', ${doc.isHospital})">
+                    <i class="fas fa-trash"></i> Delete
+                </div>
+            </div>
+        </div>
+    ` : '';
+    return `
+        <div class="document-card" data-id="${doc.id}">
+            ${documentMenu}
+            <div class="document-icon">
+                <i class="fas ${doc.icon}"></i>
+            </div>
+            <div class="document-title">${doc.title}</div>
+            <div class="document-date">${doc.date}</div>
+            <div class="document-visibility">
+              ${doc.isPrivate ? '<i class="fas fa-lock"></i> Private' : '<i class="fas fa-unlock"></i> Public'}
+            </div>
+            <div id="${doc.isHospital ? 'hospital' : 'patient'}-access-control-${doc.id}" class="document-access-control">
+                <button class="doc-btn view-btn" onclick="${doc.isHospital ? 'viewHospitalDocument' : 'viewPatientDocument'}('${doc.id}')">
+                    View Document
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Initialize document menu functionality with tighter security
+function initializeDocumentMenus() {
+    // Only initialize menus if user is authorized - double check authorization
+    if (!isUserAuthorized || !validateAuthToken()) {
+        console.log("User not authorized. Document menus disabled.");
+        return;
+    }
+    // Add event listeners to all menu triggers
+    document.querySelectorAll('.menu-trigger').forEach(trigger => {
+        trigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            // Close all other open menus first
+            document.querySelectorAll('.document-menu-options.active').forEach(menu => {
+                if (menu !== this.nextElementSibling) {
+                    menu.classList.remove('active');
+                }
+            });
+            // Toggle the clicked menu
+            const menuOptions = this.nextElementSibling;
+            menuOptions.classList.toggle('active');
+        });
+    });
+    // Close menu when clicking outside
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.document-menu-options.active').forEach(menu => {
+            menu.classList.remove('active');
+        });
+    });
+}
+
+function toggleVisibility(documentId, documentType) {
+    // Determine the correct API endpoint based on document type
+    let apiUrl;
+    console.log("documentId="+documentId, documentType);
+    if (documentType === false) {
+        apiUrl = '/change-patient-document/';
+    } else if (documentType === true) {
+        apiUrl = '/change-hospital-document/';
+    } else {
+        console.error('Invalid document type specified.');
+        alert('Failed to toggle visibility: Invalid document type.');
+        return;
+    }
+
+    console.log(`Toggling visibility for ${documentType} document ${documentId}`);
+    const authToken = getCookie('authToken');
+    // Make the POST request to toggle visibility
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') ,
+            'Authorization': `Token ${authToken}`,// Ensure CSRF token is included for Django
+        },
+        credentials: 'same-origin', // Include cookies for authentication
+        body: JSON.stringify({ doc: documentId }) // Send the document ID in the request body
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Log the response status and retrieve the error details
+            console.error(`Response status: ${response.status}`);
+            return response.text().then(errorText => {
+                throw new Error(`Request failed with status ${response.status}: ${errorText}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Handle successful response
+        console.log(`Visibility toggled successfully for ${documentType} document ${documentId}`, data);
+        
+        // Show toast notification instead of alert
+        showToast(`Visibility toggled successfully for ${documentType} document ${documentId}`, 'success', 3000);
+    })
+    .catch(error => {
+        // Handle errors (e.g., 404, network issues)
+        console.error(`Error toggling visibility for ${documentType} document ${documentId}:`, error.message);
+
+        // Check if the error is a 404 and provide a specific message
+        if (error.message.includes('404')) {
+            alert(`Failed to toggle visibility for ${documentType} document ${documentId}. The server could not find the requested endpoint.`);
+        } else {
+            alert(`An unexpected error occurred while toggling visibility for ${documentType} document ${documentId}. Please try again later.`);
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Example usage: Attach the function to a button click event
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleButtons = document.querySelectorAll('.toggle-visibility-btn');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const documentId = button.dataset.documentId;
+            const documentType = button.dataset.documentType; // 'patient' or 'hospital'
+            onsole.log(button.dataset.documentId, button.dataset.documentType);
+            toggleVisibility(documentId, documentType);
+        });
+    });
+});
+// Enhanced function to show delete confirmation dialog
+function confirmDelete(docId, isHospital) {
+    // Enhanced security check with multiple validation
+    if (!isUserAuthorized || !validateAuthToken()) {
+        console.error("Unauthorized attempt to delete document");
+        alert("Authorization failed. Please log in again to delete documents.");
+        redirectToLogin();
+        return;
+    }
+    console.log(`Confirming deletion of document ${docId}`);
+    // Create modal dialog for verification
+    const modalHtml = `
+        <div id="delete-verification-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Confirm Document Deletion</h2>
+                <p>Please enter your verification code to delete this document:</p>
+                <input type="password" id="verification-code" class="verification-input" placeholder="Verification Code">
+                <div class="modal-buttons">
+                    <button id="cancel-delete" class="btn btn-secondary">Cancel</button>
+                    <button id="confirm-delete" class="btn btn-danger">Delete Document</button>
+                </div>
+            </div>
+        </div>
+    `;
+    // Add modal to body if it doesn't exist
+    if (!document.getElementById('delete-verification-modal')) {
+        const modalDiv = document.createElement('div');
+        modalDiv.innerHTML = modalHtml;
+        document.body.appendChild(modalDiv.firstElementChild);
+    }
+    // Get modal and buttons
+    const modal = document.getElementById('delete-verification-modal');
+    const closeBtn = modal.querySelector('.close-modal');
+    const cancelBtn = document.getElementById('cancel-delete');
+    const confirmBtn = document.getElementById('confirm-delete');
+
+    // Show modal
+    modal.style.display = 'block';
+
+    // Close modal on X click
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Close modal on Cancel click
+    cancelBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Handle Delete confirmation
+    confirmBtn.onclick = function() {
+        const verificationCode = document.getElementById('verification-code').value;
+        deleteDocument(docId, verificationCode, isHospital);
+        modal.style.display = 'none';
+    };
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+// Enhanced document delete function with better security
+function deleteDocument(docId, verificationCode, isHospital) {
+    // Enhanced security check - only allow authorized users with multiple validation
+    if (!isUserAuthorized || !validateAuthToken()) {
+        console.error("Unauthorized attempt to delete document");
+        alert("Authorization failed. Please log in again to delete documents.");
+        redirectToLogin();
+        return;
+    }
+    if (!verificationCode || verificationCode.trim() === '') {
+        alert("Verification code is required.");
+        return;
+    }
+    console.log(`Attempting to delete document ${docId} with verification`);
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+
+    // Determine the API endpoint based on whether it's a hospital or patient document
+    const apiEndpoint = isHospital
+        ? '/delete-hospital-document/'
+        : '/delete-patient-document/';
+
+    fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Token ${authToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            doc: docId,
+            verification_code: verificationCode
+        })
+    })
+    .then(response => {
+        if (response.status === 401 || response.status === 403) {
+            if (response.status === 403 && verificationCode) {
+                // Invalid verification code
+                alert('Invalid verification code. Document not deleted.');
+            } else {
+                // Auth failed
+                isUserAuthorized = false;
+                alert("Your session has expired. Please log in again.");
+                redirectToLogin();
+            }
+            return;
+        }
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to delete document');
+        }
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            // Success
+            alert('Document deleted successfully');
+            // Remove the document card from UI
+            const documentCard = document.querySelector(`.document-card[data-id="${docId}"]`);
+            if (documentCard) {
+                documentCard.remove();
+            }
+            // Refresh document lists
+            fetchPatientDocuments();
+        } else {
+            // Other errors
+            alert('Failed to delete document');
+        }
+    })
+    .catch(error => {
+        console.error(`Error deleting document ${docId}:`, error);
+        alert('Error deleting document');
+    });
+}
+
+// Modified fetchPatientDocuments function
+function fetchPatientDocuments() {
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    fetch(`/patient-documents/${patientId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': authToken ? `Token ${authToken}` : ''
+        }
+    })
+    .then(response => {
+        if (response.status === 401 || response.status === 403) {
+            isUserAuthorized = false;
+            checkPatientAuth(); // Update UI to reflect unauthorized status
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!data) return; // Handle case where we didn't get data due to auth failure
+        const personalSlider = document.getElementById("personal-slider");
+        const hospitalSlider = document.getElementById("hospital-slider");
+        // Clear existing content
+        personalSlider.innerHTML = '';
+        hospitalSlider.innerHTML = '';
+        if (data.patient && data.patient.length > 0) {
+            data.patient.forEach(doc => {
+                // Format the document data
+                const formattedDoc = {
+                    id: doc.id,
+                    title: doc.name || 'Unnamed Document',
+                    date: new Date(doc.added).toLocaleDateString(),
+                    icon: getDocumentIcon(doc.type || 'unknown'),
+                    isPrivate: doc.isPrivate || false,
+                    isHospital: false // Mark as patient document
+                };
+                // Add the document card to the slider
+                personalSlider.innerHTML += createDocumentCard(formattedDoc);
+            });
+        } else {
+            personalSlider.innerHTML = "<p class='empty-message'>No personal documents found.</p>";
+        }
+        if (data.hospital && data.hospital.length > 0) {
+            data.hospital.forEach(doc => {
+                // Format the document data
+                const formattedDoc = {
+                    id: doc.id,
+                    title: doc.name || 'Unnamed Document',
+                    date: new Date(doc.added).toLocaleDateString(),
+                    icon: getDocumentIcon(doc.type || 'unknown'),
+                    isPrivate: doc.isPrivate || false,
+                    isHospital: true // Mark as hospital document
+                };
+                // Add the document card to the slider
+                hospitalSlider.innerHTML += createDocumentCard(formattedDoc);
+            });
+        } else {
+            hospitalSlider.innerHTML = "<p class='empty-message'>No hospital documents found.</p>";
+        }
+        // Update access buttons for all documents
+        updateAllAccessButtons();
+        // Initialize document menus after creating the cards
+        initializeDocumentMenus();
+        console.log("Document data received:", data);
+    })
+    .catch(error => {
+        console.error("Error fetching documents:", error);
+        // Use sample data if fetch fails (for development purposes only)
+        const personalSlider = document.getElementById('personal-slider');
+        const hospitalSlider = document.getElementById('hospital-slider');
+        if (personalSlider && typeof samplePersonalDocs !== 'undefined') {
+            personalSlider.innerHTML = '';
+            samplePersonalDocs.forEach(doc => {
+                // Add isHospital flag to sample data
+                doc.isHospital = false;
+                personalSlider.innerHTML += createDocumentCard(doc);
+            });
+        }
+        if (hospitalSlider && typeof sampleHospitalDocs !== 'undefined') {
+            hospitalSlider.innerHTML = '';
+            sampleHospitalDocs.forEach(doc => {
+                // Add isHospital flag to sample data
+                doc.isHospital = true;
+                hospitalSlider.innerHTML += createDocumentCard(doc);
+            });
+        }
+        // Update access buttons
+        updateAllAccessButtons();
+        // Initialize document menus after creating the cards
+        initializeDocumentMenus();
+    });
+}
+
+// New function to update all access buttons
+function updateAllAccessButtons() {
+    // Get all document cards
+    const documentCards = document.querySelectorAll('.document-card');
+    documentCards.forEach(card => {
+        const docId = card.getAttribute('data-id');
+        const isHospital = card.querySelector('[id^="hospital-access-control"]') !== null;
+        if (isHospital) {
+            checkHospitalDocumentAccess(docId);
+        } else {
+            checkPatientDocumentAccess(docId);
+        }
+    });
+}
+
+// Helper function to determine document icon based on type
+function getDocumentIcon(docType) {
+    const iconMap = {
+        'pdf': 'fa-file-pdf',
+        'image': 'fa-file-image',
+        'doc': 'fa-file-word',
+        'xls': 'fa-file-excel',
+        'lab': 'fa-flask',
+        'prescription': 'fa-prescription',
+        'report': 'fa-file-medical',
+        'insurance': 'fa-file-invoice-dollar',
+        'consent': 'fa-signature',
+        'history': 'fa-notes-medical'
+    };
+    return iconMap[docType.toLowerCase()] || 'fa-file-medical-alt';
+}
+
+// Enhanced window.onload function
+window.onload = function() {
+    console.log("Dashboard initializing...");
+    // Check if we have a valid patient ID
+    if (!patientId) {
+        console.error("No patient ID provided");
+        alert("Error: No patient ID provided");
+        return;
+    }
+    // Check patient auth first - this determines what UI elements are shown
+    checkPatientAuth();
+    // Fetch patient details
+    fetchPatientDetails();
+    // Fetch patient documents
+    fetchPatientDocuments();
+    // Generate patient QR code
+    generatePatientQRCode();
+    // Initialize document type options if they exist
+    const docTypeOptions = document.querySelectorAll('.doc-type-option');
+    if (docTypeOptions.length > 0) {
+        docTypeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                docTypeOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    }
+    // Check authentication status every 5 minutes to maintain session security
+    setInterval(checkPatientAuth, 300000); // 5 minutes
+    console.log("Dashboard initialization complete");
+};
+
+// Generate QR code for patient
+function generatePatientQRCode() {
+    const patientQRImage = document.getElementById("patient-qr-code");
+    if (patientQRImage) {
+        // Generate QR code URL using the patient ID
+        // This uses a placeholder API for demonstration - replace with your actual QR code service
+        patientQRImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=patient:${patientId}`;
+    }
+}
+
+// Enhanced Authorization Check
+function checkPatientAuth() {
+    const authSection = document.getElementById("auth-section");
+    if (!authSection) {
+        console.error("Auth section element not found");
+        return;
+    }
+    authSection.innerHTML = '<div class="loading">Checking authorization...</div>';
+    // For debugging - log the URL being called
+    console.log(`Checking auth for patient ID: ${patientId}`);
+    // Add a timeout to simulate a response in case the API is not responding
+    const authTimeout = setTimeout(() => {
+        console.log("Auth check timed out - showing fallback UI");
+        isUserAuthorized = false; // Set global auth state to false
+        authSection.innerHTML = `
+            <div class="error">Authentication timed out. Please log in again.</div>
+            <button class="login-btn" onclick="redirectToLogin()">
+                Login
+            </button>
+        `;
+        // Update document access buttons to match authorization status
+        updateAllAccessButtons();
+    }, 3000); // 3 second timeout
+
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    // Basic client-side validation first
+    if (!authToken || authToken.length < 10) {
+        clearTimeout(authTimeout);
+        isUserAuthorized = false;
+        authSection.innerHTML = `
+            <div class="error">You need to log in to access this patient's dashboard</div>
+            <button class="login-btn" onclick="redirectToLogin()">
+                Login
+            </button>
+        `;
+        // Update document access buttons
+        updateAllAccessButtons();
+        return;
+    }
+
+    // Make the API call
+    fetch(`/check-patient/${patientId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${authToken}`
+        }
+    })
+    .then(response => {
+        clearTimeout(authTimeout); // Clear the timeout
+        console.log("Auth check response status:", response.status);
+        if (response.status === 200) {
+            isUserAuthorized = true; // Set global auth state to true
+            authSection.innerHTML = `
+                <button class="add-doc-btn" onclick="addDocument()">
+                    <i class="fas fa-plus"></i> Add Document
+                </button>
+            `;
+            // Refresh document list to show edit controls
+            fetchPatientDocuments();
+        } else if (response.status === 403 || response.status === 401) {
+            isUserAuthorized = false; // Set global auth state to false
+            authSection.innerHTML = `
+                <div class="error"></div>
+            `;
+            // Update document access buttons
+            updateAllAccessButtons();
+        } else {
+            // For any other status, set unauthorized
+            isUserAuthorized = false;
+            authSection.innerHTML = `
+                <div class="error">Access denied. Please contact support if you believe this is an error.</div>
+                <button class="login-btn" onclick="redirectToLogin()">
+                    Login
+                </button>
+            `;
+            // Update document access buttons
+            updateAllAccessButtons();
+        }
+    })
+    .catch(error => {
+        clearTimeout(authTimeout); // Clear the timeout
+        console.error("Error checking patient authorization:", error);
+        // On error, set unauthorized
+        isUserAuthorized = false;
+        authSection.innerHTML = `
+            <div class="error">Connection error. Please try again.</div>
+            <button class="login-btn" onclick="redirectToLogin()">
+                Login
+            </button>
+            <button class="retry-btn" onclick="checkPatientAuth()">
+                Retry
+            </button>
+        `;
+        // Update document access buttons
+        updateAllAccessButtons();
+    });
+}
+
+function redirectToLogin() {
+    // Store current location for redirect back after login
+    localStorage.setItem('redirectAfterLogin', window.location.href);
+    window.location.href = "/route/login/";
+}
+
+function addDocument() {
+    // Security check - only allow authorized users with multiple validation
+    if (!isUserAuthorized || !validateAuthToken()) {
+        console.error("Unauthorized attempt to add document");
+        alert("Authorization failed. Please log in again to add documents.");
+        redirectToLogin();
+        return;
+    }
+    window.location.href = `/route/patient-upload/?patient=${patientId}`;
+}
+
+// Improved fetch patient details with authorization handling
+function fetchPatientDetails() {
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    fetch(`/patient-dashboard/${patientId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': authToken ? `Token ${authToken}` : ''
+        }
+    })
+    .then(response => {
+        if (response.status === 401 || response.status === 403) {
+            isUserAuthorized = false;
+            checkPatientAuth(); // Update UI to reflect unauthorized status
+            return;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!data) return; // Handle case where we didn't get data due to auth failure
+        if (data.patient) {
+            document.getElementById("patient-name").innerText = data.patient?.name || '';
+            document.getElementById("patient-age").innerText = data.patient?.age || '';
+            document.getElementById("patient-blood-group").innerText = data.patient?.bloodGroup || '';
+            document.getElementById("patient-address").innerText = data.patient?.address || '';
+            document.getElementById("patient-contact").innerText = data.patient?.contact || '';
+            document.getElementById("patient-emergency-contact").innerText = data.patient?.emergencyContact || '';
+            // Generate QR code if not already done
+            generatePatientQRCode();
+        }
+    })
+    .catch(error => console.error("Error fetching patient details:", error));
+}
+
+// Enhanced check patient document access permissions
+function checkPatientDocumentAccess(docId) {
+    console.log(`Checking access for patient document ID: ${docId}`);
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    const accessControlDiv = document.getElementById(`patient-access-control-${docId}`);
+    if (!accessControlDiv) {
+        console.error(`Access control div not found for patient document ${docId}`);
+        return;
+    }
+    // Show loading state
+    accessControlDiv.innerHTML = `<div class="loading">Checking access...</div>`;
+    fetch(`/patient-document-access/${docId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': authToken ? `Token ${authToken}` : ''
+        }
+    })
+    .then(response => {
+        if (response.status === 200) {
+            // Access granted - show view button
+            accessControlDiv.innerHTML = `
+                <button class="doc-btn view-btn" onclick="viewPatientDocument('${docId}')">
+                    View Document
+                </button>
+            `;
+        } else if (response.status === 401 || response.status === 403) {
+            // Not authorized but can request - show request button
+            accessControlDiv.innerHTML = `
+                <button class="doc-btn request-btn" onclick="requestPatientAccess('${docId}')">
+                    Request Access
+                </button>
+            `;
+        } else {
+            // Other error
+            accessControlDiv.innerHTML = '<div class="error">Unable to check access</div>';
+        }
+    })
+    .catch(error => {
+        console.error(`Error checking patient document access for ID ${docId}:`, error);
+        accessControlDiv.innerHTML = `
+            <button class="doc-btn error-btn" onclick="checkPatientDocumentAccess('${docId}')">
+                Retry Access Check
+            </button>
+        `;
+    });
+}
+
+// Enhanced check hospital document access permissions 
+function checkHospitalDocumentAccess(docId) {
+    console.log(`Checking access for hospital document ID: ${docId}`);
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    const accessControlDiv = document.getElementById(`hospital-access-control-${docId}`);
+    if (!accessControlDiv) {
+        console.error(`Access control div not found for hospital document ${docId}`);
+        return;
+    }
+    // Show loading state
+    accessControlDiv.innerHTML = `<div class="loading">Checking access...</div>`;
+    fetch(`/hospital-document-check/${docId}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': authToken ? `Token ${authToken}` : ''
+        }
+    })
+    .then(response => {
+        if (response.status === 200) {
+            // Access granted - show view button
+            accessControlDiv.innerHTML = `
+                <button class="doc-btn view-btn" onclick="viewHospitalDocument('${docId}')">
+                    View Document
+                </button>
+            `;
+        } else if (response.status === 401 || response.status === 403) {
+            // Not authorized but can request - show request button
+            accessControlDiv.innerHTML = `
+                <button class="doc-btn request-btn" onclick="requestHospitalAccess('${docId}')">
+                    Request Access
+                </button>
+            `;
+        } else {
+            // Other error
+            accessControlDiv.innerHTML = '<div class="error">Unable to check access</div>';
+        }
+    })
+    .catch(error => {
+        console.error(`Error checking hospital document access for ID ${docId}:`, error);
+        accessControlDiv.innerHTML = `
+            <button class="doc-btn error-btn" onclick="checkHospitalDocumentAccess('${docId}')">
+                Retry Access Check
+            </button>
+        `;
+    });
+}
+
+// Enhanced view patient document function
+function viewPatientDocument(docId) {
+    console.log(`Viewing patient document ${docId}`);
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    console.log(authToken);
+    // Basic auth validation
+    if (!authToken || authToken.length < 10) {
+        alert("You need to be logged in to view this document");
+        redirectToLogin();
+        return;
+    }
+    // Update UI to show loading state
+    const accessControlDiv = document.getElementById(`patient-access-control-${docId}`);
+    if (accessControlDiv) {
+        accessControlDiv.innerHTML = `<div class="loading">Loading document...</div>`;
+    }
+    // Make API request using the correct path format
+    fetch(`/patients/${patientId}/documents/${docId}/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${authToken}`
+        }
+    })
+    .then(response => {
+        if (response.status === 401 || response.status === 403) {
+            // Auth failed - show request access button
+            if (accessControlDiv) {
+                accessControlDiv.innerHTML = `
+                    <button class="doc-btn request-btn" onclick="requestPatientAccess('${docId}')">
+                        Request Access
+                    </button>
+                `;
+            }
+            throw new Error("Not authorized to view this document");
+        }
+        if (!response.ok) {
+            throw new Error(`Failed to fetch document: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.url) {
+            // Reset UI if leaving the page
+            if (accessControlDiv) {
+                accessControlDiv.innerHTML = `
+                    <button class="doc-btn view-btn" onclick="viewPatientDocument('${docId}')">
+                        View Document
+                    </button>
+                `;
+            }
+            // Redirect to the IPFS URL on success
+            window.open(data.url, '_blank');
+        } else {
+            throw new Error('No URL in response');
+        }
+    })
+    .catch(error => {
+        console.error(`Error viewing patient document ${docId}:`, error);
+        // Reset UI state
+        if (accessControlDiv) {
+            accessControlDiv.innerHTML = `
+                <button class="doc-btn view-btn" onclick="viewPatientDocument('${docId}')">
+                    View Document
+                </button>
+            `;
+        }
+        if (error.message === "Not authorized to view this document") {
+            alert("You don't have permission to view this document. Please request access.");
+        } else {
+            alert('Error accessing document. Please try again.');
+        }
+    });
+}
+
+// Enhanced view hospital document function 
+function viewHospitalDocument(docId) {
+    console.log(`Viewing hospital document ${docId}`);
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    // Make API request using the correct path format for hospital documents
+    fetch(`/hospital-documents-view/${docId}/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${authToken}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Failed to fetch hospital document: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.url) {
+            // Redirect to the URL on success
+            window.location.href = data.url;
+        } else {
+            throw new Error('No URL in response');
+        }
+    })
+    .catch(error => {
+        console.error(`Error viewing hospital document ${docId}:`, error);
+        alert('Error accessing hospital document');
+    });
+}
+
+// Helper function to get cookie by name
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+}
+
+// Request patient document access function
+function requestPatientAccess(docId) {
+    console.log(`Requesting access to patient document ${docId}`);
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    fetch(`/create-patient-req/`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Token ${authToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            doc: docId
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to submit access request');
+        }
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Access request submitted successfully');
+        } else if (data.message) {
+            alert(data.message);
+        } else {
+            alert('Failed to submit access request');
+        }
+    })
+    .catch(error => {
+        console.error(`Error requesting access for patient document ${docId}:`, error);
+        alert('Error requesting access');
+    });
+}
+function showToast(message, type = 'success', duration = 3000) {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // Add icon based on type
+    let iconHtml = '';
+    switch(type) {
+      case 'success':
+        iconHtml = '✓';
+        break;
+      case 'error':
+        iconHtml = '✕';
+        break;
+      case 'info':
+        iconHtml = 'ℹ';
+        break;
+      case 'warning':
+        iconHtml = '⚠';
+        break;
+    }
+    
+    const icon = document.createElement('div');
+    icon.className = 'toast-icon';
+    icon.innerHTML = iconHtml;
+    
+    // Create content container
+    const toastContent = document.createElement('div');
+    toastContent.className = 'toast-content';
+    
+    // Add message
+    const messageSpan = document.createElement('span');
+    messageSpan.className = 'toast-message';
+    messageSpan.textContent = message;
+    
+    // Add close button
+    const closeButton = document.createElement('button');
+    closeButton.className = 'toast-close';
+    closeButton.innerHTML = '&times;';
+    closeButton.addEventListener('click', () => {
+      removeToast(toast);
+    });
+    
+    // Add progress bar
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'toast-progress';
+    
+    const progressBar = document.createElement('div');
+    progressBar.className = 'toast-progress-bar';
+    progressBar.style.animationDuration = `${duration}ms`;
+    
+    progressContainer.appendChild(progressBar);
+    
+    // Assemble toast
+    toastContent.appendChild(messageSpan);
+    toastContent.appendChild(closeButton);
+    toast.appendChild(icon);
+    toast.appendChild(toastContent);
+    toast.appendChild(progressContainer);
+    
+    // Add to container
+    const container = document.getElementById('toast-container');
+    container.appendChild(toast);
+    
+    // Show toast with animation
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 10);
+    
+    // Set auto-dismiss timer
+    setTimeout(() => {
+      removeToast(toast);
+    }, duration);
+    
+    return toast;
+  }
+  
+  function removeToast(toast) {
+    toast.classList.remove('show');
+    
+    // Remove from DOM after animation completes
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 400);
+  }
+
+// Request hospital document access function
+function requestHospitalAccess(docId) {
+    console.log(`Requesting access to hospital document ${docId}`);
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    fetch(`/create-hospital-req/`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Token ${authToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            doc: docId
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error('Failed to submit hospital document access request');
+        }
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Hospital document access request submitted successfully');
+        } else if (data.message) {
+            alert(data.message);
+        } else {
+            alert('Failed to submit hospital document access request');
+        }
+    })
+    .catch(error => {
+        console.error(`Error requesting access for hospital document ${docId}:`, error);
+        alert('Error requesting hospital document access');
+    });
+}
+
+// Dom Content Loaded event listener
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM Content Loaded - Calling checkPatientAuth");
+    setTimeout(checkPatientAuth, 500); // Short delay to ensure DOM is ready
+});
+
+// Google Translate API Script
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+        {
+            pageLanguage: 'en',
+            includedLanguages: 'en,hi,fr,es,de,zh,bn,ta,te,mr,gu',
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        },
+        'google_translate_element'
+    );
+}
+
+// Function to maintain language preference across pages
+function saveLangPreference() {
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(function() {
+            if (document.querySelector('.goog-te-combo')) {
+                document.querySelector('.goog-te-combo').addEventListener('change', function() {
+                    const lang = this.value;
+                    localStorage.setItem('preferredLanguage', lang);
+                });
+            }
+        }, 1000);
+        const savedLang = localStorage.getItem('preferredLanguage');
+        if (savedLang) {
+            setTimeout(function() {
+                if (document.querySelector('.goog-te-combo')) {
+                    document.querySelector('.goog-te-combo').value = savedLang;
+                    document.querySelector('.goog-te-combo').dispatchEvent(new Event('change'));
+                }
+            }, 1000);
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', saveLangPreference);
+
+// Text-to-speech functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const readAloudBtn = document.getElementById('readAloudBtn');
+    let speech = null;
+    let speaking = false;
+
+    readAloudBtn.addEventListener('click', function() {
+        if (speaking) {
+            stopSpeaking();
+        } else {
+            startSpeaking();
+        }
+    });
+
+    function startSpeaking() {
+        const contentToRead = document.querySelector('.main-content').textContent;
+        speech = new SpeechSynthesisUtterance();
+        speech.text = contentToRead;
+        speech.volume = 1;
+        speech.rate = 1;
+        speech.pitch = 1;
+        const currentLang = document.querySelector('.goog-te-combo')?.value || 'en-US';
+        speech.lang = currentLang;
+        window.speechSynthesis.speak(speech);
+        speaking = true;
+        readAloudBtn.innerHTML = '<i class="fas fa-pause"></i> Pause Reading';
+        speech.onend = function() {
+            speaking = false;
+            readAloudBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read Aloud';
+        };
+    }
+
+    function stopSpeaking() {
+        window.speechSynthesis.cancel();
+        speaking = false;
+        readAloudBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read Aloud';
+    }
+});
+</script>
+<script type="text/javascript" 
+src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit">
+    </script>
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'hi,mr,kn,ta,en', 
+            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+    }
+   function readText() {
+    let text = document.getElementById('content').innerText;
+    let speech = new SpeechSynthesisUtterance();
+    speech.lang = document.getElementById("languageSelect").value;
+    speech.text = text;
+    speech.rate = 1;
+    speech.volume = 1;
+    window.speechSynthesis.speak(speech);
+        }
+    </script>
+  </body>
+  </html>

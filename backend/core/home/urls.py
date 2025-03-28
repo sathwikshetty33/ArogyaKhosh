@@ -1,0 +1,38 @@
+from django.urls import path
+from . import views
+from .views import *
+from authorization.views import *
+urlpatterns = [
+    path('',views.loginView,name='login-red'),
+    # path('own/',ContractOwnerView.as_view(),name='own'),
+    path('hospital-login/',HospitalLogin.as_view(),name='hoslog'),
+    path('patient-login/',PatientLogin.as_view(),name='patlog'),
+    path('doctor-login/',DoctorLogin.as_view(),name='doclog'),
+    path('hospital-dashboard/<int:id>',HospitalDashboard.as_view(),name='doc-dash'),
+    path('patient-dashboard/<int:id>',PatientDashboard.as_view(),name='doc-dash'),
+    path('doctor-dashboard/<int:id>',DoctorDashboard.as_view(),name='doc-dash'),
+    path('doctors/<int:id>', GetDoctors.as_view(), name='doctor-list'),
+    path('patient-documents/<int:id>/',PatientDoc.as_view(),name='patient-documents'),
+    path('patient-document-access/<int:id>/',getPatientDocStatus.as_view(),name='patient-doc-status'),
+    path('check-patient/<int:id>',checkPatient.as_view(),name='check-patient'),
+    path('check-hospital/<int:id>',checkHospital.as_view(),name='check-hospital'),
+    path('check-hospital-role/', HospitalRoleCheckAPIView.as_view(), name='check-hospital-role'),
+    path('hospital-ledger/', HospitalLedgerAPIView.as_view(), name='hospital-ledger'),
+    path('hospital-patients/', hospitalPatients.as_view(), name='hospital-patients'),
+    path('hospital-documents/<int:id>/',hospitalDocumetsView.as_view(), name='hospital-document'),
+    path("upload/", UploadToIPFS.as_view(), name="upload_to_ipfs"),
+    path('patients/<int:patient_id>/documents/<str:doc_id>/', PatientDocumentView.as_view(), name='patient-document'),
+    path('hospital-document-check/<int:id>',getHospitalDocStatus.as_view(),name='hospital-document-check'),
+    path('change-patient-document/',changepatientDocumentView.as_view(),name='change-patient-document'),
+    path('change-hospital-document/', changeHospitalDocumentView.as_view(),name='change-hospital-document'),
+    path('create-patient-req/',createPatientAccessreq.as_view(),name="createHospitalPatientteHospitalAccessreq"),
+    path('create-hospital-req/',createHospitalAccessreq.as_view(),name="createHospitalDocumentAccess"),
+    path('change-patient-access/',changePatientDocumentAccess.as_view(),name="changePatientDocumentAccess"),
+    path('change-hospital-acces/',changeHospitalDocumentAccess.as_view(),name="changeHospitalDocumentAccess"),
+    path('decline-patient-req/',declinePatientDocumentReq.as_view(),name="declinePatientDocumentReq"),
+    path('decline-hospital-request/',declineHospitalDocumentReq.as_view(),name="declineHospitalDocumentReq"),
+    path('patient-req-list/',PatientDocumentRequestList.as_view(),name="PatientDocumentRequestList"),
+    path('hospital-request-list',HospitalDocumentRequestList.as_view(),name="HospitalDocumentRequestList"),
+    path('delete-patient-document/',deletePatientDocument.as_view(),name="deletePatientDocument"),
+    path('delete-hospital-document/',deleteHospitalDocument.as_view(),name="deleteHospitalDocument"),
+    ]

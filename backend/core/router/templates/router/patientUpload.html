@@ -1,0 +1,493 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload to IPFS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8fff4;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 128, 0, 0.2);
+            max-width: 400px;
+            margin: auto;
+        }
+        h2 {
+            color: #008000;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #008000;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #008000;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #006400;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Upload Document to IPFS</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="text" id="name" name="name" placeholder="Enter File Name" required>
+            <input type="file" id="file" name="file" required>
+            <button type="submit">Upload</button>
+        </form>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookies = document.cookie.split('; ');
+            for (let cookie of cookies) {
+                let [key, value] = cookie.split('=');
+                if (key === name) return value;
+            }
+            return null;
+        }
+
+        document.getElementById("uploadForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+            let token = getCookie("authToken");
+            
+            if (!token) {
+                document.getElementById("message").textContent = "Authentication token not found.";
+                return;
+            }
+            
+            let response = await fetch("http://127.0.0.1:8000/upload/", {
+                method: "POST",
+                headers: { "Authorization": "Token " + token },
+                body: formData
+            });
+            
+            let result = await response.json();
+            document.getElementById("message").textContent = result.message || result.error;
+        });
+    </script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Document</title>
+    <style>
+        :root {
+            --primary-green: #2e8b57;
+            --light-green: #98fb98;
+            --dark-green: #006400;
+            --primary-blue: #4682b4;
+            --light-blue: #b0e0e6;
+            --dark-blue: #104e8b;
+            --gradient-bg: linear-gradient(120deg, #e0f7fa, #e8f5e9);
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gradient-bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(46, 139, 87, 0.15), 
+                        0 5px 15px rgba(70, 130, 180, 0.1);
+            width: 100%;
+            max-width: 450px;
+            transition: transform 0.3s ease;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        
+        h2 {
+            color: var(--primary-green);
+            margin-bottom: 25px;
+            font-size: 28px;
+            text-align: center;
+            position: relative;
+            padding-bottom: 12px;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue));
+            border-radius: 3px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            color: var(--dark-blue);
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        input[type="text"]:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(70, 130, 180, 0.2);
+        }
+        
+        .file-upload {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            border: 2px dashed var(--light-blue);
+            border-radius: 10px;
+            background-color: rgba(176, 224, 230, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary-blue);
+            background-color: rgba(176, 224, 230, 0.2);
+        }
+        
+        .file-upload input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-icon {
+            color: var(--primary-blue);
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .file-label {
+            color: #555;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .selected-file {
+            color: var(--primary-green);
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: 600;
+            display: none;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 100, 0, 0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 100, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .success-message {
+            background-color: rgba(152, 251, 152, 0.3);
+            color: var(--dark-green);
+            border-left: 4px solid var(--primary-green);
+        }
+        
+        .error-message {
+            background-color: rgba(255, 182, 193, 0.3);
+            color: #d32f2f;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .loader {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(70, 130, 180, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary-blue);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .upload-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .upload-title i {
+            color: var(--primary-green);
+        }
+        
+        .wave {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%2398fb98" fill-opacity="0.2" d="M0,96L48,112C96,128,192,160,288,154.7C384,149,480,107,576,90.7C672,75,768,85,864,112C960,139,1056,181,1152,181.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            z-index: -1;
+        }
+
+        #google_translate_element {
+        position: fixed;
+        top: 10px;
+        right: 80px;
+        z-index: 1000;
+    }
+    
+    .goog-te-gadget {
+        font-family: Arial, sans-serif !important;
+        font-size: 14px !important;
+    }
+    
+    .goog-te-gadget-simple {
+        background-color: #fff !important;
+        border: 1px solid #ddd !important;
+        padding: 5px 8px !important;
+        border-radius: 4px !important;
+        color: #555 !important;
+    }
+    
+    .goog-te-menu-value {
+        color: #555 !important;
+    }
+    
+    .goog-te-menu-frame {
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2) !important;
+    }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+</head>
+<body>
+    <div class="wave"></div>
+    <div class="container">
+        <div class="upload-title">
+            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+            <h2>Upload Document</h2>
+        </div>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="input-group">
+                <label for="name">File Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter a name for your file" required>
+            </div>
+            
+            <div class="file-upload" id="dropArea">
+                <i class="fas fa-file-upload file-icon"></i>
+                <div class="file-label">Drag & drop your file here or click to browse</div>
+                <div class="selected-file" id="fileNameDisplay"></div>
+                <input type="file" id="file" name="file" required>
+            </div>
+            
+            <div class="loader" id="uploadLoader"></div>
+            <button type="submit"><i class="fas fa-upload"></i> Upload to AROGYAKOSH</button>
+        </form>
+        
+        <p id="message"></p>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookies = document.cookie.split('; ');
+            for (let cookie of cookies) {
+                let [key, value] = cookie.split('=');
+                if (key === name) return value;
+            }
+            return null;
+        }
+        
+        // File input enhancement
+        const fileInput = document.getElementById('file');
+        const fileLabel = document.querySelector('.file-label');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const dropArea = document.getElementById('dropArea');
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileNameDisplay.textContent = `Selected: ${this.files[0].name}`;
+                fileNameDisplay.style.display = 'block';
+            } else {
+                fileNameDisplay.style.display = 'none';
+            }
+        });
+        
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.style.borderColor = 'var(--primary-green)';
+            dropArea.style.backgroundColor = 'rgba(152, 251, 152, 0.2)';
+        }
+        
+        function unhighlight() {
+            dropArea.style.borderColor = 'var(--light-blue)';
+            dropArea.style.backgroundColor = 'rgba(176, 224, 230, 0.1)';
+        }
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            
+            if (files.length > 0) {
+                fileNameDisplay.textContent = `Selected: ${files[0].name}`;
+                fileNameDisplay.style.display = 'block';
+            }
+        }
+        
+        // Form submission
+        document.getElementById("uploadForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            const message = document.getElementById("message");
+            const loader = document.getElementById("uploadLoader");
+            
+            // Clear previous messages
+            message.textContent = "";
+            message.className = "";
+            
+            // Show loader
+            loader.style.display = "block";
+            
+            let formData = new FormData(this);
+            let token = getCookie("authToken");
+            
+            if (!token) {
+                loader.style.display = "none";
+                message.textContent = "Authentication token not found.";
+                message.className = "error-message";
+                return;
+            }
+            
+            try {
+                let response = await fetch("http://127.0.0.1:8000/upload/", {
+                    method: "POST",
+                    headers: { "Authorization": "Token " + token },
+                    body: formData
+                });
+                
+                let result = await response.json();
+                
+                // Hide loader
+                loader.style.display = "none";
+                
+                if (response.ok) {
+                    message.textContent = result.message || "File uploaded successfully!";
+                    message.className = "success-message";
+                    // Reset form on success
+                    document.getElementById("uploadForm").reset();
+                    fileNameDisplay.style.display = 'none';
+                } else {
+                    message.textContent = result.error || "An error occurred during upload.";
+                    message.className = "error-message";
+                }
+            } catch (error) {
+                loader.style.display = "none";
+                message.textContent = "Network error: " + error.message;
+                message.className = "error-message";
+            }
+        });
+    </script>
+</body>
+</html>

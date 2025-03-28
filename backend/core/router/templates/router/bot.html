@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Doctor Chat</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.79/build/spline-viewer.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+        
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        
+        .app-title {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: L
+            20px;
+            background-color: #ffffff;
+        }
+        
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            word-wrap: break-word;
+        }
+        
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .ai-message {
+            background-color: #e9ecef;
+            color: #2c3e50;
+            align-self: flex-start;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            margin-top: 5px;
+            text-align: right;
+        }
+        
+        .user-message .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .ai-message .message-time {
+            color: #6c757d;
+        }
+        
+        .input-group {
+            background-color: #ffffff;
+            padding: 15px;
+            border-top: 1px solid #e9ecef;
+            border-radius: 0 0 10px 10px;
+        }
+        
+        #message-input {
+            border-radius: 20px;
+            padding: 12px 20px;
+            border: 1px solid #ced4da;
+            box-shadow: none;
+        }
+        
+        #message-input:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.875rem;
+            border-radius: 15px;
+        }
+        
+        .list-group {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .list-group-item {
+            border-left: none;
+            border-right: none;
+            padding: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .list-group-item:first-child {
+            border-top: none;
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .active-chat {
+            background-color: #e9ecef;
+            border-left: 4px solid #007bff;
+        }
+        
+        .chat-preview {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 5px;
+            color: #6c757d;
+        }
+        
+        .typing-indicator {
+            display: inline-block;
+            padding: 12px 18px;
+            background-color: #e9ecef;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            margin: 0 2px;
+            background-color: #6c757d;
+            display: inline-block;
+            border-radius: 50%;
+            animation: typing 1.5s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 1s;
+        }
+        
+        @keyframes typing {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .welcome-message {
+            text-align: center;
+            color: #6c757d;
+            margin: 40px 0;
+        }
+        
+        .welcome-message i {
+            font-size: 48px;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-message h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .doctor-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Camera container styles */
+        .camera-container {
+            position: relative;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            height: 250px;
+        }
+        
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 10px;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+        }
+        
+        .camera-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .camera-status {
+            color: #fff;
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            background-color: rgba(0, 123, 255, 0.7);
+            border-radius: 12px;
+            margin-right: 10px;
+        }
+        
+        .camera-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .camera-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .camera-button.active {
+            background-color: #dc3545;
+        }
+        
+        .spline-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* For mobile devices */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+            
+            .chat-container {
+                height: calc(100vh - 450px);
+            }
+            
+            .camera-container {
+                height: 180px;
+            }
+            
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                width: 80%;
+                height: 100%;
+                z-index: 1000;
+                background-color: white;
+                transition: left 0.3s ease;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .mobile-toggle {
+                display: block !important;
+            }
+            
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.4);
+                z-index: 999;
+            }
+            
+            .overlay.active {
+                display: block;
+            }
+        }
+        
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #2c3e50;
+            font-size: 24px;
+            padding: 5px;
+        }
+        .camera-container {
+            position: relative;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spline-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+        }
+        
+        .camera-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+        }
+        
+        .camera-status {
+            color: #fff;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            background-color: #007bff;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .camera-button {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        /* Spline attribution badge */
+        .spline-badge {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .spline-badge img {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header text-center">
+            <h2 class="app-title">Virtual Doctor Dashboard</h2>
+        </div>
+        
+        <div class="row">
+            <!-- Mobile toggle button -->
+            <div class="d-block d-md-none mb-3">
+                <button class="mobile-toggle" id="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <!-- Sidebar overlay for mobile -->
+            <div class="overlay" id="sidebar-overlay"></div>
+            
+            <!-- Sidebar with chat history -->
+            <div class="col-md-3 sidebar mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Your Conversations</h5>
+                        <button id="new-chat-btn" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> New Chat
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul id="chat-list" class="list-group list-group-flush">
+                            <!-- Chat history will be loaded here -->
+                            <li class="list-group-item text-center text-muted">Loading your chats...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <!-- Main chat area -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="chat-header">
+                            <div class="doctor-avatar">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <h5 id="current-chat-title">Virtual Doctor</h5>
+                        </div>
+                        <span id="status-indicator" class="badge bg-success">Online</span>
+                    </div>
+                    <div class="camera-container">
+                        <!-- Spline 3D Avatar Container -->
+                        <div class="spline-container">
+                            <!-- Spline Viewer -->
+                           
+                            <spline-viewer url="https://prod.spline.design/cOzASNbuQZklJ8d0/scene.splinecode"></spline-viewer>
+                        </div>
+                        
+                        <div class="camera-overlay">
+                            <div class="camera-controls">
+                                <div>
+                                    <span class="camera-status">LIVE</span>
+                                </div>
+                                <div>
+                                    <button class="camera-button" id="mic-toggle">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                    <button class="camera-button" id="camera-toggle">
+                                        <i class="fas fa-video"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div id="chat-messages" class="chat-container">
+                        <!-- Welcome message shown initially -->
+                        <div class="welcome-message">
+                            <i class="fas fa-comment-medical"></i>
+                            <h4>Welcome to Virtual Doctor</h4>
+                            <p>Select a previous conversation or start a new chat to begin.</p>
+                        </div>
+                    </div>
+                    <div class="card-footer p-0">
+                        <form id="message-form">
+                            <div class="input-group">
+                                <input type="text" id="message-input" class="form-control" placeholder="Type your message here...">
+                                <button type="submit" class="btn btn-primary ms-2">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let currentChatId = null;
+        let micActive = true;
+        let cameraActive = true;
+
+        // Function to get cookie value by name
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Get CSRF token and Auth token from cookies
+        const csrfToken = getCookie('csrftoken');
+        const authToken = getCookie('authToken');
+
+        // Function to prepare headers for API requests
+        function getRequestHeaders() {
+            const headers = {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            };
+            
+            // Add Authorization header if authToken exists
+            if (authToken) {
+                headers['Authorization'] = `Token ${authToken}`;
+            }
+            
+            return headers;
+        }
+
+        // Load chat history
+        function loadChats() {
+            fetch('/bot/chats/', {
+                method: 'GET',
+                headers: getRequestHeaders()
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const chatList = document.getElementById('chat-list');
+                chatList.innerHTML = '';
+                
+                if (data.length === 0) {
+                    chatList.innerHTML = '<li class="list-group-item text-center text-muted">No conversations yet</li>';
+                    return;
+                }
+                
+                data.forEach(chat => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item chat-item';
+                    li.dataset.chatId = chat.id;
+                    li.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted"><i class="far fa-clock me-1"></i>${formatDate(chat.created_at)}</small>
+                        </div>
+                        <div class="chat-preview">${chat.preview}</div>
+                    `;
+                    li.addEventListener('click', () => {
+                        loadChat(chat.id);
+                        // Close sidebar on mobile
+                        if (window.innerWidth < 768) {
+                            toggleSidebar();
+                        }
+                    });
+                    chatList.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading chats:', error);
+                const chatList = document.getElementById('chat-list');
+                chatList.innerHTML = '<li class="list-group-item text-center text-danger">Error loading chats</li>';
+                
+                // Check if error is due to authentication
+                if (error.message.includes('401')) {
+                    chatList.innerHTML = '<li class="list-group-item text-center text-danger">Authentication error. Please log in again.</li>';
+                }
+            });
+        }
+        
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        // Load a specific chat
+        function loadChat(chatId) {
+            // Update active chat
+            currentChatId = chatId;
+            
+            document.querySelectorAll('.chat-item').forEach(item => {
+                item.classList.remove('active-chat');
+            });
+            
+            const selectedChat = document.querySelector(`.chat-item[data-chat-id="${chatId}"]`);
+            if (selectedChat) {
+                selectedChat.classList.add('active-chat');
+            }
+            
+            // Enable message input
+            document.getElementById('message-input').disabled = false;
+            document.querySelector('#message-form button').disabled = false;
+            
+            // Show loading in chat area
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = '<div class="text-center my-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-3 text-muted">Loading messages...</p></div>';
+            
+            // Load messages
+            fetch(`/bot/chats/${chatId}/messages/`, {
+                method: 'GET',
+                headers: getRequestHeaders()
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                messagesContainer.innerHTML = '';
+                
+                if (data.length === 0) {
+                    messagesContainer.innerHTML = '<div class="text-center my-5 text-muted">No messages yet. Start the conversation!</div>';
+                    return;
+                }
+                
+                data.forEach(message => {
+                    appendMessage(message);
+                });
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            })
+            .catch(error => {
+                console.error('Error loading messages:', error);
+                messagesContainer.innerHTML = '<div class="text-center my-5 text-danger">Error loading messages</div>';
+                
+                // Check if error is due to authentication
+                if (error.message.includes('401')) {
+                    messagesContainer.innerHTML = '<div class="text-center my-5 text-danger">Authentication error. Please log in again.</div>';
+                }
+            });
+        }
+        
+        // Create a new chat
+        function createNewChat() {
+            // Show loading in button
+            const newChatBtn = document.getElementById('new-chat-btn');
+            const originalBtnHtml = newChatBtn.innerHTML;
+            newChatBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Creating...';
+            newChatBtn.disabled = true;
+            
+            fetch('/bot/chats/', {
+                method: 'POST',
+                headers: getRequestHeaders()
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                loadChats();
+                loadChat(data.chat_id);
+                
+                // Restore button
+                newChatBtn.innerHTML = originalBtnHtml;
+                newChatBtn.disabled = false;
+                
+                // Close sidebar on mobile
+                if (window.innerWidth < 768) {
+                    toggleSidebar();
+                }
+            })
+            .catch(error => {
+                console.error('Error creating chat:', error);
+                
+                // Restore button
+                newChatBtn.innerHTML = originalBtnHtml;
+                newChatBtn.disabled = false;
+                
+                let errorMessage = 'Error creating new chat. Please try again.';
+                
+                // Check if error is due to authentication
+                if (error.message.includes('401')) {
+                    errorMessage = 'Authentication error. Please log in again.';
+                }
+                
+                alert(errorMessage);
+            });
+        }
+        
+        // Append a message to the chat
+        function appendMessage(message) {
+            const messagesContainer = document.getElementById('chat-messages');
+            
+            // Remove welcome message if it exists
+            const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.type}-message`;
+            
+            // Format message text with line breaks
+            const formattedMessage = message.message.replace(/\n/g, '<br>');
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">${formattedMessage}</div>
+                <div class="message-time">${formatDate(message.created_at)}</div>
+            `;
+            messagesContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Show typing indicator
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chat-messages');
+            
+            // Remove welcome message if it exists
+            const welcomeMsg = messagesContainer.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+            
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <span></span>
+                <span></span>
+                <span></span>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+        
+        // Send a message
+        function sendMessage(message) {
+            if (!currentChatId || !message.trim()) return;
+            
+            // Clear input
+            document.getElementById('message-input').value = '';
+            
+            // Disable the input and button while processing
+            document.getElementById('message-input').disabled = true;
+            document.querySelector('#message-form button').disabled = true;
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            fetch(`/bot/chats/${currentChatId}/messages/`, {
+                method: 'POST',
+                headers: getRequestHeaders(),
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                // Append user message and AI response
+                appendMessage(data.user_message);
+                appendMessage(data.ai_message);
+                
+                // Re-enable the input and button
+                document.getElementById('message-input').disabled = false;
+                document.querySelector('#message-form button').disabled = false;
+                document.getElementById('message-input').focus();
+            })
+            .catch(error => {
+                removeTypingIndicator();
+                console.error('Error sending message:', error);
+                
+                // Show error message
+                const messagesContainer = document.getElementById('chat-messages');
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger mx-3 my-2';
+                
+                // Check if error is due to authentication
+                if (error.message.includes('401')) {
+                    errorDiv.textContent = 'Authentication error. Please log in again.';
+                } else {
+                    errorDiv.textContent = 'Failed to send message. Please try again.';
+                }
+                
+                messagesContainer.appendChild(errorDiv);
+                
+                // Re-enable the input and button
+                document.getElementById('message-input').disabled = false;
+                document.querySelector('#message-form button').disabled = false;
+                document.getElementById('message-input').focus();
+                
+                // Auto-remove error after 5 seconds
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+            });
+        }
+        
+        // Toggle camera and mic
+        function toggleMic() {
+            const micBtn = document.getElementById('mic-toggle');
+            micActive = !micActive;
+            
+            if (micActive) {
+                micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                micBtn.classList.remove('active');
+            } else {
+                micBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                micBtn.classList.add('active');
+            }
+        }
+        
+        function toggleCamera() {
+            const cameraBtn = document.getElementById('camera-toggle');
+            cameraActive = !cameraActive;
+            
+            if (cameraActive) {
+                cameraBtn.innerHTML = '<i class="fas fa-video"></i>';
+                cameraBtn.classList.remove('active');
+                document.querySelector('.spline-container').style.opacity = '1';
+            } else {
+                cameraBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
+                cameraBtn.classList.add('active');
+                document.querySelector('.spline-container').style.opacity = '0.3';
+            }
+        }
+        
+        // Check auth status on page load
+        function checkAuthStatus() {
+            if (!authToken) {
+                const messagesContainer = document.getElementById('chat-messages');
+                messagesContainer.innerHTML = `
+                    <div class="welcome-message">
+                        <i class="fas fa-exclamation-circle text-warning"></i>
+                        <h4>Authentication Required</h4>
+                        <p>Please log in to access your conversations.</p>
+                    </div>
+                `;
+                
+                // Disable UI elements
+                document.getElementById('message-input').disabled = true;
+                document.querySelector('#message-form button').disabled = true;
+                document.getElementById('new-chat-btn').disabled = true;
+                
+                // Show message in chat list
+                const chatList = document.getElementById('chat-list');
+                chatList.innerHTML = '<li class="list-group-item text-center text-warning">Please log in to view chats</li>';
+                
+                return false;
+            }
+            return true;
+        }
+        
+        // Toggle sidebar for mobile view
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+        
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up camera and mic buttons
+            document.getElementById('mic-toggle').addEventListener('click', toggleMic);
+            document.getElementById('camera-toggle').addEventListener('click', toggleCamera);
+            
+            // Check authentication first
+            if (checkAuthStatus()) {
+                // Load chat history if authenticated
+                loadChats();
+            }
+            
+            // New chat button
+            document.getElementById('new-chat-btn').addEventListener('click', function() {
+                if (checkAuthStatus()) {
+                    createNewChat();
+                } else {
+                    alert('Please log in to create a new chat.');
+                }
+            });
+            
+            // Send message form
+            document.getElementById('message-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const messageInput = document.getElementById('message-input');
+                
+                if (checkAuthStatus() && messageInput.value.trim() !== '') {
+                    sendMessage(messageInput.value);
+                }
+            });
+            
+            // Mobile sidebar toggle
+            document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+            document.getElementById('sidebar-overlay').addEventListener('click', toggleSidebar);
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 768) {
+                    const sidebar = document.querySelector('.sidebar');
+                    const overlay = document.getElementById('sidebar-overlay');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            });
+            // Add event listener for Enter key in message input
+            document.getElementById('message-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (this.value.trim() !== '') {
+                        document.getElementById('message-form').dispatchEvent(new Event('submit'));
+                    }
+                }
+            });
+            
+            // Set focus to input when chat is loaded
+            document.addEventListener('chatLoaded', function() {
+                document.getElementById('message-input').focus();
+            });
+        });
+    </script>
+</body>
+</html>

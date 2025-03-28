@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Patient Registration</title>
+    <style>
+        :root {
+            --primary-blue: #1a73e8;
+            --secondary-blue: #4285f4;
+            --light-blue: #e8f0fe;
+            --dark-blue: #0d47a1;
+            --primary-green: #0f9d58;
+            --secondary-green: #34a853;
+            --light-green: #e6f4ea;
+            --dark-green: #0b7043;
+            --error-color: #d93025;
+            --success-color: #0f9d58;
+            --text-dark: #202124;
+            --text-light: #5f6368;
+            --border-color: #dadce0;
+            --box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.12);
+            --transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: #f0f4f9;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-green));
+        }
+
+        @media (hover: hover) {
+            .container:hover {
+                box-shadow: 0 10px 20px rgba(0,0,0,0.05), 0 6px 6px rgba(0,0,0,0.07);
+                transform: translateY(-2px);
+            }
+        }
+
+        h1, h2 {
+            color: var(--dark-blue);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-green));
+            border-radius: 3px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--primary-blue);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-blue);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            transform-origin: left;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #f8fafd;
+            color: var(--text-dark);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+            background-color: #fff;
+        }
+
+        .dropdown-container {
+            position: relative;
+        }
+
+        .dropdown-results {
+            position: absolute;
+            width: 100%;
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            background-color: white;
+            z-index: 1000;
+            display: none;
+            box-shadow: var(--box-shadow);
+            transition: all 0.2s ease;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        .dropdown-results.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid #f0f4f9;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-blue);
+        }
+
+        button {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button:after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(200, 200);
+                opacity: 0;
+            }
+        }
+
+        button:hover {
+            background-color: var(--dark-blue);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+
+        button:active:after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        .auth-container {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background-color: #f8fafd;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .error-message.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+       
+        #loading {
+            text-align: center;
+            margin: 50px 0;
+            position: relative;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--light-blue);
+            border-bottom-color: var(--primary-blue);
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-out {
+            animation: fadeOut 0.5s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        #become-hospital {
+            background-color: var(--primary-green);
+        }
+
+        #become-hospital:hover {
+            background-color: var(--dark-green);
+        }
+
+        #logout-btn, #form-logout-btn {
+            background-color: #f5f5f5;
+            color: var(--text-dark);
+            margin-top: 20px;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+        }
+
+        #logout-btn:hover, #form-logout-btn:hover {
+            background-color: #e8e8e8;
+            color: var(--text-dark);
+        }
+
+     
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Placeholder animation */
+        input::placeholder {
+            transition: all 0.3s ease;
+            color: var(--text-light);
+        }
+
+        input:focus::placeholder {
+            opacity: 0.5;
+            transform: translateX(10px);
+        }
+
+        /* Hover effects for input fields */
+        .form-group:hover label {
+            color: var(--primary-blue);
+        }
+
+        /* Input focus label effect */
+        .form-group.focus label {
+            color: var(--primary-blue);
+            transform: scale(1.05);
+        }
+
+        /* Float label animation */
+        .float-label {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .float-label label {
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            color: var(--text-light);
+            transition: all 0.2s ease;
+            background-color: transparent;
+            padding: 0 5px;
+            pointer-events: none;
+        }
+
+        .float-label input:focus + label,
+        .float-label input:not(:placeholder-shown) + label {
+            top: -10px;
+            left: 10px;
+            font-size: 0.8rem;
+            color: var(--primary-blue);
+            background-color: white;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--text-dark);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--text-dark) transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsive adjustments */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.7rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            input, select, button {
+                padding: 10px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+                margin: 10px auto;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .auth-container {
+                padding: 20px;
+                margin: 30px 0;
+            }
+        }
+
+        /* Form animation */
+        #patient-registration-form {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        #patient-registration-form.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Status indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            position: relative;
+        }
+
+        .status-active {
+            background-color: var(--primary-green);
+            box-shadow: 0 0 0 rgba(15, 157, 88, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(15, 157, 88, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(15, 157, 88, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(15, 157, 88, 0);
+            }
+        }
+
+        #google_translate_element {
+        position: fixed;
+        top: 10px;
+        right: 80px;
+        z-index: 1000;
+    }
+    
+    .goog-te-gadget {
+        font-family: Arial, sans-serif !important;
+        font-size: 14px !important;
+    }
+    
+    .goog-te-gadget-simple {
+        background-color: #fff !important;
+        border: 1px solid #ddd !important;
+        padding: 5px 8px !important;
+        border-radius: 4px !important;
+        color: #555 !important;
+    }
+    
+    .goog-te-menu-value {
+        color: #555 !important;
+    }
+    
+    .goog-te-menu-frame {
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2) !important;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hospital Patient Registration</h1>
+        
+        <div id="loading">
+            <span class="loader"></span>
+            <p>Checking your credentials...</p>
+        </div>
+        
+        <div id="auth-container" class="auth-container" style="display: none;">
+            <h2>Please Login to Continue</h2>
+            <p>You need to be logged in to access the hospital portal.</p>
+            <button id="login-btn" onclick="location.href='/route/'">Login to Continue</button>
+        </div>
+        
+        <div id="role-container" class="auth-container" style="display: none;">
+            <h2>Hospital Registration Required</h2>
+            <p>You need to be registered as a hospital to manage patients.</p>
+            <button id="become-hospital">Become a Hospital</button>
+            <button id="logout-btn">Logout</button>
+        </div>
+        
+        <form id="patient-registration-form" style="display: none;">
+          
+            <div class="form-group">
+                <label for="patient-search">Patient: <span class="tooltip"><span class="tooltip-text">Search by name, ID, or phone number</span></span></label>
+                <div class="dropdown-container">
+                    <input type="text" id="patient-search" placeholder="Start typing to search patients..." autocomplete="off">
+                    <input type="hidden" id="patient-id" name="patient_id" required>
+                    <div id="patient-results" class="dropdown-results"></div>
+                </div>
+                <div class="error-message" id="patient-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="doctor-search">Doctor: <span class="tooltip"><span class="tooltip-text">Search by name or specialty</span></span></label>
+                <div class="dropdown-container">
+                    <input type="text" id="doctor-search" placeholder="Start typing to search doctors..." autocomplete="off">
+                    <input type="hidden" id="doctor-id" name="doctor_id" required>
+                    <div id="doctor-results" class="dropdown-results"></div>
+                </div>
+                <div class="error-message" id="doctor-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="reason">Reason for Visit:</label>
+                <input type="text" id="reason" name="reason" required placeholder="Brief description of symptoms or purpose">
+                <div class="error-message" id="reason-error"></div>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" id="submit-btn">Register Patient</button>
+            </div>
+            
+           
+        </form>
+    </div>
+    
+    <script>
+     // Elements
+const loadingDiv = document.getElementById('loading');
+const authContainer = document.getElementById('auth-container');
+const roleContainer = document.getElementById('role-container');
+const regForm = document.getElementById('patient-registration-form');
+const hospitalInfo = document.getElementById('hospital-info');
+
+// Enhanced cookie functions
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+function setCookie(name, value, days = 7, path = '/') {
+    const expires = new Date(Date.now() + days * 86400000).toUTCString();
+    document.cookie = `${name}=${value}; expires=${expires}; path=${path}; SameSite=Strict; ${location.protocol === 'https:' ? 'Secure;' : ''}`;
+}
+
+function deleteCookie(name, path = '/') {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; SameSite=Strict`;
+}
+
+// Check authentication status
+let authToken = getCookie('authToken');
+let currentHospital = null;
+
+// Initialize page
+async function initPage() {
+    // Get a fresh cookie value on each init
+    authToken = getCookie('authToken');
+    
+    if (!authToken) {
+        showLoginPrompt();
+        return;
+    }
+    
+    try {
+        // Check if user is authenticated and has hospital role
+        const response = await fetch('/check-hospital-role/', {
+            headers: {
+                'Authorization': `Token ${authToken}`
+            }
+        });
+        
+        if (response.status === 200) {
+            // User is a hospital
+            const data = await response.json();
+            currentHospital = { name: data.hospital }; 
+            
+            // Refresh cookie expiration on successful auth
+            setCookie('authToken', authToken);
+            
+            showHospitalForm();
+        } else if (response.status === 403) {
+            // User is authenticated but not a hospital
+            showBecomeHospitalPrompt();
+        } else if (response.status === 401) {
+            // Token is invalid or expired - properly delete the cookie
+            deleteCookie('authToken');
+            showLoginPrompt();
+        } else {
+            throw new Error('Server error');
+        }
+    } catch (error) {
+        console.error('Error checking authentication:', error);
+        showError('Something went wrong. Please try again later.');
+    }
+}
+
+// Show login prompt
+function showLoginPrompt() {
+    loadingDiv.classList.add('fade-out');
+    setTimeout(() => {
+        loadingDiv.style.display = 'none';
+        authContainer.style.display = 'block';
+        authContainer.classList.add('fade-in');
+        roleContainer.style.display = 'none';
+        regForm.style.display = 'none';
+    }, 500);
+}
+
+// Show become hospital prompt
+function showBecomeHospitalPrompt() {
+    loadingDiv.classList.add('fade-out');
+    setTimeout(() => {
+        loadingDiv.style.display = 'none';
+        authContainer.style.display = 'none';
+        roleContainer.style.display = 'block';
+        roleContainer.classList.add('fade-in');
+        regForm.style.display = 'none';
+    }, 500);
+}
+
+// Show hospital form
+function showHospitalForm() {
+    loadingDiv.classList.add('fade-out');
+    setTimeout(() => {
+        loadingDiv.style.display = 'none';
+        authContainer.style.display = 'none';
+        roleContainer.style.display = 'none';
+        regForm.style.display = 'block';
+        
+        // Add animation class after a small delay
+        setTimeout(() => {
+            regForm.classList.add('visible');
+        }, 100);
+    }, 500);
+}
+
+// Show error message
+function showError(message) {
+    // Make sure loading div is visible first
+    loadingDiv.style.display = 'block';
+    loadingDiv.innerHTML = `
+        <div class="error-message visible" style="margin-top: 20px;">
+            ${message}
+        </div>
+    `;
+}
+
+// Login handler function
+async function handleLogin(email, password) {
+    try {
+        const response = await fetch('/api/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.token) {
+                // Set the auth token cookie properly
+                setCookie('authToken', data.token);
+                
+                // Reload the page to reinitialize with new token
+                window.location.reload();
+            } else {
+                throw new Error('No token received from server');
+            }
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Login failed');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Logout handler function
+function handleLogout() {
+    // Delete the auth token cookie
+    deleteCookie('authToken');
+    
+    // Redirect to login page
+    window.location.reload();
+}
+
+// Debounce function for search
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// Add a fallback if initialization takes too long
+const initTimeout = setTimeout(() => {
+    if (loadingDiv.style.display !== 'none') {
+        console.error('Initialization timeout');
+        showError('Connection timeout. Please refresh the page or try again later.');
+    }
+}, 15000); // 15 seconds timeout
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    // Clear any previous error state
+    if (loadingDiv) {
+        loadingDiv.innerHTML = '<div class="spinner"></div><p>Loading...</p>';
+    }
+    
+    // Add event listener for logout button if it exists
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+    }
+    
+    // Add event listener for login form if it exists
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const emailInput = this.querySelector('input[name="email"]');
+            const passwordInput = this.querySelector('input[name="password"]');
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const errorMsg = document.getElementById('login-error');
+            
+            if (!emailInput || !passwordInput) {
+                return;
+            }
+            
+            // Show loading state
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Logging in...';
+            }
+            
+            // Clear previous errors
+            if (errorMsg) {
+                errorMsg.textContent = '';
+                errorMsg.style.display = 'none';
+            }
+            
+            const result = await handleLogin(emailInput.value, passwordInput.value);
+            
+            if (!result.success && errorMsg) {
+                errorMsg.textContent = result.error;
+                errorMsg.style.display = 'block';
+            }
+            
+            // Reset button state
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Log In';
+            }
+        });
+    }
+    
+    // Start initialization
+    initPage().then(() => {
+        clearTimeout(initTimeout);
+    }).catch(error => {
+        clearTimeout(initTimeout);
+        console.error('Initialization error:', error);
+        showError('An error occurred while loading the page. Please refresh and try again.');
+    });
+    
+    // Input focus effects
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.closest('.form-group').classList.add('focus');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.closest('.form-group').classList.remove('focus');
+        });
+    });
+    
+    // Patient search functionality
+    const patientSearch = document.getElementById('patient-search');
+    const patientResults = document.getElementById('patient-results');
+    const patientIdField = document.getElementById('patient-id');
+
+    if (patientSearch) {
+        patientSearch.addEventListener('input', debounce(async function() {
+            const searchTerm = this.value.trim();
+            
+            if (searchTerm.length < 2) {
+                patientResults.classList.remove('visible');
+                setTimeout(() => {
+                    patientResults.style.display = 'none';
+                }, 300);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/patients/search/?query=${encodeURIComponent(searchTerm)}`, {
+                    headers: {
+                        'Authorization': `Token ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+                
+                const patients = await response.json();
+                
+                patientResults.innerHTML = '';
+                
+                if (patients.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'dropdown-item';
+                    noResults.textContent = 'No patients found';
+                    patientResults.appendChild(noResults);
+                } else {
+                    patients.forEach(patient => {
+                        const item = document.createElement('div');
+                        item.className = 'dropdown-item';
+                        item.textContent = `${patient.name} (${patient.age}, ${patient.bloodGroup})`;
+                        item.dataset.id = patient.id;
+                        item.dataset.name = patient.name;
+                        
+                        item.addEventListener('click', function() {
+                            patientSearch.value = this.dataset.name;
+                            patientIdField.value = this.dataset.id;
+                            patientResults.classList.remove('visible');
+                            setTimeout(() => {
+                                patientResults.style.display = 'none';
+                            }, 300);
+                        });
+                        
+                        patientResults.appendChild(item);
+                    });
+                }
+                
+                patientResults.style.display = 'block';
+                setTimeout(() => {
+                    patientResults.classList.add('visible');
+                }, 10);
+            } catch (error) {
+                console.error('Patient search error:', error);
+                patientResults.innerHTML = '<div class="dropdown-item">Error searching patients</div>';
+                patientResults.style.display = 'block';
+                setTimeout(() => {
+                    patientResults.classList.add('visible');
+                }, 10);
+            }
+        }, 300));
+    }
+
+    // Doctor search functionality
+    const doctorSearch = document.getElementById('doctor-search');
+    const doctorResults = document.getElementById('doctor-results');
+    const doctorIdField = document.getElementById('doctor-id');
+
+    if (doctorSearch) {
+        doctorSearch.addEventListener('input', debounce(async function() {
+            const searchTerm = this.value.trim();
+            
+            if (searchTerm.length < 2) {
+                doctorResults.classList.remove('visible');
+                setTimeout(() => {
+                    doctorResults.style.display = 'none';
+                }, 300);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/doctors/search/?query=${encodeURIComponent(searchTerm)}`, {
+                    headers: {
+                        'Authorization': `Token ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+                
+                const doctors = await response.json();
+                
+                doctorResults.innerHTML = '';
+                
+                if (doctors.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'dropdown-item';
+                    noResults.textContent = 'No doctors found';
+                    doctorResults.appendChild(noResults);
+                } else {
+                    doctors.forEach(doctor => {
+                        const item = document.createElement('div');
+                        item.className = 'dropdown-item';
+                        item.textContent = `${doctor.name} (${doctor.license})`;
+                        item.dataset.id = doctor.id;
+                        item.dataset.name = doctor.name;
+                        
+                        item.addEventListener('click', function() {
+                            doctorSearch.value = this.dataset.name;
+                            doctorIdField.value = this.dataset.id;
+                            doctorResults.classList.remove('visible');
+                            setTimeout(() => {
+                                doctorResults.style.display = 'none';
+                            }, 300);
+                        });
+                        
+                        doctorResults.appendChild(item);
+                    });
+                }
+                
+                doctorResults.style.display = 'block';
+                setTimeout(() => {
+                    doctorResults.classList.add('visible');
+                }, 10);
+            } catch (error) {
+                console.error('Doctor search error:', error);
+                doctorResults.innerHTML = '<div class="dropdown-item">Error searching doctors</div>';
+                doctorResults.style.display = 'block';
+                setTimeout(() => {
+                    doctorResults.classList.add('visible');
+                }, 10);
+            }
+        }, 300));
+    }
+
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        if (patientSearch && patientResults && !patientSearch.contains(event.target) && !patientResults.contains(event.target)) {
+            patientResults.classList.remove('visible');
+            setTimeout(() => {
+                patientResults.style.display = 'none';
+            }, 300);
+        }
+        
+        if (doctorSearch && doctorResults && !doctorSearch.contains(event.target) && !doctorResults.contains(event.target)) {
+            doctorResults.classList.remove('visible');
+            setTimeout(() => {
+                doctorResults.style.display = 'none';
+            }, 300);
+        }
+    });
+
+    // Submit button effect
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', function(e) {
+            if (!e.isTrusted) return; // Only for real clicks
+            
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const ripples = document.createElement('span');
+            ripples.style.position = 'absolute';
+            ripples.style.width = '1px';
+            ripples.style.height = '1px';
+            ripples.style.background = 'rgba(255, 255, 255, 0.7)';
+            ripples.style.transform = 'translate(-50%, -50%)';
+            ripples.style.borderRadius = '50%';
+            ripples.style.left = x + 'px';
+            ripples.style.top = y + 'px';
+            ripples.style.animation = 'ripple 0.6s linear';
+            ripples.style.opacity = '1';
+            
+            this.appendChild(ripples);
+            
+            setTimeout(() => {
+                ripples.remove();
+            }, 700);
+        });
+    }
+
+    // Form submission
+    if (regForm) {
+        regForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            // Reset error messages
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.textContent = '';
+                el.classList.remove('visible');
+            });
+            
+            // Validate form
+            let valid = true;
+            
+            if (!patientIdField.value) {
+                const patientError = document.getElementById('patient-error');
+                patientError.textContent = 'Please select a patient';
+                patientError.classList.add('visible');
+                valid = false;
+            }
+            
+            if (!doctorIdField.value) {
+                const doctorError = document.getElementById('doctor-error');
+                doctorError.textContent = 'Please select a doctor';
+                doctorError.classList.add('visible');
+                valid = false;
+            }
+            
+            if (!document.getElementById('reason').value.trim()) {
+                const reasonError = document.getElementById('reason-error');
+                reasonError.textContent = 'Please enter a reason for the visit';
+                reasonError.classList.add('visible');
+                valid = false;
+            }
+            
+            if (!valid) {
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.textContent = 'Processing...';
+            submitBtn.disabled = true;
+            
+            // Submit form
+            try {
+                const formData = {
+                    patient: patientIdField.value,
+                    doctor: doctorIdField.value,
+                    reason: document.getElementById('reason').value.trim(),
+                    isDischarged: false
+                };
+                
+                // Refresh token before submission
+                authToken = getCookie('authToken');
+                
+                const response = await fetch('/hospital-ledger/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${authToken}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.status === 201) {
+                    const result = await response.json();
+                    document.getElementById('form-message').innerHTML = `
+                        <div class="success-message">
+                            Patient registration processed! Ledger ID: ${result.id}
+                        </div>
+                    `;
+                    
+                    // Refresh token on successful submission
+                    setCookie('authToken', authToken);
+                } else if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('form-message').innerHTML = `
+                        <div class="success-message">
+                            Patient registration successful! Ledger ID: ${result.id}
+                        </div>
+                    `;
+                    
+                    // Refresh token on successful submission
+                    setCookie('authToken', authToken);
+                } else if (response.status === 401) {
+                    // Token expired during submission
+                    deleteCookie('authToken');
+                    window.location.reload();
+                    return;
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Registration failed');
+                }
+                
+                // Reset form
+                this.reset();
+                patientIdField.value = '';
+                doctorIdField.value = '';
+                submitBtn.textContent = 'Register Patient';
+                submitBtn.disabled = false;
+            } catch (error) {
+                console.error('Form submission error:', error);
+                document.getElementById('form-message').innerHTML = `
+                    <div class="error-message">
+                        ${error.message || 'An error occurred during registration. Please try again later.'}
+                    </div>
+                `;
+                submitBtn.textContent = 'Register Patient';
+                submitBtn.disabled = false;
+            }
+        });
+    }
+});
+    </script>
+
+</body>
+</html>

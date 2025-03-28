@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AROGYAKOSH - Doctor Dashboard</title>
+    <style>
+       body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f9fc;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Background styling */
+.bg-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.02;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="%2300a0c6" width="50" height="50" x="0" y="0" /><rect fill="%2300a0c6" width="50" height="50" x="50" y="50" /></svg>');
+    background-size: 30px 30px;
+}
+
+/* Sidebar styles - enhanced */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: linear-gradient(to bottom, #0082a3, #00a0c6);
+    position: fixed;
+    left: 0;
+    top: 0;
+    border-right: none;
+    padding-top: 0;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Hamburger menu styles - improved */
+.hamburger-menu {
+    display: none;
+    cursor: pointer;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    background-color: white;
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.hamburger-menu span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #00a0c6;
+    margin: 5px 0;
+    transition: 0.3s;
+    border-radius: 3px;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+    backdrop-filter: blur(3px);
+    transition: opacity 0.3s;
+}
+
+/* Logo styling */
+.logo {
+    display: flex;
+    align-items: center;
+    padding: 25px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00a0c6;
+    font-weight: bold;
+    margin-right: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo-text {
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Menu items styling */
+.menu-item {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.85);
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+    margin: 5px 0;
+}
+
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.menu-item.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-left: 3px solid white;
+    font-weight: 600;
+}
+
+.menu-item i {
+    margin-right: 15px;
+    font-size: 18px;
+}
+        
+     /* Main content area */
+.main-content {
+    margin-left: 260px;
+    padding: 30px 40px;
+    transition: margin-left 0.3s ease;
+    min-height: calc(100vh - 100px);
+}
+
+.content-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    margin-bottom: 30px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.content-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #222;
+    display: flex;
+    align-items: center;
+}
+
+.card-title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 24px;
+    background-color: #00a0c6;
+    margin-right: 12px;
+    border-radius: 4px;
+}
+
+        
+        /* Status indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-success {
+            background-color: #4caf50;
+        }
+        
+        .status-pending {
+            background-color: #ff9800;
+        }
+        
+        /* Header section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: #222;
+    position: relative;
+}
+
+.page-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -10px;
+    width: 50px;
+    height: 4px;
+    background-color: #00a0c6;
+    border-radius: 2px;
+}
+
+        
+        /* Background image option - can be added here */
+        .bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+            /* Background image can be added here */
+        }
+        
+        /* Slider styles */
+        .slider-container {
+            position: relative;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 10px 0;
+            gap: 15px;
+            width: 100%;
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+        
+        .slider::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome, Safari and Opera */
+        }
+        
+        .document-card {
+            min-width: 200px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .document-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .document-icon {
+            width: 100%;
+            height: 120px;
+            background-color: #e6f7fc;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .document-icon i {
+            font-size: 36px;
+            color: #00a0c6;
+        }
+        
+        .document-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .document-date {
+            color: #777;
+            font-size: 12px;
+        }
+        
+        .nav-btn {
+            background-color: #00a0c6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .nav-btn:hover {
+            background-color: #0090b3;
+        }
+        
+        /* Document specific styles */
+        .document {
+            min-width: 200px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-right: 15px;
+        }
+        
+        .access-control {
+            margin-top: 10px;
+        }
+        
+        .doc-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .view-btn {
+            background-color: #00a0c6;
+            color: white;
+        }
+        
+        .request-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        
+        .loading {
+            color: #777;
+            font-size: 12px;
+            font-style: italic;
+        }
+        
+        .error {
+            color: #f44336;
+            font-size: 12px;
+        }
+        
+        .empty-message {
+            color: #777;
+            font-style: italic;
+        }
+        
+        /* New search and upload styles */
+        .search-upload-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            padding-left: 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            color: #333;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #00a0c6;
+            box-shadow: 0 2px 8px rgba(0, 160, 198, 0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+        
+        .upload-btn {
+            background-color: #00a0c6;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background-color: #0090b3;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .upload-btn i {
+            margin-right: 8px;
+        }
+        
+        .upload-modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+       /* Modal styles - improved */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    transition: opacity 0.3s;
+}
+#google_translate_element {
+    margin: 10px 20px;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 30px;
+    border: none;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: modalIn 0.3s ease-out;
+}
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .close-btn {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #888;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #00a0c6;
+        }
+        
+        .file-drop-area {
+            padding: 30px;
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .file-drop-area:hover {
+            border-color: #00a0c6;
+            background-color: #f9f9f9;
+        }
+        
+        .file-drop-text {
+            color: #888;
+            margin-bottom: 10px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .submit-btn {
+            background-color: #00a0c6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+        
+        .submit-btn:hover {
+            background-color: #0090b3;
+        }
+
+        /* Keep existing CSS and add these doctor dashboard specific styles */
+
+        /* Doctor dashboard specific styles */
+        .doctor-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background-color: #f5f9fc;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00a0c6;
+            margin: 10px 0;
+        }
+
+        .stat-title {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .appointment-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .appointment-info {
+            flex: 1;
+        }
+
+        .appointment-patient {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .appointment-time {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .appointment-actions button {
+            background-color: #00a0c6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .appointment-actions button:hover {
+            background-color: #0090b3;
+        }
+
+        .error {
+            background-color: #ffe6e6;
+            color: #d32f2f;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .loading {
+            color: #777;
+            padding: 15px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .tab-button.active {
+            color: #00a0c6;
+            border-bottom: 2px solid #00a0c6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Status indicators */
+        .status-confirmed {
+            background-color: #4caf50;
+        }
+
+        .status-pending {
+            background-color: #ff9800;
+        }
+
+        .status-cancelled {
+            background-color: #f44336;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #0090b3;
+            color: white;
+            padding: 24px 0;
+            width: 100%;
+            margin-top: 32px;
+            margin-left: 0;
+        }
+        
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        
+        .footer-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        
+        .footer-nav a {
+            color: white;
+            text-decoration: none;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            padding: 0 8px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        
+        .footer-nav a:hover {
+            color: #c7effb;
+        }
+        
+        .mission-statement {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        
+        .mission-statement p {
+            font-size: 0.75rem;
+            max-width: 36rem;
+            margin: 0 auto;
+            padding: 0 8px;
+            line-height: 1.5;
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .social-icons a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s, transform 0.3s;
+        }
+        
+        .social-icons a:hover {
+            color: #c7effb;
+            transform: scale(1.1);
+        }
+        
+        .social-icons i {
+            font-size: 1.25rem;
+        }
+        
+        .contact-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            text-align: center;
+            font-size: 0.75rem;
+            margin-bottom: 16px;
+        }
+        
+        .copyright {
+            text-align: center;
+            font-size: 0.75rem;
+            opacity: 0.75;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                display: block;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+                padding-top: 60px;
+            }
+            
+            .search-upload-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-container {
+                max-width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .slider-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .nav-btn {
+                margin: 5px 0;
+                align-self: center;
+            }
+            
+            .upload-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+            
+            footer {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .main-content {
+                margin-left: 240px;
+            }
+            
+            footer {
+                margin-left: 240px;
+                width: calc(100% - 240px);
+            }
+        }
+        
+        @media (min-width: 1025px) {
+            .main-content {
+                margin-left: 240px;
+            }
+            
+            footer {
+                margin-left: 240px;
+                width: calc(100% - 240px);
+            }
+            
+            .contact-info {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .mission-statement p {
+                font-size: 0.875rem;
+            }
+            
+            .footer-nav a {
+                font-size: 1rem;
+                padding: 0 24px;
+            }
+        }
+
+        #google_translate_element {
+    margin: 10px 20px;
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+
+ 
+    
+    .goog-te-gadget {
+        font-family: Arial, sans-serif !important;
+        font-size: 14px !important;
+    }
+    
+    .goog-te-gadget-simple {
+        background-color: #fff !important;
+        border: 1px solid #ddd !important;
+        padding: 5px 8px !important;
+        border-radius: 4px !important;
+        color: #555 !important;
+    }
+    
+    .goog-te-menu-value {
+        color: #555 !important;
+    }
+    
+    .goog-te-menu-frame {
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2) !important;
+    }
+
+
+#readAloudBtn {
+    background-color: #00bcd4;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+  
+}
+
+#readAloudBtn:hover {
+    background-color: #00a5b9;
+}
+
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background image can be added here -->
+  <div class="bg-image">
+      <!-- Add your background image here -->
+      <img src="/api/placeholder/1200/800" alt="background" style="width:100%; height:100%; object-fit:cover;">
+  </div>
+  
+  <!-- Hamburger Menu Button -->
+  <div class="hamburger-menu" id="hamburger-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+  </div>
+  
+  <!-- Overlay for mobile -->
+  <div class="overlay" id="overlay"></div>
+  
+  <!-- Sidebar Navigation -->
+  <div class="sidebar" id="sidebar">
+      <div class="logo">
+          <div class="logo-icon">+</div>
+          <div class="logo-text">AROGYAKOSH</div>
+      </div>
+      
+      
+  
+      <div class="menu-item active">
+          <i class="fas fa-user"></i>
+          <span>Doctor Dashboard</span>
+      </div>
+      
+
+      <div class="menu-item">
+        <div id="google_translate_element"></div>
+    </div>
+    <div class="menu-item">
+   <!-- Add this button where you want the read aloud control to appear -->
+<button id="readAloudBtn" title="Read page content aloud">
+    <i class="fas fa-volume-up"></i> Read Aloud
+</button>
+    </div>
+  </div>
+    <!-- Main Content Area -->
+   
+    <div class="main-content" id="main-content">
+        <div class="header">
+            <h1 class="page-title">Doctor Dashboard</h1>
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            Unable to load doctor information. Please try again later.
+        </div>
+        
+        <div id="loading" class="loading">
+            Loading doctor information...
+        </div>
+        
+        <div class="content-card" id="doctor-info" style="display: none;">
+            <h2 class="card-title">Doctor Information</h2>
+            <div style="display: flex; align-items: center; flex-wrap: wrap;">
+                <div style="margin-right: 20px; margin-bottom: 10px;">
+                    <h3 style="margin: 0; font-size: 18px;"><span id="doctor-name"></span></h3>
+                    <p style="margin: 5px 0; color: #777;">Age: <span id="doctor-age"></span></p>
+                </div>
+                <div style="margin-left: auto; text-align: right;">
+                    <p style="margin: 5px 0;"><i class="fas fa-phone"></i> <span id="doctor-contact"></span></p>
+                    <p style="margin: 5px 0;"><i class="fas fa-map-marker-alt"></i> <span id="doctor-location"></span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content-card" id="professional-details" style="display: none;">
+            <h2 class="card-title">Professional Details</h2>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px; font-weight: bold; width: 30%;">License Number</td>
+                            <td style="padding: 12px;"><span id="doctor-license"></span></td>
+                        </tr>
+                       
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="content-card" id="appointments" style="display: none;">
+            <h2 class="card-title">Upcoming Appointments</h2>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <th style="text-align: left; padding: 10px;">Patient</th>
+                            <th style="text-align: left; padding: 10px;">Date</th>
+                            <th style="text-align: left; padding: 10px;">Time</th>
+                            <th style="text-align: left; padding: 10px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointments-table">
+                        <!-- Appointments will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <!-- Footer Navigation -->
+            <nav class="footer-nav">
+                <a href="#about">About Us</a>
+                <a href="#services">Services</a>
+                <a href="#awards">Awards</a>
+                <a href="#help">Help</a>
+                <a href="#contact">Contact</a>
+            </nav>
+           
+            <!-- Mission Statement -->
+            <div class="mission-statement">
+                <p>
+                    AROGYAKOSH provides comprehensive medical care with compassion and expertise.
+                    Our mission is to deliver high-quality healthcare tailored to individual patient needs.
+                    We believe in accessible healthcare for all and strive to innovate in providing medical services.
+                </p>
+            </div>
+           
+            <!-- Social Media Icons -->
+            <div class="social-icons">
+                <a href="#">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="#">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a href="#">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="#">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+           
+            <!-- Contact Information -->
+            <div class="contact-info">
+                <div>
+                    <i class="fas fa-phone-alt"></i> +1 (555) 123-4567
+                </div>
+                <div>
+                    <i class="fas fa-envelope"></i> info@arogyakosh.com
+                </div>
+                <div>
+                    <i class="fas fa-map-marker-alt"></i> 123 Health Street, Medical Center
+                </div>
+            </div>
+           
+            <!-- Copyright Text -->
+            <div class="copyright">
+                ©️ 2025 AROGYAKOSH. All Rights Reserved.
+            </div>
+        </div>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to get cookie value by name
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            }
+            
+            // Get the auth token and doctor ID from cookies
+            const authToken = getCookie('authToken');
+            const docId = {{id}}
+            
+            // Mobile sidebar toggle
+            const hamburgerMenu = document.getElementById('hamburger-menu');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (hamburgerMenu && sidebar && overlay) {
+                hamburgerMenu.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
+                });
+                
+                overlay.addEventListener('click', function() {
+                    sidebar.classList.remove('active');
+                    overlay.style.display = 'none';
+                });
+            }
+            console.log(docId)
+            // Fetch doctor information from the API
+            fetch(`/doctor-dashboard/${docId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+        // Update the dashboard with the doctor information
+        document.getElementById('doctor-name').textContent = data.doctor?.name || 'N/A';
+        document.getElementById('doctor-age').textContent = data.doctor?.age || 'N/A';
+        document.getElementById('doctor-license').textContent = data.doctor?.license || 'N/A';
+      
+        document.getElementById('doctor-location').textContent = data.doctor?.location || 'N/A';
+        document.getElementById('doctor-contact').textContent = data.doctor?.contact || 'N/A';
+        
+        // Hide loading message and show doctor information sections
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('doctor-info').style.display = 'block';
+        document.getElementById('professional-details').style.display = 'block';
+        document.getElementById('appointments').style.display = 'block';
+        
+        // Load appointments if available in the data
+        if (data.appointments && data.appointments.length > 0) {
+            const appointmentsTable = document.getElementById('appointments-table');
+            appointmentsTable.innerHTML = ''; // Clear existing content
+            
+            data.appointments.forEach(appointment => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid #eee';
+                
+                row.innerHTML = `
+                    <td style="padding: 12px;">${appointment.patientName || 'N/A'}</td>
+                    <td style="padding: 12px;">${appointment.date || 'N/A'}</td>
+                    <td style="padding: 12px;">${appointment.time || 'N/A'}</td>
+                    <td style="padding: 12px;">
+                        <span class="status-indicator status-${appointment.status.toLowerCase()}"></span>
+                        ${appointment.status || 'N/A'}
+                    </td>
+                `;
+                
+                appointmentsTable.appendChild(row);
+            });
+        } else {
+            const appointmentsTable = document.getElementById('appointments-table');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td colspan="4" style="padding: 12px; text-align: center; font-style: italic; color: #777;">
+                    No upcoming appointments
+                </td>
+            `;
+            appointmentsTable.appendChild(row);
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching doctor information:', error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+    });
+});
+    </script>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+                {pageLanguage: 'en', includedLanguages: 'en,hi,kn,te,mr', layout: google.translate.TranslateElement.InlineLayout.SIMPLE},
+                'google_translate_element'
+            );
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const readAloudBtn = document.getElementById('readAloudBtn');
+            let speech = null;
+            let speaking = false;
+            
+            readAloudBtn.addEventListener('click', function() {
+                if (speaking) {
+                    stopSpeaking();
+                } else {
+                    startSpeaking();
+                }
+            });
+            
+            function startSpeaking() {
+                // Get the main content to read
+                const contentToRead = document.querySelector('.main-content').textContent;
+                
+                speech = new SpeechSynthesisUtterance();
+                speech.text = contentToRead;
+                speech.volume = 1;
+                speech.rate = 1;
+                speech.pitch = 1;
+                
+                // Use the language selected in Google Translate if possible
+                const currentLang = document.querySelector('.goog-te-combo')?.value || 'en-US';
+                speech.lang = currentLang;
+                
+                window.speechSynthesis.speak(speech);
+                speaking = true;
+                readAloudBtn.innerHTML = '<i class="fas fa-pause"></i> Pause Reading';
+                
+                speech.onend = function() {
+                    speaking = false;
+                    readAloudBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read Aloud';
+                };
+            }
+            
+            function stopSpeaking() {
+                window.speechSynthesis.cancel();
+                speaking = false;
+                readAloudBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read Aloud';
+            }
+        });
+    </script>
+</body>
+</html>  

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Documents</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .container:hover {
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 10px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            border-radius: 2px;
+        }
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        .patient-info {
+            background-color: #f9f9f9;
+            padding: 20px 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+        .patient-info:hover {
+            transform: translateY(-2px);
+        }
+        .patient-info h3 {
+            margin-top: 0;
+            color: #3498db;
+            font-size: 22px;
+        }
+        .patient-info p {
+            margin: 8px 0;
+            font-size: 15px;
+        }
+        .patient-info strong {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        th, td {
+            padding: 15px 18px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #f2f6fc;
+            font-weight: 600;
+            color: #2c3e50;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background-color: #f9fbfd;
+        }
+        .document-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        .document-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.15);
+        }
+        .btn:hover {
+            background-color: #2980b9;
+            box-shadow: 0 6px 8px rgba(52, 152, 219, 0.25);
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(1px);
+        }
+        .btn-back {
+            background-color: #95a5a6;
+            box-shadow: 0 4px 6px rgba(149, 165, 166, 0.15);
+            margin-right: 12px;
+        }
+        .btn-back:hover {
+            background-color: #7f8c8d;
+            box-shadow: 0 6px 8px rgba(149, 165, 166, 0.25);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        .error-message {
+            color: #e74c3c;
+            padding: 15px;
+            background-color: #fdeeee;
+            border-radius: 8px;
+            margin: 25px 0;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.1);
+            border-left: 4px solid #e74c3c;
+        }
+        .success-message {
+            color: #27ae60;
+            padding: 15px;
+            background-color: #eefaf1;
+            border-radius: 8px;
+            margin: 25px 0;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(39, 174, 96, 0.1);
+            border-left: 4px solid #27ae60;
+        }
+        .loading {
+            text-align: center;
+            margin: 60px 0;
+            color: #7f8c8d;
+        }
+        .loading p {
+            font-size: 18px;
+            margin-top: 15px;
+            color: #7f8c8d;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        .no-documents {
+            text-align: center;
+            margin: 50px 0;
+            color: #7f8c8d;
+            padding: 30px;
+            background-color: #fafafa;
+            border-radius: 10px;
+            border: 1px dashed #ddd;
+        }
+        .no-documents p {
+            font-size: 18px;
+            margin: 0;
+        }
+        .upload-section {
+            margin-top: 40px;
+            padding: 25px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-top: 5px solid #27ae60;
+        }
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        .form-group input[type="text"] {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .form-group input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            outline: none;
+        }
+        .form-group input[type="file"] {
+            padding: 10px;
+            border: 1px dashed #ddd;
+            border-radius: 6px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .form-group input[type="file"]::-webkit-file-upload-button {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+        .form-group input[type="file"]::-webkit-file-upload-button:hover {
+            background-color: #2980b9;
+        }
+        .btn-upload {
+            background-color: #27ae60;
+            align-self: flex-start;
+            box-shadow: 0 4px 6px rgba(39, 174, 96, 0.15);
+            padding: 12px 20px;
+        }
+        .btn-upload:hover {
+            background-color: #219955;
+            box-shadow: 0 6px 8px rgba(39, 174, 96, 0.25);
+        }
+        .auth-container {
+            text-align: center;
+            margin: 60px 0;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .auth-container h2 {
+            margin-top: 0;
+        }
+        .auth-container p {
+            margin-bottom: 25px;
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        #login-btn {
+            padding: 12px 24px;
+            font-size: 16px;
+        }
+        #logout-btn {
+            background-color: #e74c3c;
+            margin-top: 25px;
+            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.15);
+        }
+        #logout-btn:hover {
+            background-color: #c0392b;
+            box-shadow: 0 6px 8px rgba(231, 76, 60, 0.25);
+        }
+        #become-hospital {
+            background-color: #27ae60;
+            width: 100%;
+            padding: 12px 24px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(39, 174, 96, 0.15);
+        }
+        #become-hospital:hover {
+            background-color: #219955;
+            box-shadow: 0 6px 8px rgba(39, 174, 96, 0.25);
+        }
+        .progress-container {
+            margin-top: 15px;
+            display: none;
+        }
+        .progress-container p {
+            margin-bottom: 10px;
+            color: #27ae60;
+            font-weight: 500;
+        }
+        .progress-bar {
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            height: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 20px;
+            background-size: 30px 30px;
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.15) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.15) 50%,
+                rgba(255, 255, 255, 0.15) 75%,
+                transparent 75%,
+                transparent
+            );
+            animation: progress-animation 1s linear infinite;
+        }
+        @keyframes progress-animation {
+            from { background-position: 0 0; }
+            to { background-position: 30px 0; }
+        }
+        .copy-btn {
+            background-color: #7f8c8d;
+            padding: 4px 10px;
+            margin-left: 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            background-color: #636e72;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            th, td {
+                padding: 12px 10px;
+                font-size: 14px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+            .btn-back {
+                margin-right: 0;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Patient Documents</h1>
+        
+        <div id="loading" class="loading">
+            <p>Checking your credentials...</p>
+        </div>
+        
+        <div id="auth-container" class="auth-container" style="display: none;">
+            <h2>Please Login to Continue</h2>
+            <p>You need to be logged in to access patient documents.</p>
+            <button id="login-btn" class="btn" onclick="location.href='/route/'">Login to Continue</button>
+        </div>
+        
+        <div id="role-container" class="auth-container" style="display: none;">
+            <h2>Hospital Registration Required</h2>
+            <p>You need to be registered as a hospital to view patient documents.</p>
+            <button id="become-hospital" class="btn">Become a Hospital</button>
+            <button id="logout-btn" class="btn">Logout</button>
+        </div>
+        
+        <div id="error-container" class="error-message" style="display: none;"></div>
+        <div id="success-container" class="success-message" style="display: none;"></div>
+        
+        <div id="documents-view" style="display: none;">
+            <div id="patient-info" class="patient-info"></div>
+            
+            <div id="documents-table-container">
+                <table id="documents-table">
+                    <thead>
+                        <tr>
+                            <th>Document Name</th>
+                            <th>Date Added</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="documents-list">
+                        <!-- Document data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="no-documents" class="no-documents" style="display: none;">
+                <p>No documents found for this patient.</p>
+            </div>
+            
+            <div class="upload-section">
+                <h2>Upload New Document</h2>
+                <div class="upload-form">
+                    <div class="form-group">
+                        <label for="document-name">Document Name</label>
+                        <input type="text" id="document-name" placeholder="Enter document name">
+                    </div>
+                    <div class="form-group">
+                        <label for="document-file">Select File</label>
+                        <input type="file" id="document-file">
+                    </div>
+                    <button class="btn btn-upload" id="upload-btn">Upload Document</button>
+                    
+                    <div class="progress-container" id="progress-container">
+                        <p>Uploading document...</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="back-btn" class="btn btn-back">Back to Patient</button>
+                <button id="refresh-btn" class="btn">Refresh Documents</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const loadingDiv = document.getElementById('loading');
+        const authContainer = document.getElementById('auth-container');
+        const roleContainer = document.getElementById('role-container');
+        const errorContainer = document.getElementById('error-container');
+        const successContainer = document.getElementById('success-container');
+        const documentsView = document.getElementById('documents-view');
+        const patientInfo = document.getElementById('patient-info');
+        const documentsList = document.getElementById('documents-list');
+        const noDocuments = document.getElementById('no-documents');
+        const documentsTableContainer = document.getElementById('documents-table-container');
+        const backBtn = document.getElementById('back-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progressFill = document.getElementById('progress-fill');
+        
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const patientLedgerId = {{id}};
+        
+        // Get authentication token
+        let authToken = getCookie('authToken') || localStorage.getItem('tempAuthToken');
+        let patientData = null;
+        
+        // Get cookie function
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+        
+        // Format date function
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+        
+        // Show success message
+        function showSuccess(message, duration = 5000) {
+            successContainer.style.display = 'block';
+            successContainer.innerText = message;
+            
+            // Auto hide after duration
+            setTimeout(() => {
+                successContainer.style.display = 'none';
+            }, duration);
+        }
+        
+        // Initialize page
+        async function initPage() {
+            if (!authToken) {
+                showLoginPrompt();
+                return;
+            }
+            
+            if (!patientLedgerId) {
+                showError('Patient ID is missing. Please go back and try again.');
+                return;
+            }
+            
+            try {
+                // Check if user is authenticated and has hospital role
+                const response = await fetch('/check-hospital-role/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.status === 200) {
+                    // User is a hospital
+                    await loadPatientDocuments();
+                } else if (response.status === 403) {
+                    // User is authenticated but not a hospital
+                    showBecomeHospitalPrompt();
+                } else if (response.status === 401) {
+                    // Token is invalid or expired
+                    document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    localStorage.removeItem('tempAuthToken');
+                    showLoginPrompt();
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                showError('Something went wrong. Please try again later.');
+            }
+        }
+        
+        // Show login prompt
+        function showLoginPrompt() {
+            loadingDiv.style.display = 'none';
+            authContainer.style.display = 'block';
+            roleContainer.style.display = 'none';
+            documentsView.style.display = 'none';
+            errorContainer.style.display = 'none';
+        }
+        
+        // Show become hospital prompt
+        function showBecomeHospitalPrompt() {
+            loadingDiv.style.display = 'none';
+            authContainer.style.display = 'none';
+            roleContainer.style.display = 'block';
+            documentsView.style.display = 'none';
+            errorContainer.style.display = 'none';
+        }
+        
+        // Show error message
+        function showError(message) {
+            loadingDiv.style.display = 'none';
+            errorContainer.style.display = 'block';
+            errorContainer.innerText = message;
+        }
+        
+        // Load patient documents
+        async function loadPatientDocuments() {
+            try {
+                const response = await fetch(`/hospital-documents/${patientLedgerId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.status === 401) {
+                    // Token is invalid or expired
+                    document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    localStorage.removeItem('tempAuthToken');
+                    showLoginPrompt();
+                    return;
+                }
+                
+                if (response.status === 403) {
+                    showError('You do not have permission to view these documents.');
+                    return;
+                }
+                
+                if (response.status === 404) {
+                    showError('Patient record not found.');
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load documents');
+                }
+                
+                const data = await response.json();
+                
+                // Also fetch patient details to display name
+                await fetchPatientDetails();
+                
+                // Render the documents
+                renderDocuments(data.documents);
+                
+                // Show the documents view
+                loadingDiv.style.display = 'none';
+                documentsView.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                showError('Error loading documents. Please try again later.');
+            }
+        }
+        
+        // Fetch patient details
+        async function fetchPatientDetails() {
+            try {
+                const response = await fetch(`/patient/${patientLedgerId}/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    return; 
+                }
+                
+                const data = await response.json();
+                patientData = data;
+                
+                patientInfo.innerHTML = `
+                    <h3>Patient: ${data.patient.name}</h3>
+                    <p><strong>Doctor:</strong> ${data.doctor.name}</p>
+                    <p><strong>Reason:</strong> ${data.reason}</p>
+                    <p><strong>Status:</strong> ${data.isDischarged ? 'Discharged' : 'Admitted'}</p>
+                `;
+                
+            } catch (error) {
+                console.error('Error fetching patient details:', error);
+                // Continue without patient details
+                patientInfo.innerHTML = `<h3>Patient Documents</h3>`;
+            }
+        }
+        
+        // Render documents list
+        function renderDocuments(documents) {
+            if (!documents || documents.length === 0) {
+                documentsTableContainer.style.display = 'none';
+                noDocuments.style.display = 'block';
+                return;
+            }
+            
+            documentsTableContainer.style.display = 'block';
+            noDocuments.style.display = 'none';
+            documentsList.innerHTML = '';
+            
+            documents.forEach(doc => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${doc.name}</td>
+                    <td>${formatDate(doc.added)}</td>
+                    <td>
+                        <button class="btn" onclick="viewDocument('${doc.id}')"></button>
+                    </td>
+                `;
+                
+                documentsList.appendChild(row);
+            });
+        }
+        
+        // View document function
+        function viewDocument(documentId) {
+            // Create a form to submit the token with the request
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = `/hospital-documents-view/${documentId}/`;
+            form.target = '_blank';
+            
+            // Add token as hidden input
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'token';
+            tokenInput.value = authToken;
+            form.appendChild(tokenInput);
+            
+            // Submit the form
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+        
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Copied to clipboard!');
+        }
+        
+        // Back button event
+        backBtn.addEventListener('click', function() {
+            window.location.href = `/route/patient-dashboard/${patientData?.patient?.id || ''}`;
+        });
+        
+        // Refresh button event
+        refreshBtn.addEventListener('click', function() {
+            loadingDiv.style.display = 'block';
+            documentsView.style.display = 'none';
+            errorContainer.style.display = 'none';
+            loadPatientDocuments();
+        });
+        
+        // Upload document event
+        uploadBtn.addEventListener('click', async function() {
+            const documentName = document.getElementById('document-name').value.trim();
+            const documentFile = document.getElementById('document-file').files[0];
+            
+            if (!documentName) {
+                alert('Please enter a document name');
+                return;
+            }
+            
+            if (!documentFile) {
+                alert('Please select a file to upload');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('name', documentName);
+            formData.append('file', documentFile);
+            formData.append('hospitalLedger', patientLedgerId);
+            
+            try {
+                uploadBtn.disabled = true;
+                uploadBtn.innerText = 'Uploading...';
+                progressContainer.style.display = 'block';
+                progressFill.style.width = '10%';
+                
+                // Simulate progress
+                let progress = 10;
+                const progressInterval = setInterval(() => {
+                    progress += 5;
+                    if (progress > 90) {
+                        progress = 90;
+                        clearInterval(progressInterval);
+                    }
+                    progressFill.style.width = `${progress}%`;
+                }, 500);
+                
+                const response = await fetch('/hospital-upload-document/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to upload document');
+                }
+                
+                const responseData = await response.json();
+                
+                // Display success with IPFS links
+                showSuccess(`Document uploaded successfully!`);
+                
+                document.getElementById('document-name').value = '';
+                document.getElementById('document-file').value = '';
+                
+                // Refresh the documents list
+                setTimeout(() => {
+                    loadPatientDocuments();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error uploading document:', error);
+                showError(error.message || 'Failed to upload document. Please try again.');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerText = 'Upload Document';
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                }, 1000);
+            }
+        });
+        
+        // Become hospital button
+        document.getElementById('become-hospital')?.addEventListener('click', function() {
+            // Store token in localStorage temporarily before redirect
+            localStorage.setItem('tempAuthToken', authToken);
+            window.location.href = '/become-hospital/';
+        });
+        
+        // Logout button
+        document.getElementById('logout-btn')?.addEventListener('click', function() {
+            document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            localStorage.removeItem('tempAuthToken');
+            window.location.reload();
+        });
+        
+        // Make viewDocument function global
+        window.viewDocument = viewDocument;
+        // Make copyToClipboard function global
+        window.copyToClipboard = copyToClipboard;
+        
+        // Initialize the page
+        initPage();
+    </script>
+</body>
+</html>

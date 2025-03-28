@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Patients View</title>
+    <style>
+        :root {
+            /* Blue Palette */
+            --blue-100: #e3f2fd;
+            --blue-200: #bbdefb;
+            --blue-300: #90caf9;
+            --blue-400: #64b5f6;
+            --blue-500: #42a5f5;
+            --blue-600: #2196f3;
+            --blue-700: #1976d2;
+            --blue-800: #1565c0;
+            --blue-900: #0d47a1;
+            
+            /* Green Palette */
+            --green-100: #e8f5e9;
+            --green-200: #c8e6c9;
+            --green-300: #a5d6a7;
+            --green-400: #81c784;
+            --green-500: #66bb6a;
+            --green-600: #4caf50;
+            --green-700: #388e3c;
+            --green-800: #2e7d32;
+            --green-900: #1b5e20;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--blue-100);
+            color: #37474f;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, var(--blue-100), var(--green-100));
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 105, 92, 0.1);
+        }
+        
+        h1, h2 {
+            text-align: center;
+            color: var(--blue-800);
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        
+        h1 {
+            font-size: 2.4rem;
+            background: linear-gradient(120deg, var(--blue-700), var(--green-700));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--green-300);
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--blue-700);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 25px;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 77, 64, 0.08);
+        }
+        
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+        }
+        
+        th {
+            background: linear-gradient(to right, var(--blue-600), var(--blue-500));
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--blue-50);
+        }
+        
+        tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--green-100);
+        }
+        
+        tr:hover {
+            background-color: var(--green-100);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 105, 92, 0.1);
+        }
+        
+        .patient-link {
+            color: var(--blue-700);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: all 0.3s ease;
+            padding-bottom: 2px;
+        }
+        
+        .patient-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--green-500);
+            transition: width 0.3s ease;
+        }
+        
+        .patient-link:hover {
+            color: var(--green-700);
+        }
+        
+        .patient-link:hover:after {
+            width: 100%;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .admitted {
+            background: linear-gradient(to right, var(--blue-600), var(--blue-500));
+            color: white;
+        }
+        
+        .discharged {
+            background: linear-gradient(to right, var(--green-600), var(--green-500));
+            color: white;
+        }
+        
+        .status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 77, 64, 0.2);
+        }
+        
+        .auth-container {
+            text-align: center;
+            margin: 60px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 105, 92, 0.1);
+            max-width: 500px;
+            border-top: 5px solid var(--green-500);
+        }
+        
+        .error-message {
+            color: #e53935;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            background-color: #ffebee;
+            padding: 10px 15px;
+            border-radius: 4px;
+            border-left: 4px solid #e53935;
+        }
+        
+        #loading {
+            text-align: center;
+            margin: 80px 0;
+            color: var(--blue-700);
+            font-size: 1.2rem;
+        }
+        
+        #loading:after {
+            content: "...";
+            animation: dots 1.5s infinite;
+            display: inline-block;
+            width: 20px;
+            text-align: left;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+        
+        button {
+            background: linear-gradient(to right, var(--blue-600), var(--blue-500));
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, var(--blue-700), var(--blue-600));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(33, 150, 243, 0.4);
+        }
+        
+        #logout-btn {
+            background: linear-gradient(to right, var(--blue-400), var(--blue-300));
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.2);
+        }
+        
+        #logout-btn:hover {
+            background: linear-gradient(to right, var(--blue-500), var(--blue-400));
+        }
+        
+        #become-hospital {
+            background: linear-gradient(to right, var(--green-600), var(--green-500));
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        #become-hospital:hover {
+            background: linear-gradient(to right, var(--green-700), var(--green-600));
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .search-container {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 77, 64, 0.08);
+        }
+        
+        .search-box {
+            flex-grow: 1;
+            padding: 12px 20px;
+            border: 2px solid var(--blue-200);
+            border-radius: 30px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--blue-50);
+            color: var(--blue-900);
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--blue-500);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+            background-color: white;
+        }
+        
+        .search-box::placeholder {
+            color: var(--blue-300);
+        }
+        
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            margin-left: 15px;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 30px;
+            background-color: var(--blue-50);
+            border: 2px solid var(--blue-200);
+            color: var(--blue-700);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn:hover {
+            background-color: var(--blue-100);
+            border-color: var(--blue-300);
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(to right, var(--blue-600), var(--blue-500));
+            color: white;
+            border-color: var(--blue-600);
+            box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3);
+        }
+        
+        .hospital-info {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: bold;
+            color: var(--blue-800);
+            background: linear-gradient(to right, var(--blue-100), var(--green-100));
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 5px solid var(--green-500);
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(0, 77, 64, 0.08);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        #register-patient-btn {
+            background: linear-gradient(to right, var(--green-600), var(--green-500));
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        #register-patient-btn:hover {
+            background: linear-gradient(to right, var(--green-700), var(--green-600));
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        .no-patients {
+            text-align: center;
+            margin: 50px 0;
+            color: var(--blue-400);
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 77, 64, 0.08);
+            border-top: 4px solid var(--blue-300);
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hospital Patients View</h1>
+        
+        <div id="loading">
+            <p>Checking your credentials</p>
+        </div>
+        
+        <div id="auth-container" class="auth-container" style="display: none;">
+            <h2>Please Login to Continue</h2>
+            <p>You need to be logged in to access the hospital portal.</p>
+            <button id="login-btn" onclick="location.href='/route/'">Login to Continue</button>
+        </div>
+        
+        <div id="role-container" class="auth-container" style="display: none;">
+            <h2>Hospital Registration Required</h2>
+            <p>You need to be registered as a hospital to view patients.</p>
+            <button id="become-hospital">Become a Hospital</button>
+            <button id="logout-btn">Logout</button>
+        </div>
+        
+        <div id="patients-view" style="display: none;">
+            <div id="hospital-info" class="hospital-info"></div>
+            
+            <div class="search-container">
+                <input type="text" id="search-box" class="search-box" placeholder="Search patients by name, doctor or reason...">
+                <div class="filter-container">
+                    <div class="filter-btn active" data-filter="all">All</div>
+                    <div class="filter-btn" data-filter="admitted">Admitted</div>
+                    <div class="filter-btn" data-filter="discharged">Discharged</div>
+                </div>
+            </div>
+            
+            <table id="patients-table">
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Doctor</th>
+                        <th>Reason</th>
+                        <th>Date Admitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="patients-list">
+                    <!-- Patient data will be inserted here -->
+                </tbody>
+            </table>
+            
+            <div id="no-patients" class="no-patients" style="display: none;">
+                <p>No patients found. Start by admitting a new patient.</p>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="register-patient-btn">Register New Patient</button>
+                <button id="view-logout-btn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elements
+        const loadingDiv = document.getElementById('loading');
+        const authContainer = document.getElementById('auth-container');
+        const roleContainer = document.getElementById('role-container');
+        const patientsView = document.getElementById('patients-view');
+        const hospitalInfo = document.getElementById('hospital-info');
+        const patientsList = document.getElementById('patients-list');
+        const searchBox = document.getElementById('search-box');
+        const noPatients = document.getElementById('no-patients');
+        const registerPatientBtn = document.getElementById('register-patient-btn');
+        
+        // Get cookie function
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+        
+        // Format date function
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+        
+        // Check authentication status
+        let authToken = getCookie('authToken');
+        let currentHospital = null;
+        let allPatients = [];
+        let filteredPatients = [];
+        
+        // Initialize page
+        async function initPage() {
+            if (!authToken) {
+                showLoginPrompt();
+                return;
+            }
+            
+            try {
+                // Check if user is authenticated and has hospital role
+                const response = await fetch('/check-hospital-role/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.status === 200) {
+                    // User is a hospital
+                    const data = await response.json();
+                    currentHospital = { name: data.hospital || "Your Hospital" };
+                    await loadPatients();
+                    showPatientsView();
+                } else if (response.status === 403) {
+                    // User is authenticated but not a hospital
+                    showBecomeHospitalPrompt();
+                } else if (response.status === 401) {
+                    // Token is invalid or expired
+                    document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    showLoginPrompt();
+                } else {
+                    throw new Error('Server error');
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                showError('Something went wrong. Please try again later.');
+            }
+        }
+        
+        // Load patients data
+        async function loadPatients() {
+            try {
+                const response = await fetch('/hospital-patients/', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Token ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load patients');
+                }
+                
+                const data = await response.json();
+                allPatients = data.patients || [];
+                filteredPatients = [...allPatients];
+                renderPatients();
+            } catch (error) {
+                console.error('Error loading patients:', error);
+                showError('Error loading patients. Please try again later.');
+            }
+        }
+        
+        // Navigate to patient dashboard with the record ID
+        function navigateToPatientDashboard(patientId) {
+            // Find the record that contains this patient
+            const record = allPatients.find(r => r.patient.id == patientId);
+            if (record) {
+                window.location.href = `/route/hospital-document/${record.id}`;
+            }
+        }
+        
+        // Render patients list
+        function renderPatients() {
+            if (filteredPatients.length === 0) {
+                patientsList.innerHTML = '';
+                noPatients.style.display = 'block';
+                return;
+            }
+            
+            noPatients.style.display = 'none';
+            patientsList.innerHTML = '';
+            
+            filteredPatients.forEach(record => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>
+                        <a href="javascript:void(0);" class="patient-link" data-patient-id="${record.patient.id}" data-record-id="${record.id}">
+                            ${record.patient.name}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/route/doctor-dashboard/${record.doctor.id}" class="patient-link">
+                            ${record.doctor.name}
+                        </a>
+                    </td>
+                    <td>${record.reason}</td>
+                    <td>${formatDate(record.date || record.createdAt)}</td>
+                    <td>
+                        <span class="status-badge ${record.isDischarged ? 'discharged' : 'admitted'}">
+                            ${record.isDischarged ? 'Discharged' : 'Admitted'}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="/route/hospital-document/${record.id}" class="patient-link">View Details</a>
+                    </td>
+                `;
+                
+                patientsList.appendChild(row);
+            });
+            
+            // Add event listeners to patient links
+            document.querySelectorAll('.patient-link[data-patient-id]').forEach(link => {
+                link.addEventListener('click', function() {
+                    const patientId = this.getAttribute('data-patient-id');
+                    const recordId = this.getAttribute('data-record-id');
+                    
+                    if (recordId) {
+                        window.location.href = `/route/hospital-document/${recordId}`;
+                    } else {
+                        navigateToPatientDashboard(patientId);
+                    }
+                });
+            });
+        }
+        
+        // Show login prompt
+        function showLoginPrompt() {
+            loadingDiv.style.display = 'none';
+            authContainer.style.display = 'block';
+            roleContainer.style.display = 'none';
+            patientsView.style.display = 'none';
+        }
+        
+        // Show become hospital prompt
+        function showBecomeHospitalPrompt() {
+            loadingDiv.style.display = 'none';
+            authContainer.style.display = 'none';
+            roleContainer.style.display = 'block';
+            patientsView.style.display = 'none';
+        }
+        
+        // Show patients view
+        function showPatientsView() {
+            loadingDiv.style.display = 'none';
+            authContainer.style.display = 'none';
+            roleContainer.style.display = 'none';
+            patientsView.style.display = 'block';
+            
+            // Display hospital info
+            hospitalInfo.innerHTML = `Hospital: ${currentHospital.name}`;
+        }
+        
+        // Show error message
+        function showError(message) {
+            loadingDiv.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+        
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Update active state
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Apply filter
+                const filter = this.dataset.filter;
+                
+                if (filter === 'all') {
+                    filteredPatients = [...allPatients];
+                } else if (filter === 'admitted') {
+                    filteredPatients = allPatients.filter(p => !p.isDischarged);
+                } else if (filter === 'discharged') {
+                    filteredPatients = allPatients.filter(p => p.isDischarged);
+                }
+                
+                // Apply search if there's text in the search box
+                const searchTerm = searchBox.value.trim().toLowerCase();
+                if (searchTerm) {
+                    filteredPatients = filteredPatients.filter(p => 
+                        p.patient.name.toLowerCase().includes(searchTerm) ||
+                        p.doctor.name.toLowerCase().includes(searchTerm) ||
+                        p.reason.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                renderPatients();
+            });
+        });
+        
+        // Search functionality
+        searchBox.addEventListener('input', function() {
+            const searchTerm = this.value.trim().toLowerCase();
+            
+            // Get the current active filter
+            const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+            
+            // First apply the active filter
+            if (activeFilter === 'all') {
+                filteredPatients = [...allPatients];
+            } else if (activeFilter === 'admitted') {
+                filteredPatients = allPatients.filter(p => !p.isDischarged);
+            } else if (activeFilter === 'discharged') {
+                filteredPatients = allPatients.filter(p => p.isDischarged);
+            }
+            
+            // Then apply search
+            if (searchTerm) {
+                filteredPatients = filteredPatients.filter(p => 
+                    p.patient.name.toLowerCase().includes(searchTerm) ||
+                    p.doctor.name.toLowerCase().includes(searchTerm) ||
+                    p.reason.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderPatients();
+        });
+        
+        // Become hospital button
+        document.getElementById('become-hospital').addEventListener('click', function() {
+            // Store token in localStorage temporarily before redirect
+            localStorage.setItem('tempAuthToken', authToken);
+            window.location.href = '/become-hospital/';
+        });
+        
+        // Register new patient button
+        registerPatientBtn.addEventListener('click', function() {
+            // Store token in localStorage temporarily before redirect
+            localStorage.setItem('tempAuthToken', authToken);
+            window.location.href = '/route/add-patient/';
+        });
+        
+        // Logout buttons
+        document.querySelectorAll('#logout-btn, #view-logout-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                localStorage.removeItem('tempAuthToken');
+                window.location.reload();
+            });
+        });
+        
+        // Initialize the page
+        initPage();
+    </script>
+</body>
+</html>
