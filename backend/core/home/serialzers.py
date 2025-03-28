@@ -48,3 +48,8 @@ class HospitalLedgerWithNestedSerializer(serializers.ModelSerializer):
     class Meta:
         model = hospitalLedger
         fields = ['id', 'patient', 'doctor', 'reason', 'date', 'isDischarged']
+
+class DocumentProcessStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentProcessStatus
+        fields = ['id', 'patient_id', 'document_id', 'task_id', 'file_name', 'status']

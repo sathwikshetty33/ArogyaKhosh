@@ -82,4 +82,11 @@ class accident(models.Model):
     hosptial = models.ForeignKey(hospital, on_delete=models.CASCADE,blank=True,null=True)
     def __str__(self):
         return f"Accident with {self.user.full_name if hasattr(self.user, 'full_name') else self.user}"
-from . import signals  # This ensures signals are loaded when models are imported
+    
+class DocumentProcessStatus(models.Model):
+    patient = models.ForeignKey(patient, on_delete=models.CASCADE)
+    document = models.ForeignKey(patientDocument, on_delete=models.CASCADE,blank=True,null=True)
+    task_id = models.CharField(max_length=100,blank=True,null=True)
+    file_name = models.CharField(max_length=100,blank=True,null=True)
+    status = models.CharField(max_length=100)
+from . import signals  

@@ -1,0 +1,19 @@
+node_modules
+.env
+
+ElectronicHealthRecordEtherium/backend/.venv/
+ElectronicHealthRecordEtherium/backend/.env
+
+# Hardhat files
+/cache
+/artifacts
+
+# TypeChain files
+/typechain
+/typechain-types
+backend/.venv
+# solidity-coverage files
+/coverage
+/coverage.json
+# Hardhat Ignition default folder for deployments against a local node
+ignition/deployments/chain-31337

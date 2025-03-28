@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'bot',
     'logs',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -149,7 +150,7 @@ TWILIO_AUTH_TOKEN  = os.getenv('auth_token')
 PINATA_API_KEY = os.getenv("PINATA_API_KEY")
 PINATA_SECRET_KEY = os.getenv("PINATA_SECRET_KEY")
 SEPOLIA_NODE_URL = os.getenv('SEPOLIA_NODE_URL')  
-CONTRACT_ADDRESS = "0xe904Bf23c2324c03A98DC2c130BeeA8042A46805" 
+CONTRACT_ADDRESS = "0xf630435E8eB44D7bFcE0c0882DcbC46e6c26bD76" 
 ETHEREUM_PRIVATE_KEY = os.getenv('ETHEREUM_PRIVATE_KEY')
 URL_HASH_SECRET=os.getenv('URL_HASH_SECRET')
 
@@ -157,3 +158,24 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Existing Django settings...
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6380/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6380/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+# Redis Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://localhost:6380/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+

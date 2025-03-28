@@ -1,493 +1,740 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload to IPFS</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8fff4;
-            text-align: center;
-            padding: 50px;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 128, 0, 0.2);
-            max-width: 400px;
-            margin: auto;
-        }
-        h2 {
-            color: #008000;
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #008000;
-            border-radius: 5px;
-        }
-        button {
-            background-color: #008000;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #006400;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h2>Upload Document to IPFS</h2>
-        <form id="uploadForm" enctype="multipart/form-data">
-            <input type="text" id="name" name="name" placeholder="Enter File Name" required>
-            <input type="file" id="file" name="file" required>
-            <button type="submit">Upload</button>
-        </form>
-        <p id="message"></p>
-    </div>
 
-    <script>
-        function getCookie(name) {
-            let cookies = document.cookie.split('; ');
-            for (let cookie of cookies) {
-                let [key, value] = cookie.split('=');
-                if (key === name) return value;
-            }
-            return null;
-        }
-
-        document.getElementById("uploadForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
-            let formData = new FormData(this);
-            let token = getCookie("authToken");
-            
-            if (!token) {
-                document.getElementById("message").textContent = "Authentication token not found.";
-                return;
-            }
-            
-            let response = await fetch("http://127.0.0.1:8000/upload/", {
-                method: "POST",
-                headers: { "Authorization": "Token " + token },
-                body: formData
-            });
-            
-            let result = await response.json();
-            document.getElementById("message").textContent = result.message || result.error;
-        });
-    </script>
-</body>
-</html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
     <title>Upload Document</title>
     <style>
-        :root {
-            --primary-green: #2e8b57;
-            --light-green: #98fb98;
-            --dark-green: #006400;
-            --primary-blue: #4682b4;
-            --light-blue: #b0e0e6;
-            --dark-blue: #104e8b;
-            --gradient-bg: linear-gradient(120deg, #e0f7fa, #e8f5e9);
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--gradient-bg);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            color: #333;
-        }
-        
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(46, 139, 87, 0.15), 
-                        0 5px 15px rgba(70, 130, 180, 0.1);
-            width: 100%;
-            max-width: 450px;
-            transition: transform 0.3s ease;
-        }
-        
-        .container:hover {
-            transform: translateY(-5px);
-        }
-        
-        h2 {
-            color: var(--primary-green);
-            margin-bottom: 25px;
-            font-size: 28px;
-            text-align: center;
-            position: relative;
-            padding-bottom: 12px;
-        }
-        
-        h2::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-green), var(--primary-blue));
-            border-radius: 3px;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        .input-group label {
-            display: block;
-            text-align: left;
-            margin-bottom: 8px;
-            color: var(--dark-blue);
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-        
-        input[type="text"]:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(70, 130, 180, 0.2);
-        }
-        
-        .file-upload {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 30px;
-            border: 2px dashed var(--light-blue);
-            border-radius: 10px;
-            background-color: rgba(176, 224, 230, 0.1);
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-        
-        .file-upload:hover {
-            border-color: var(--primary-blue);
-            background-color: rgba(176, 224, 230, 0.2);
-        }
-        
-        .file-upload input[type="file"] {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        
-        .file-icon {
-            color: var(--primary-blue);
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-        
-        .file-label {
-            color: #555;
-            font-size: 14px;
-            text-align: center;
-        }
-        
-        .selected-file {
-            color: var(--primary-green);
-            font-size: 14px;
-            margin-top: 10px;
-            font-weight: 600;
-            display: none;
-        }
-        
-        button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 100, 0, 0.1);
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 100, 0, 0.15);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        #message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        
-        .success-message {
-            background-color: rgba(152, 251, 152, 0.3);
-            color: var(--dark-green);
-            border-left: 4px solid var(--primary-green);
-        }
-        
-        .error-message {
-            background-color: rgba(255, 182, 193, 0.3);
-            color: #d32f2f;
-            border-left: 4px solid #d32f2f;
-        }
-        
-        .loader {
-            display: none;
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(70, 130, 180, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid var(--primary-blue);
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .upload-title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .upload-title i {
-            color: var(--primary-green);
-        }
-        
-        .wave {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%2398fb98" fill-opacity="0.2" d="M0,96L48,112C96,128,192,160,288,154.7C384,149,480,107,576,90.7C672,75,768,85,864,112C960,139,1056,181,1152,181.3C1248,181,1344,139,1392,117.3L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
-            background-size: cover;
-            z-index: -1;
-        }
+    /* Variables */
+    :root {
+      --blue-50: #f0f4ff;
+      --blue-100: #e6eeff;
+      --blue-200: #d6e2ff;
+      --blue-300: #b4c6fd;
+      --blue-400: #8baafa;
+      --blue-500: #5d8cf6;
+      --blue-600: #3a6ced;
+      --blue-700: #2856d9;
+      --indigo-500: #6366f1;
+      --indigo-600: #4f46e5;
+      --indigo-700: #4338ca;
+    
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+    
+      --green-50: #ecfdf5;
+      --green-100: #d1fae5;
+      --green-500: #10b981;
+      --green-600: #059669;
+      --green-700: #047857;
+    
+      --blue-50: #eff6ff;
+      --blue-100: #dbeafe;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+      --blue-700: #1d4ed8;
+    
+      --amber-50: #fffbeb;
+      --amber-100: #fef3c7;
+      --amber-500: #f59e0b;
+      --amber-600: #d97706;
+      --amber-700: #b45309;
+    
+      --rose-50: #fff1f2;
+      --rose-100: #ffe4e6;
+      --rose-500: #f43f5e;
+      --rose-600: #e11d48;
+      --rose-700: #be123c;
+    
+      --white: #ffffff;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    
+      --border-radius-sm: 0.25rem;
+      --border-radius: 0.5rem;
+      --border-radius-md: 0.75rem;
+      --border-radius-lg: 1rem;
+      --border-radius-xl: 1.5rem;
+      --border-radius-full: 9999px;
 
-        #google_translate_element {
-        position: fixed;
-        top: 10px;
-        right: 80px;
-        z-index: 1000;
+      --green-50: #e6f4ea;
+      --green-700: #2d6a4f;
+      --green-100: #c3e6cb;
+  
+      --blue-50: #ebf8ff;
+      --blue-700: #1e40af;
+      --blue-100: #bee3f8;
+  
+      --amber-50: #fff3cd;
+      --amber-700: #d97706;
+      --amber-100: #ffecb5;
+  
+      --rose-50: #ffe4e6;
+      --rose-700: #b91c1c;
+      --rose-100: #fca5a5;
     }
     
-    .goog-te-gadget {
-        font-family: Arial, sans-serif !important;
-        font-size: 14px !important;
+    /* Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
     
-    .goog-te-gadget-simple {
-        background-color: #fff !important;
-        border: 1px solid #ddd !important;
-        padding: 5px 8px !important;
-        border-radius: 4px !important;
-        color: #555 !important;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+        "Helvetica Neue", sans-serif;
+      background: linear-gradient(to bottom right, var(--gray-50), var(--gray-100));
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      color: var(--gray-900);
+      line-height: 1.5;
     }
     
-    .goog-te-menu-value {
-        color: #555 !important;
+    /* Container */
+    .container {
+      width: 100%;
+      max-width: 48rem;
+      background-color: var(--white);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
     }
     
-    .goog-te-menu-frame {
-        box-shadow: 0 3px 8px rgba(0,0,0,0.2) !important;
+    /* Header */
+    .header {
+      background: linear-gradient(to right, var(--blue-600), var(--indigo-600));
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .icon-container {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: var(--border-radius-full);
+      width: 3rem;
+      height: 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .icon-container i {
+      color: var(--white);
+      font-size: 1.25rem;
+    }
+    
+    .header h2 {
+      color: var(--white);
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    /* Content */
+    .content {
+      padding: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+      .content {
+        padding: 2rem;
+      }
+    }
+    
+    /* Form */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: 0.25rem;
+    }
+    
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+    
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--blue-500);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    
+    /* File Upload */
+    .file-upload {
+      position: relative;
+      border: 2px dashed var(--gray-300);
+      border-radius: var(--border-radius-lg);
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .file-upload:hover {
+      border-color: var(--blue-400);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+    
+    .file-upload.dragging {
+      border-color: var(--blue-500);
+      background-color: var(--blue-50);
+    }
+    
+    .file-upload-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .upload-icon {
+      background-color: var(--blue-100);
+      border-radius: var(--border-radius-full);
+      width: 4rem;
+      height: 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .upload-icon i {
+      color: var(--blue-600);
+      font-size: 1.5rem;
+    }
+    
+    .upload-text {
+      margin-top: 0.5rem;
+    }
+    
+    .primary-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+    
+    .secondary-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--blue-600);
+    }
+    
+    .file-info {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-top: 0.5rem;
+    }
+    
+    .selected-file {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--blue-600);
+      margin-top: 0.5rem;
+      display: none;
+    }
+    
+    input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    
+    /* Message */
+    .message {
+      padding: 0.75rem 1rem;
+      border-radius: var(--border-radius);
+      font-size: 0.875rem;
+      display: none;
+    }
+    
+    .message.success {
+      background-color: var(--green-50);
+      border: 1px solid var(--green-100);
+      color: var(--green-700);
+      display: block;
+    }
+    
+    .message.error {
+      background-color: var(--rose-50);
+      border: 1px solid var(--rose-100);
+      color: var(--rose-700);
+      display: block;
+    }
+
+    #message {
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .success-message {
+        background-color: rgba(152, 251, 152, 0.3);
+        color: var(--dark-green);
+        border-left: 4px solid var(--primary-green);
+    }
+    
+    .error-message {
+        background-color: rgba(255, 182, 193, 0.3);
+        color: #d32f2f;
+        border-left: 4px solid #d32f2f;
+    }
+    
+    .loader {
+        display: none;
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(70, 130, 180, 0.3);
+        border-radius: 50%;
+        border-top: 3px solid var(--primary-blue);
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px auto;
+    }
+    
+    /* Button */
+    .upload-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      background: linear-gradient(to right, var(--blue-600), var(--indigo-600));
+      color: var(--white);
+      border: none;
+      border-radius: var(--border-radius);
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .upload-button:hover {
+      background: linear-gradient(to right, var(--blue-700), var(--indigo-700));
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .upload-button:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow);
+    }
+    
+    /* Status Section */
+    .status-section {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      margin-left: 1rem;
+    }
+    
+    .status-section h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      margin-bottom: 1rem;
+    }
+    
+    .status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 18.75rem;
+      overflow-y: auto;
+      padding-right: 2rem;
+    }
+    
+    /* Custom Scrollbar */
+    .status-list::-webkit-scrollbar {
+      width: 0.5rem;
+    }
+    
+    .status-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .status-list::-webkit-scrollbar-thumb {
+      background-color: rgba(156, 163, 175, 0.5);
+      border-radius: var(--border-radius-full);
+    }
+    
+    .status-list::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(156, 163, 175, 0.7);
+    }
+    
+    /* Status Item */
+    .status-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background-color: var(--gray-50);
+      border: 1px solid var(--gray-100);
+      border-radius: var(--border-radius);
+      transition: background-color 0.2s ease;
+    }
+    
+    .status-item:hover {
+      background-color: var(--gray-100);
+    }
+    
+    .status-item-left {
+      display: flex;
+      align-items: center;
+        gap: 1rem;
+        }
+    
+    .file-icon {
+      background-color: var(--white);
+      border-radius: var(--border-radius-sm);
+      padding: 0.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .file-icon i {
+      color: var(--gray-500);
+      font-size: 1rem;
+    }
+    
+    .file-details {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .file-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-900);
+    }
+    
+    .file-date {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+    
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--border-radius-full);
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: capitalize;
+
+    }
+    
+    .status-badge i {
+      font-size: 0.75rem;
+    }
+   
+.status-badge.completed {
+    background-color: var(--green-50);
+    color: var(--green-700);
+    border: 1px solid var(--green-100);
+  }
+  
+  .status-badge.processing {
+    background-color: var(--blue-50);
+    color: var(--blue-700);
+    border: 1px solid var(--blue-100);
+  }
+  
+  .status-badge.pending {
+    background-color: var(--amber-50);
+    color: var(--amber-700);
+    border: 1px solid var(--amber-100);
+  }
+  
+  .status-badge.failed {
+    background-color: var(--rose-50);
+    color: var(--rose-700);
+    border: 1px solid var(--rose-100);
+  }
+    
+    /* Animation for processing status */
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    
+    .pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 640px) {
+      .header {
+        padding: 1rem;
+      }
+    
+      .content {
+        padding: 1rem;
+      }
+    
+      .file-upload {
+        padding: 1.5rem 1rem;
+      }
+    
+      .status-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+    
+      .status-item-left {
+        width: 100%;
+      }
+
+      
     }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
 <body>
-    <div class="wave"></div>
     <div class="container">
-        <div class="upload-title">
-            <i class="fas fa-cloud-upload-alt fa-2x"></i>
-            <h2>Upload Document</h2>
+        <div class="header">
+            <div class="icon-container">
+                <i class="fas fa-file-lines"></i>
+            </div>
+            <h2>Document Upload</h2>
         </div>
         
-        <form id="uploadForm" enctype="multipart/form-data">
-            <div class="input-group">
-                <label for="name">File Name</label>
-                <input type="text" id="name" name="name" placeholder="Enter a name for your file" required>
-            </div>
+        <div class="content">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="input-group">
+                    <label for="name">File Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter a name for your file" required>
+                </div>
+                
+                <div class="file-upload" id="dropArea">
+                    <div class="file-upload-content">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">
+                            <p class="primary-text">Drag & drop your file here or</p>
+                            <p class="secondary-text">click to browse</p>
+                        </div>
+                        <p class="file-info">Supports PDF, DOCX, JPG, PNG (Max 10MB)</p>
+                        <p id="fileNameDisplay" class="selected-file"></p>
+                    </div>
+                    <input type="file" id="file" name="file" required>
+                </div>
+                
+                <div id="message" class="message"></div>
+                
+                <button type="submit" class="upload-button">
+                    <i class="fas fa-upload"></i>
+                    Upload to AROGYAKOSH
+                </button>
+            </form>
             
-            <div class="file-upload" id="dropArea">
-                <i class="fas fa-file-upload file-icon"></i>
-                <div class="file-label">Drag & drop your file here or click to browse</div>
-                <div class="selected-file" id="fileNameDisplay"></div>
-                <input type="file" id="file" name="file" required>
-            </div>
-            
-            <div class="loader" id="uploadLoader"></div>
-            <button type="submit"><i class="fas fa-upload"></i> Upload to AROGYAKOSH</button>
-        </form>
-        
-        <p id="message"></p>
-    </div>
+            <p id="message"></p>
 
-    <script>
-        function getCookie(name) {
-            let cookies = document.cookie.split('; ');
-            for (let cookie of cookies) {
-                let [key, value] = cookie.split('=');
-                if (key === name) return value;
-            }
-            return null;
-        }
-        
-        // File input enhancement
-        const fileInput = document.getElementById('file');
-        const fileLabel = document.querySelector('.file-label');
+        </div>
+
+            <div class="status-section">
+                <h3>Document Processing Status</h3>
+                <div class="status-list" id="documentStatusList">
+                    <!-- Status items will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Remove duplicate event listeners and consolidate upload logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const uploadForm = document.getElementById("uploadForm");
+        const message = document.getElementById("message");
         const fileNameDisplay = document.getElementById('fileNameDisplay');
-        const dropArea = document.getElementById('dropArea');
-        
-        fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                fileNameDisplay.textContent = `Selected: ${this.files[0].name}`;
-                fileNameDisplay.style.display = 'block';
-            } else {
-                fileNameDisplay.style.display = 'none';
-            }
-        });
-        
-        // Drag and drop functionality
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight() {
-            dropArea.style.borderColor = 'var(--primary-green)';
-            dropArea.style.backgroundColor = 'rgba(152, 251, 152, 0.2)';
-        }
-        
-        function unhighlight() {
-            dropArea.style.borderColor = 'var(--light-blue)';
-            dropArea.style.backgroundColor = 'rgba(176, 224, 230, 0.1)';
-        }
-        
-        dropArea.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            fileInput.files = files;
-            
-            if (files.length > 0) {
-                fileNameDisplay.textContent = `Selected: ${files[0].name}`;
-                fileNameDisplay.style.display = 'block';
-            }
-        }
-        
-        // Form submission
-        document.getElementById("uploadForm").addEventListener("submit", async function(event) {
+        const statusList = document.getElementById('documentStatusList');
+
+        // Single function to handle form submission
+        async function handleUpload(event) {
             event.preventDefault();
-            
-            const message = document.getElementById("message");
-            const loader = document.getElementById("uploadLoader");
             
             // Clear previous messages
             message.textContent = "";
             message.className = "";
             
-            // Show loader
-            loader.style.display = "block";
-            
-            let formData = new FormData(this);
-            let token = getCookie("authToken");
+            const formData = new FormData(event.target);
+            const token = getCookie("authToken");
             
             if (!token) {
-                loader.style.display = "none";
                 message.textContent = "Authentication token not found.";
                 message.className = "error-message";
                 return;
             }
             
             try {
-                let response = await fetch("http://127.0.0.1:8000/upload/", {
-                    method: "POST",
-                    headers: { "Authorization": "Token " + token },
+                const response = await fetch('/upload/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Token ' + token
+                    },
                     body: formData
                 });
                 
-                let result = await response.json();
-                
-                // Hide loader
-                loader.style.display = "none";
-                
                 if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Show success message
                     message.textContent = result.message || "File uploaded successfully!";
                     message.className = "success-message";
-                    // Reset form on success
-                    document.getElementById("uploadForm").reset();
+                    
+                    // Reset form
+                    event.target.reset();
                     fileNameDisplay.style.display = 'none';
+                    fileNameDisplay.textContent = '';
+                    
+                    // Refresh document statuses
+                    fetchDocumentStatuses();
                 } else {
-                    message.textContent = result.error || "An error occurred during upload.";
+                    const errorResult = await response.json();
+                    message.textContent = errorResult.error || "An error occurred during upload.";
                     message.className = "error-message";
                 }
             } catch (error) {
-                loader.style.display = "none";
-                message.textContent = "Network error: " + error.message;
+                console.error('Upload error:', error);
+                message.textContent = 'Network error: ' + error.message;
                 message.className = "error-message";
             }
-        });
-    </script>
+        }
+
+        // Remove any existing listeners first to prevent multiple attachments
+        uploadForm.removeEventListener('submit', handleUpload);
+        
+        // Add a single event listener
+        uploadForm.addEventListener('submit', handleUpload);
+
+        // Fetch statuses when page loads and then every 30 seconds
+        fetchDocumentStatuses();
+        setInterval(fetchDocumentStatuses, 30000);
+    });
+
+    // Existing helper functions (getCookie, fetchDocumentStatuses) remain the same
+    function getCookie(name) {
+        let cookies = document.cookie.split('; ');
+        for (let cookie of cookies) {
+            let [key, value] = cookie.split('=');
+            if (key === name) return value;
+        }
+        return null;
+    }
+    
+    async function fetchDocumentStatuses() {
+        const token = getCookie("authToken");
+        const statusList = document.getElementById('documentStatusList');
+        
+        if (!token) {
+            statusList.innerHTML = '<p>Authentication required to view statuses.</p>';
+            return;
+        }
+        
+        try {
+            const response = await fetch('/document-processes/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Token ' + token,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch statuses');
+            }
+            
+            const statuses = await response.json();
+            
+            // Clear existing statuses
+            statusList.innerHTML = '';
+            
+            // Populate status list
+            statuses.forEach(status => {
+                const statusItem = document.createElement('div');
+                statusItem.classList.add('status-item');
+                
+                // Determine badge class based on status
+                let badgeClass = 'pending';
+                const normalizedStatus = status.status.toLowerCase();
+                
+                if (normalizedStatus === 'completed') badgeClass = 'completed';
+                if (normalizedStatus === 'processing') {
+                    badgeClass = 'processing';
+                    statusItem.classList.add('pulse'); // Add pulsing animation for processing
+                }
+                if (normalizedStatus === 'failed') badgeClass = 'failed';
+                
+                // Create status item HTML
+                statusItem.innerHTML = `
+                    <div class="status-item-left">
+                        <div class="file-icon">
+                            <i class="fas fa-file"></i>
+                        </div>
+                        <div class="file-details">
+                            <span class="file-name">${status.file_name}</span>
+                            <span class="file-date">${new Date(status.uploaded_at).toLocaleString()}</span>
+                        </div>
+                        <span class="status-badge ${badgeClass}">
+                            ${status.status.toUpperCase()}
+                        </span>
+                    </div>
+                `;
+                
+                statusList.appendChild(statusItem);
+            });
+        } catch (error) {
+            console.error('Error fetching document statuses:', error);
+            statusList.innerHTML = '<p>Error loading statuses</p>';
+        }
+    }
+</script>
+
+
 </body>
 </html>
