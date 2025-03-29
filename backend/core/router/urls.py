@@ -11,5 +11,6 @@ urlpatterns = [
     path('hospital-document/<int:id>',views.hospitalDocumetsView,name='hospital-document'),
     path('patient-upload/',views.patientUpload,name='patient-upload'),
     path('chat/', chat_page, name='chat_page'),
-    path('access/',views.accessPage, name='access')
+    path('access/',views.accessPage, name='access'),
+    path('index/',views.index, name='index'),
 ]

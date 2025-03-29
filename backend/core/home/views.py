@@ -45,7 +45,7 @@ with open(r'/home/sathwik/new/ArogyaKhosh/backend/core/home/abi.json', "r") as a
 # CONTRACT_ADDRESS = "0xf630435E8eB44D7bFcE0c0882DcbC46e6c26bD76"  
 # contract = web3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), abi=contract_abi)
 def loginView(request):
-    return redirect('login')
+    return redirect('index')
 # class ContractOwnerView(APIView):
 #     def get(self, request):
 #         try:

@@ -21,3 +21,5 @@ def chat_page(request):
     return render(request, 'router/aa.html')
 def accessPage(request):
     return render(request,'router/viewDocument.html' )
+def index(request):
+    return render(request, 'router/index.html')
