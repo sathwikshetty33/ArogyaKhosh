@@ -5,6 +5,8 @@ from web3 import Web3
 import json
 import os
 from .hash import *
+from datetime import datetime, timedelta, timezone
+
 from django.shortcuts import render,redirect
 from .models import *
 from django.contrib.auth import authenticate
@@ -25,7 +27,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-
+import random
+import string
+from django.core.mail import send_mail
 # address = "0x153E45453fE2a1b86EA124F02b2437602ed46581"  
 # checksum_address = Web3.to_checksum_address(address) 
 
@@ -50,7 +54,7 @@ def loginView(request):
 #         except Exception as e:
 #             return Response({"error": str(e)}, status=500)
 class HospitalLogin(APIView):
-        authentication_classes = [] # No authentication for login endpoint
+        authentication_classes = []
         permission_classes = [AllowAny]
         def post(self, request):
             data = request.data
@@ -87,7 +91,7 @@ class HospitalLogin(APIView):
         
 @method_decorator(csrf_exempt, name='dispatch')
 class DoctorLogin(APIView):
-        authentication_classes = [] # No authentication for login endpoint
+        authentication_classes = [] 
         permission_classes = [AllowAny]
         def post(self, request):
             
@@ -119,30 +123,186 @@ class DoctorLogin(APIView):
                 "docId" : d.id
             },status=status.HTTP_200_OK)
 class PatientLogin(APIView):
-        authentication_classes = [] # No authentication for login endpoint
-        permission_classes = [AllowAny]
-        def post(self, request):
-            data = request.data
-            serializer=PatientLoginSerializer(data=data)
-            if not serializer.is_valid():
-                return Response({"some error":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
-            username = serializer.data['username']
-            password = serializer.data['password']
-            us = authenticate(username=username,password=password)
-            if us is None:
-                return  Response({
-                    "error" : "Invalid username and password"
-                },status=status.HTTP_401_UNAUTHORIZED)
-            d = patient.objects.filter(user=us).first()
-            if d is None:
-                return  Response({
-                    "error" : "You are not a user register as one"
-                },status=status.HTTP_401_UNAUTHORIZED)
-            token,_ = Token.objects.get_or_create(user=us)
+    authentication_classes = []  # No authentication for login endpoint
+    permission_classes = [AllowAny]
+    
+    def generate_2fa_code(self):
+        """Generate a random 6-digit 2FA code"""
+        return ''.join(random.choices(string.digits, k=6))
+    
+    def post(self, request):
+        data = request.data
+        serializer = PatientLoginSerializer(data=data)
+        if not serializer.is_valid():
+            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        username = serializer.data['username']
+        password = serializer.data['password']
+        us = authenticate(username=username, password=password)
+        
+        if us is None:
             return Response({
-                "token" : token.key,
-                "patId" : d.id,
-            },status=status.HTTP_200_OK)    
+                "error": "Invalid username and password"
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        d = patient.objects.filter(user=us).first()
+        if d is None:
+            return Response({
+                "error": "You are not a user register as one"
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Check if 2FA verification code is provided
+        verification_code = data.get('verification_code')
+        stored_code = request.session.get('verification_code')
+        code_generated_at = request.session.get('code_generated_at')
+        
+        if verification_code:
+            if not stored_code or not code_generated_at:
+                return Response({
+                    "error": "2FA session expired, please login again"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if code is expired (10 minutes validity)
+            try:
+                # Convert stored timestamp to check if expired
+                current_time = datetime.now(timezone.utc).timestamp()
+                is_expired = (current_time - code_generated_at) > 600  # 10 minutes in seconds
+                
+                if is_expired:
+                    # Clear session data
+                    for key in ['verification_code', 'code_generated_at', 'pending_login_username']:
+                        if key in request.session:
+                            del request.session[key]
+                            
+                    return Response({
+                        "error": "2FA code expired, please request a new one"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            except (ValueError, TypeError):
+                return Response({
+                    "error": "Invalid session data"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Validate the code
+            if verification_code != stored_code:
+                return Response({
+                    "error": "Invalid verification code"
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Code is valid, complete login
+            token, _ = Token.objects.get_or_create(user=us)
+            
+            # Clean up session
+            for key in ['verification_code', 'code_generated_at', 'pending_login_username']:
+                if key in request.session:
+                    del request.session[key]
+            
+            return Response({
+                "token": token.key,
+                "patId": d.id,
+            }, status=status.HTTP_200_OK)
+        
+        # If no verification code provided, send a new 2FA code
+        two_fa_code = self.generate_2fa_code()
+        
+        # Store the username in session for later verification
+        request.session['pending_login_username'] = username
+        
+        # Send the code via email
+        try:
+            user_email = us.email
+            send_mail(
+                'Your Verification Code',
+                f'Your verification code is: {two_fa_code}. This code will expire in 10 minutes.',
+                settings.DEFAULT_FROM_EMAIL,
+                [user_email],
+                fail_silently=False,
+            )
+        except Exception as e:
+            return Response({
+                "error": "Failed to send verification code. Please try again."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Store code in session
+        request.session['verification_code'] = two_fa_code
+        request.session['code_generated_at'] = datetime.now(timezone.utc).timestamp()
+        
+        # Return response asking for verification code
+        return Response({
+            "message": "Please check your email for a verification code",
+            "requires_verification": True
+        }, status=status.HTTP_200_OK)
+
+
+class Verify2FA(APIView):
+    """Optional separate endpoint for verification if preferred"""
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        verification_code = request.data.get('verification_code')
+        stored_code = request.session.get('verification_code')
+        code_generated_at = request.session.get('code_generated_at')
+        username = request.session.get('pending_login_username')
+        
+        if not stored_code or not code_generated_at or not username:
+            return Response({
+                "error": "2FA session expired, please login again"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if code is expired (10 minutes validity)
+        try:
+            current_time = datetime.now(timezone.utc).timestamp()
+            is_expired = (current_time - code_generated_at) > 600  # 10 minutes in seconds
+            
+            if is_expired:
+                # Clear session data
+                for key in ['verification_code', 'code_generated_at', 'pending_login_username']:
+                    if key in request.session:
+                        del request.session[key]
+                        
+                return Response({
+                    "error": "2FA code expired, please request a new one"
+                }, status=status.HTTP_400_BAD_REQUEST)
+        except (ValueError, TypeError):
+            return Response({
+                "error": "Invalid session data"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Validate the code
+        if verification_code != stored_code:
+            return Response({
+                "error": "Invalid verification code"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Retrieve user again
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        us = User.objects.filter(username=username).first()
+        
+        if not us:
+            return Response({
+                "error": "User not found"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        d = patient.objects.filter(user=us).first()
+        if not d:
+            return Response({
+                "error": "Patient record not found"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Code is valid, complete login
+        token, _ = Token.objects.get_or_create(user=us)
+        
+        # Clean up session
+        for key in ['verification_code', 'code_generated_at', 'pending_login_username']:
+            if key in request.session:
+                del request.session[key]
+        
+        return Response({
+            "token": token.key,
+            "patId": d.id,
+        }, status=status.HTTP_200_OK)
+
 class GetDoctors(APIView):
     def get(self, request,id):
         try:
@@ -274,9 +434,6 @@ class checkHospital(APIView):
         return Response(status=status.HTTP_200_OK)
 
 class HospitalRoleCheckAPIView(APIView):
-    """
-    API endpoint to check if the authenticated user is associated with a hospital
-    """
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]    
     def get(self, request):
@@ -292,7 +449,6 @@ class HospitalLedgerAPIView(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        # Check if user is a hospital
         try:
             user_hospital = hospital.objects.get(user=request.user)
         except hospital.DoesNotExist:
@@ -300,11 +456,9 @@ class HospitalLedgerAPIView(APIView):
                 'detail': 'Only hospitals can register patients'
             }, status=status.HTTP_403_FORBIDDEN)
         
-        # Prepare data for serializer
         data = request.data.copy()
         data['hospital'] = user_hospital.id
         
-        # Validate that the patient and doctor exist
         try:
             patient_obj = patient.objects.get(id=data.get('patient'))
             doctor_obj = doctor.objects.get(id=data.get('doctor'))
@@ -323,9 +477,7 @@ class HospitalLedgerAPIView(APIView):
 
 
 class PatientSearchAPIView(APIView):
-    """
-    API endpoint for searching patients
-    """
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     
@@ -345,9 +497,7 @@ class PatientSearchAPIView(APIView):
 
 
 class DoctorSearchAPIView(APIView):
-    """
-    API endpoint for searching doctors
-    """
+
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     
@@ -446,7 +596,6 @@ class UploadToIPFS(APIView):
         file = request.FILES["file"]
         name = request.data["name"]
 
-        # Start async task
         task = upload_document_to_ipfs_and_blockchain.delay(
             patient_id=pat.id, 
             file_name=name, 
@@ -462,7 +611,6 @@ class DocumentProcessStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Get statuses for the current user's patients
         statuses = DocumentProcessStatus.objects.filter(
             patient__user=request.user
         ).order_by('-id')

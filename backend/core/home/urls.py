@@ -47,5 +47,5 @@ urlpatterns = [
     path('delete-patient-document/',deletePatientDocument.as_view(),name="deletePatientDocument"),
     path('delete-hospital-document/',deleteHospitalDocument.as_view(),name="deleteHospitalDocument"),
     path('document-processes/', DocumentProcessStatusView.as_view(), name='document_processes'),
-
+    path('verify-2fa/',Verify2FA.as_view(),name='verify-2fa'),
     ]

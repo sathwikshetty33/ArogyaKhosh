@@ -291,7 +291,19 @@
             word-break: break-all;
             display: none; /* Hidden by default, will be shown by JavaScript */
         }
-
+        
+        .verification-container {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .success-message {
+            color: #38d39f;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            display: none;
+        }
         
         @media screen and (max-width: 1050px) {
             .container {
@@ -437,6 +449,21 @@
                     <input type="submit" class="btn" value="Login" id="patient-login-btn">
                     <div class="loading-indicator" id="patient-loading">Loading...</div>
                     <div class="error-message" id="patient-error"></div>
+                    <div class="success-message" id="patient-success"></div>
+                    
+                    <!-- 2FA Verification Section (initially hidden) -->
+                    <div id="verification-section" class="verification-container">
+                        <div class="input-div one">
+                            <div class="i">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="div">
+                                <h5>Verification Code</h5>
+                                <input type="text" class="input" id="verification-code">
+                            </div>
+                        </div>
+                        <input type="button" class="btn" value="Verify" id="verify-btn">
+                    </div>
                 </form>
             </div>
         </div>
@@ -447,7 +474,8 @@
         const API_ENDPOINTS = {
             hospital: '/hospital-login/',
             doctor: '/doctor-login/',
-            patient: '/patient-login/'
+            patient: '/patient-login/',
+            verify2fa: '/verify-2fa/' // New endpoint for verification
         };
 
         // Dashboard URLs
@@ -460,6 +488,7 @@
         // Global variables
         let currentUserType = 'hospital';
         let web3Account = null;
+        let awaiting2FA = false;
 
         // Input animations
         const inputs = document.querySelectorAll(".input");
@@ -601,9 +630,14 @@
             const loadingIndicator = document.getElementById(`${userType}-loading`);
             const loginBtn = document.getElementById(`${userType}-login-btn`);
             const errorMessage = document.getElementById(`${userType}-error`);
+            const successMessage = document.getElementById(`${userType}-success`);
 
-            // Clear previous error messages
+            // Clear previous messages
             errorMessage.style.display = 'none';
+            
+            if (userType === 'patient' && successMessage) {
+                successMessage.style.display = 'none';
+            }
             
             // Show loading indicator
             loadingIndicator.style.display = 'block';
@@ -614,6 +648,20 @@
                 username: usernameInput.value,
                 password: passwordInput.value
             };
+
+            // For patient login with 2FA
+            if (userType === 'patient' && awaiting2FA) {
+                const verificationCode = document.getElementById('verification-code').value;
+                
+                if (!verificationCode) {
+                    showError(userType, 'Please enter the verification code sent to your email.');
+                    loadingIndicator.style.display = 'none';
+                    loginBtn.disabled = false;
+                    return;
+                }
+                
+                requestData.verification_code = verificationCode;
+            }
 
             // Add wallet address for hospital and doctor
             if (userType !== 'patient') {
@@ -658,38 +706,128 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Store token and ID in cookies
-                    setCookie('authToken', data.token, 7);
-
-                    // Store appropriate ID based on user type
-                    let id;
-                    if (userType === 'hospital') {
-                        setCookie('hospId', data.hospId, 7);
-                        id = data.hospId;
-                    } else if (userType === 'doctor') {
-                        setCookie('docId', data.docId, 7);
-                        id = data.docId;
+                    // Check if 2FA is required for patient
+                    if (userType === 'patient' && data.requires_verification) {
+                        // Show 2FA verification section
+                        document.getElementById('verification-section').style.display = 'block';
+                        document.getElementById('patient-login-btn').value = 'Submit Code';
+                        
+                        // Show success message
+                        if (successMessage) {
+                            successMessage.textContent = data.message;
+                            successMessage.style.display = 'block';
+                        }
+                        
+                        // Set flag to indicate we're waiting for 2FA code
+                        awaiting2FA = true;
+                        
+                        // Focus on verification code input
+                        document.getElementById('verification-code').focus();
                     } else {
-                        setCookie('patId', data.patId, 7);
-                        id = data.patId;
+                        // Store token and ID in cookies
+                        setCookie('authToken', data.token, 7);
+
+                        // Store appropriate ID based on user type
+                        let id;
+                        if (userType === 'hospital') {
+                            setCookie('hospId', data.hospId, 7);
+                            id = data.hospId;
+                        } else if (userType === 'doctor') {
+                            setCookie('docId', data.docId, 7);
+                            id = data.docId;
+                        } else {
+                            setCookie('patId', data.patId, 7);
+                            id = data.patId;
+                        }
+
+                        // Store user type
+                        setCookie('userType', userType, 7);
+
+                        // Redirect to appropriate dashboard with ID
+                        window.location.href = `/route/${DASHBOARDS[userType]}${id}`;
                     }
-
-                    // Store user type
-                    setCookie('userType', userType, 7);
-
-                    // Redirect to appropriate dashboard with ID
-                    window.location.href = `/route/${DASHBOARDS[userType]}${id}`;
                 } else {
                     // Show error message
-                    showError(userType, data.error || 'Login failed. Please check your credentials and MetaMask connection.');
+                    showError(userType, data.error || 'Login failed. Please check your credentials.');
+                    // Reset 2FA state if there was an error
+                    if (userType === 'patient' && awaiting2FA) {
+                        resetPatient2FA();
+                    }
                 }
             } catch (error) {
                 console.error('Login error:', error);
                 showError(userType, 'An error occurred. Please try again later.');
+                // Reset 2FA state if there was an error
+                if (userType === 'patient' && awaiting2FA) {
+                    resetPatient2FA();
+                }
             } finally {
                 // Hide loading indicator
                 loadingIndicator.style.display = 'none';
                 loginBtn.disabled = false;
+            }
+        }
+
+        // Reset 2FA state 
+        function resetPatient2FA() {
+            awaiting2FA = false;
+            document.getElementById('verification-section').style.display = 'none';
+            document.getElementById('patient-login-btn').value = 'Login';
+            document.getElementById('verification-code').value = '';
+        }
+
+        // Separate function for 2FA verification
+        async function verifyPatient2FA() {
+            const verificationCode = document.getElementById('verification-code').value;
+            const loadingIndicator = document.getElementById('patient-loading');
+            const verifyBtn = document.getElementById('verify-btn');
+            const errorMessage = document.getElementById('patient-error');
+
+            // Clear previous error messages
+            errorMessage.style.display = 'none';
+            
+            if (!verificationCode) {
+                showError('patient', 'Please enter the verification code sent to your email.');
+                return;
+            }
+            
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            verifyBtn.disabled = true;
+
+            try {
+                // Make API request
+                const response = await fetch(API_ENDPOINTS.verify2fa, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ verification_code: verificationCode }),
+                    credentials: 'include' // Include cookies in the request
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store token and ID in cookies
+                    setCookie('authToken', data.token, 7);
+                    setCookie('patId', data.patId, 7);
+                    setCookie('userType', 'patient', 7);
+
+                    // Redirect to patient dashboard
+                    window.location.href = `/route/${DASHBOARDS.patient}${data.patId}`;
+                } else {
+                    // Show error message
+                    showError('patient', data.error || 'Verification failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showError('patient', 'An error occurred. Please try again later.');
+            } finally {
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+                verifyBtn.disabled = false;
             }
         }
 
@@ -718,6 +856,12 @@
             handleLogin('patient');
         });
 
+        // Add event listener for verification button
+        document.getElementById('verify-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            verifyPatient2FA();
+        });
+
         // Utility functions
         function setActiveTab(userType) {
             currentUserType = userType;
@@ -731,6 +875,11 @@
 
             activeTabBtn.classList.add('active');
             activeForm.classList.add('active');
+
+            // Reset 2FA state when switching tabs
+            if (userType === 'patient') {
+                resetPatient2FA();
+            }
 
             // Hide/show MetaMask related elements
             const hospitalMetamaskElements = document.querySelectorAll('#hospital-metamask-btn, #hospital-metamask-confirmation, #hospital-metamask-address');
