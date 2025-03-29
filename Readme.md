@@ -39,7 +39,7 @@ ArogyaKhosh is a **blockchain-powered** healthcare management system that secure
 ### Steps
 1. **Clone the repository**
    ```sh
-   git clone https://github.com/sathwikshetty33/ElectronicHealthRecordEtherium.git
+   git clone https://github.com/sathwikshetty33/ArogyaKhosh.git
    cd ElectronicHealthRecordEtherium
    ```
 2. **Install dependencies**
@@ -98,5 +98,5 @@ This project is licensed under the **MIT License**.
 ---
 
 ## Contact 📬
-- **GitHub:** [YourUsername](https://github.com/sathwikshetty33)
+- **GitHub:** https://github.com/sathwikshetty33
 - **Email:** sathwikshetty9876@gmail.com
