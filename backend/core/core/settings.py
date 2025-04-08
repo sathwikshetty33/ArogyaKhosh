@@ -27,7 +27,7 @@ DEBUG = True
 
 
 
-ALLOWED_HOSTS = ['172.29.54.122', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['172.29.54.122', 'localhost', '127.0.0.1','*']
 # Application definition
 
 INSTALLED_APPS = [
@@ -66,7 +66,6 @@ REST_FRAMEWORK = {
 ROOT_URLCONF = 'core.urls'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-# Optional additional settings
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
