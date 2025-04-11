@@ -363,11 +363,16 @@ class PatientDoc(APIView):
         return Response(context, status=status.HTTP_200_OK)
 class getPatientDocStatus(APIView):
     def get(self, request, id):
+        pat = patientDocument.objects.filter(id=id).first().patient
+        if not pat:
+            return Response({"error": "Patient does not exist."}, status=status.HTTP_404_NOT_FOUND)
         try:
             patd = patientDocument.objects.get(id=id)
         except patientDocument.DoesNotExist:
             return Response({"error": "Patient document does not exist."}, status=status.HTTP_404_NOT_FOUND)
         if PatinetDocumentAcess.objects.filter(doc=patd,to=request.user,sanctioned=True).exists():
+            return Response(status=status.HTTP_200_OK)
+        if accident.objects.filter(user=pat).exists(): 
             return Response(status=status.HTTP_200_OK)
         if patd.isPrivate == False:
             return Response(status=status.HTTP_200_OK)
@@ -384,13 +389,16 @@ class getPatientDocStatus(APIView):
         return Response(status=status.HTTP_200_OK)
     
 class getHospitalDocStatus(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
     def get(self,request, id):
         try:
             patd = hospitalDocument.objects.get(id=id)
         except hospitalDocument.DoesNotExist:
             return Response({"error": "Hospital document does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        pat = hospitalDocument.objects.filter(id=id).first().hospitalLedger.patient
+        if not pat:
+            return Response({"error": "Patient does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        if accident.objects.filter(user=pat).exists(): 
+            return Response(status=status.HTTP_200_OK)
         if HospitalDocumentAcess.objects.filter(doc=patd,to=request.user,sanctioned=True).exists():
             return Response(status=status.HTTP_200_OK)
         if patd.isPrivate == False:
@@ -597,11 +605,13 @@ class UploadToIPFS(APIView):
 
         file = request.FILES["file"]
         name = request.data["name"]
-
+        generate_summary = request.data.get("generateSummary", "false").lower() == "true"
+        print(generate_summary)
         task = upload_document_to_ipfs_and_blockchain.delay(
             patient_id=pat.id, 
             file_name=name, 
-            file_content=file.read()
+            file_content=file.read(),
+            summary = generate_summary
         )
 
         
@@ -1155,6 +1165,21 @@ class Accidentadd(APIView):
             )
         else:
             accident.objects.create(
+                user = patd,
+            )
+        return Response({'status':'created'},status=status.HTTP_201_CREATED)
+    
+class create_accident(APIView):
+    def post(self, request):
+        try:
+            patid = request.data.get('patId')
+        except:
+            return Response({"error": "Patient id not sent"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            patd = patient.objects.get(id=patid)
+        except:
+            return Response({'error' : 'Patient not found '},status=status.HTTP_404_NOT_FOUND)
+        accident.objects.create(
                 user = patd,
             )
         return Response({'status':'created'},status=status.HTTP_201_CREATED)

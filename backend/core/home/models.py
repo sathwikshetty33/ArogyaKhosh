@@ -30,6 +30,7 @@ class patient(models.Model):
     address = models.CharField(max_length=100)
     contact = models.CharField(max_length=100)
     emergencyContact = models.CharField(max_length=100)
+    summary = models.TextField(blank=True,null=True)
     def __str__(self):
         return self.name
 class hospitalLedger(models.Model):

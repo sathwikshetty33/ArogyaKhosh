@@ -110,9 +110,9 @@ class ChatMessageView(APIView):
             for msg in reversed(list(recent_messages)):
                 role = "user" if msg.type == "user" else "assistant"
                 conversation_history.append({"role": role, "content": msg.message})
-            
+            summ = patient_obj.summary
             # Call Groq API
-            ai_response = self.get_ai_response(conversation_history)
+            ai_response = self.get_ai_response(conversation_history,summ)
             
             # Save AI response
             ai_message = chatMessages.objects.create(
@@ -139,7 +139,7 @@ class ChatMessageView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    def get_ai_response(self, conversation_history):
+    def get_ai_response(self, conversation_history,summ):
     # Configure your Groq API call here
         GROQ_API_KEY = "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" # Store this in environment variables for security
         
@@ -147,7 +147,7 @@ class ChatMessageView(APIView):
         if not conversation_history:
             system_message = {
                 "role": "system",
-                "content": "You are Dhoomkethu, a professional virtual doctor. Maintain a formal, medical professional tone. Provide clear and accurate medical information when possible, but always remind patients to seek in-person medical care for serious conditions. Never diagnose specific conditions without proper examination. Use medical terminology appropriately but explain concepts in patient-friendly language. Begin the conversation with a warm welcome introducing yourself as Dr. Dhoomkethu."
+                "content": f"You are Dhoomkethu, a professional virtual doctor. Maintain a formal, medical professional tone. Provide clear and accurate medical information when possible, but always remind patients to seek in-person medical care for serious conditions. Never diagnose specific conditions without proper examination. Use medical terminology appropriately but explain concepts in patient-friendly language. Begin the conversation with a warm welcome introducing yourself as Dr. Dhoomkethu. This is contains the brief context of the patients health {summ}"
             }
             
             welcome_message = {
@@ -156,12 +156,14 @@ class ChatMessageView(APIView):
             }
             
             conversation_history = [system_message, welcome_message]
+           
         # If conversation exists but doesn't have a system message, add it at the beginning
         elif conversation_history and conversation_history[0]["role"] != "system":
             system_message = {
                 "role": "system",
-                "content": "You are Dhoomkethu, a professional virtual doctor. Maintain a formal, medical professional tone. Provide clear and accurate medical information when possible, but always remind patients to seek in-person medical care for serious conditions. Never diagnose specific conditions without proper examination. Use medical terminology appropriately but explain concepts in patient-friendly language."
+                "content": f"You are Dhoomkethu, a professional virtual doctor. Maintain a formal, medical professional tone. Provide clear and accurate medical information when possible, but always remind patients to seek in-person medical care for serious conditions. Never diagnose specific conditions without proper examination. Use medical terminology appropriately but explain concepts in patient-friendly language. This contains the brief context of the patient's health: {summ}"
             }
+
             
             conversation_history.insert(0, system_message)
         

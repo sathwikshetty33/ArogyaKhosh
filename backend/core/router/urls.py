@@ -13,4 +13,5 @@ urlpatterns = [
     path('chat/', chat_page, name='chat_page'),
     path('access/',views.accessPage, name='access'),
     path('index/',views.index, name='index'),
+    path('community/',views.community, name='community'),
 ]

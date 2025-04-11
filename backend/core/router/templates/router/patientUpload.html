@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -192,6 +191,64 @@
       outline: none;
       border-color: var(--blue-500);
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    
+    /* Checkbox Styles */
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .checkbox-container input[type="checkbox"] {
+      width: 1rem;
+      height: 1rem;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--border-radius-sm);
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-color: var(--white);
+      margin: 0;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .checkbox-container input[type="checkbox"]:checked {
+      background-color: var(--blue-600);
+      border-color: var(--blue-600);
+    }
+    
+    .checkbox-container input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 4px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    
+    .checkbox-container input[type="checkbox"]:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    
+    .checkbox-container label {
+      font-size: 0.875rem;
+      cursor: pointer;
+      user-select: none;
+      margin-bottom: 0;
+    }
+    
+    .checkbox-info {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-left: 1.5rem;
+      margin-top: 0.25rem;
     }
     
     /* File Upload */
@@ -565,6 +622,13 @@
                     <input type="file" id="file" name="file" required>
                 </div>
                 
+                <!-- New checkbox for document summary -->
+                <div class="checkbox-container">
+                    <input type="checkbox" id="generateSummary" name="generateSummary" value="true" checked>
+                    <label for="generateSummary">Generate a concise summary of this document</label>
+                </div>
+                <p class="checkbox-info">AROGYAKOSH will create a brief summary of your document to help with indexing and retrieval</p>
+                
                 <div id="message" class="message"></div>
                 
                 <button type="submit" class="upload-button">
@@ -593,6 +657,57 @@
         const message = document.getElementById("message");
         const fileNameDisplay = document.getElementById('fileNameDisplay');
         const statusList = document.getElementById('documentStatusList');
+        const fileInput = document.getElementById('file');
+        const dropArea = document.getElementById('dropArea');
+
+        // Display selected filename
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                fileNameDisplay.textContent = this.files[0].name;
+                fileNameDisplay.style.display = 'block';
+            } else {
+                fileNameDisplay.style.display = 'none';
+            }
+        });
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('dragging');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('dragging');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length) {
+                fileInput.files = files;
+                fileNameDisplay.textContent = files[0].name;
+                fileNameDisplay.style.display = 'block';
+            }
+        }
 
         // Single function to handle form submission
         async function handleUpload(event) {

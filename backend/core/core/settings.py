@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['172.29.54.122', 'localhost', '127.0.0.1','*']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,7 +45,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'bot',
     'logs',
+    'community',
     'django_celery_results',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -104,7 +107,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+ASGI_APPLICATION = 'core.asgi.application'
 
 
 # Database
@@ -167,7 +170,8 @@ TWILIO_AUTH_TOKEN  = os.getenv('auth_token')
 PINATA_API_KEY = os.getenv("PINATA_API_KEY")
 PINATA_SECRET_KEY = os.getenv("PINATA_SECRET_KEY")
 SEPOLIA_NODE_URL = os.getenv('SEPOLIA_NODE_URL')  
-CONTRACT_ADDRESS = "0xf630435E8eB44D7bFcE0c0882DcbC46e6c26bD76" 
+# CONTRACT_ADDRESS = "0xf630435E8eB44D7bFcE0c0882DcbC46e6c26bD76" 
+CONTRACT_ADDRESS = "0xEfd0FcA627c4E39A632AC560BE8DA027D160D047" 
 ETHEREUM_PRIVATE_KEY = os.getenv('ETHEREUM_PRIVATE_KEY')
 URL_HASH_SECRET=os.getenv('URL_HASH_SECRET')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -176,6 +180,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER =  os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD =  os.getenv('EMAIL_HOST_PASSWORD')
+GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 import os
 
 MEDIA_URL = '/media/'
@@ -201,3 +206,11 @@ CACHES = {
     }
 }
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6380)],
+        },
+    },
+}

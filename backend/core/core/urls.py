@@ -24,6 +24,7 @@ urlpatterns = [
     path('',include('home.urls')),
     path('route/',include('router.urls')),
     path('bot/',include('bot.urls')),
+    path('api/',include('community.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

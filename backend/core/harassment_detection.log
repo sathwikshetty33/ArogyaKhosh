@@ -1,0 +1,568 @@
+2025-04-08 10:11:53,062 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:11:53,063 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:11:53,065 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:11:53,066 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:13:47,787 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:13:47,788 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:13:47,789 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:13:47,789 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:14:24,426 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:14:24,426 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:14:24,427 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:14:24,427 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:14:27,740 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:14:27,740 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:14:27,742 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:14:27,742 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:15:15,426 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:15:15,427 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:15:15,428 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:15:15,428 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:15:43,217 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:15:43,217 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:15:43,218 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:15:43,218 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:20:52,087 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:20:52,087 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:20:52,089 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:20:52,089 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:26:06,504 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:26:06,506 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:26:06,507 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:26:06,507 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:26:54,772 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:26:54,772 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:26:54,775 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:26:54,775 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:33:10,201 - harassment_detection - INFO - [START] Processing message d3139a27-0d28-4c93-871a-aa710ea2c353
+2025-04-08 10:33:10,206 - harassment_detection - INFO - Retrieved message d3139a27-0d28-4c93-871a-aa710ea2c353: kill yourself...
+2025-04-08 10:33:10,207 - harassment_detection - INFO - Checking message d3139a27-0d28-4c93-871a-aa710ea2c353 for harassment: 'kill yourself'
+2025-04-08 10:33:10,207 - harassment_detection - DEBUG - Checking text for harassment: 'kill yourself'
+2025-04-08 10:33:10,207 - harassment_detection - INFO - MATCH FOUND! Direct match: 'kill yourself' in 'kill yourself'
+2025-04-08 10:33:10,207 - harassment_detection - INFO - Harassment check result for message d3139a27-0d28-4c93-871a-aa710ea2c353: True, reason: Contains harmful phrase: kill yourself
+2025-04-08 10:33:10,207 - harassment_detection - WARNING - BLOCKED HARASSING MESSAGE d3139a27-0d28-4c93-871a-aa710ea2c353: Contains harmful phrase: kill yourself
+2025-04-08 10:33:10,207 - harassment_detection - WARNING - Blocked message content: kill yourself
+2025-04-08 10:33:10,207 - harassment_detection - ERROR - Unhandled exception in broadcast_message task: 'Message' object has no attribute 'sender_id'
+2025-04-08 10:33:10,210 - harassment_detection - ERROR - Traceback (most recent call last):
+  File "/home/sathwik/ArogyaKhosh/backend/core/community/tasks.py", line 141, in broadcast_message
+    sender_id = message.sender_id
+                ^^^^^^^^^^^^^^^^^
+AttributeError: 'Message' object has no attribute 'sender_id'
+
+2025-04-08 10:33:51,426 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:33:51,426 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:33:51,427 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:33:51,427 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:34:09,037 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:34:09,037 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:34:09,039 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:34:09,039 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:34:46,667 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:34:46,668 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:34:46,669 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:34:46,669 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:34:58,111 - harassment_detection - INFO - [START] Processing message c3368755-01cd-4c8d-ab91-a57d835d7822
+2025-04-08 10:34:58,113 - harassment_detection - INFO - Retrieved message c3368755-01cd-4c8d-ab91-a57d835d7822: kill yourself...
+2025-04-08 10:34:58,113 - harassment_detection - INFO - Checking message c3368755-01cd-4c8d-ab91-a57d835d7822 for harassment: 'kill yourself'
+2025-04-08 10:34:58,113 - harassment_detection - DEBUG - Checking text for harassment: 'kill yourself'
+2025-04-08 10:34:58,113 - harassment_detection - INFO - MATCH FOUND! Direct match: 'kill yourself' in 'kill yourself'
+2025-04-08 10:34:58,113 - harassment_detection - INFO - Harassment check result for message c3368755-01cd-4c8d-ab91-a57d835d7822: True, reason: Contains harmful phrase: kill yourself
+2025-04-08 10:34:58,113 - harassment_detection - WARNING - BLOCKED HARASSING MESSAGE c3368755-01cd-4c8d-ab91-a57d835d7822: Contains harmful phrase: kill yourself
+2025-04-08 10:34:58,113 - harassment_detection - WARNING - Blocked message content: kill yourself
+2025-04-08 10:34:58,114 - harassment_detection - ERROR - Unhandled exception in broadcast_message task: 'Message' object has no attribute 'sender_id'
+2025-04-08 10:34:58,116 - harassment_detection - ERROR - Traceback (most recent call last):
+  File "/home/sathwik/ArogyaKhosh/backend/core/community/tasks.py", line 141, in broadcast_message
+    created_at = message.created_at
+                ^^^^^^^^^^^^^^^^^
+AttributeError: 'Message' object has no attribute 'sender_id'
+
+2025-04-08 10:35:26,283 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:35:26,283 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:35:26,285 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:35:26,285 - harassment_detection - INFO - Harassment detection module fully loaded and ready
+2025-04-08 10:35:58,268 - harassment_detection - INFO - [START] Processing message 2d9a6c15-04dc-4767-ab8e-b11c133ca830
+2025-04-08 10:35:58,270 - harassment_detection - INFO - Retrieved message 2d9a6c15-04dc-4767-ab8e-b11c133ca830: kill yourself...
+2025-04-08 10:35:58,270 - harassment_detection - INFO - Checking message 2d9a6c15-04dc-4767-ab8e-b11c133ca830 for harassment: 'kill yourself'
+2025-04-08 10:35:58,270 - harassment_detection - DEBUG - Checking text for harassment: 'kill yourself'
+2025-04-08 10:35:58,270 - harassment_detection - INFO - MATCH FOUND! Direct match: 'kill yourself' in 'kill yourself'
+2025-04-08 10:35:58,270 - harassment_detection - INFO - Harassment check result for message 2d9a6c15-04dc-4767-ab8e-b11c133ca830: True, reason: Contains harmful phrase: kill yourself
+2025-04-08 10:35:58,270 - harassment_detection - WARNING - BLOCKED HARASSING MESSAGE 2d9a6c15-04dc-4767-ab8e-b11c133ca830: Contains harmful phrase: kill yourself
+2025-04-08 10:35:58,270 - harassment_detection - WARNING - Blocked message content: kill yourself
+2025-04-08 10:35:58,270 - harassment_detection - ERROR - Unhandled exception in broadcast_message task: 'Message' object has no attribute 'sender_id'
+2025-04-08 10:35:58,271 - harassment_detection - ERROR - Traceback (most recent call last):
+  File "/home/sathwik/ArogyaKhosh/backend/core/community/tasks.py", line 141, in broadcast_message
+    created_at = message.created_at
+                ^^^^^^^^^^^^^^^^^
+AttributeError: 'Message' object has no attribute 'sender_id'
+
+2025-04-08 10:36:38,419 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:36:38,419 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:36:38,421 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:36:54,550 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:36:54,551 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:36:54,552 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:37:44,691 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:37:44,691 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:37:44,692 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 10:37:53,620 - harassment_detection - INFO - [START] Processing message 8e49ead5-26aa-4d9b-8732-d6f938ccf9bf
+2025-04-08 10:37:53,622 - harassment_detection - INFO - Retrieved message 8e49ead5-26aa-4d9b-8732-d6f938ccf9bf: you are mental...
+2025-04-08 10:37:53,622 - harassment_detection - INFO - Checking message 8e49ead5-26aa-4d9b-8732-d6f938ccf9bf for harassment: 'you are mental'
+2025-04-08 10:37:53,622 - harassment_detection - DEBUG - Checking text for harassment: 'you are mental'
+2025-04-08 10:37:53,623 - harassment_detection - INFO - MATCH FOUND! Pattern match: 'mental' in 'you are mental'
+2025-04-08 10:37:53,623 - harassment_detection - INFO - Harassment check result for message 8e49ead5-26aa-4d9b-8732-d6f938ccf9bf: True, reason: Contains harmful term or pattern: mental
+2025-04-08 10:37:53,623 - harassment_detection - WARNING - BLOCKED HARASSING MESSAGE 8e49ead5-26aa-4d9b-8732-d6f938ccf9bf: Contains harmful term or pattern: mental
+2025-04-08 10:37:53,623 - harassment_detection - WARNING - Blocked message content: you are mental
+2025-04-08 10:37:53,623 - harassment_detection - ERROR - Unhandled exception in broadcast_message task: 'Message' object has no attribute 'sender_id'
+2025-04-08 10:37:53,624 - harassment_detection - ERROR - Traceback (most recent call last):
+  File "/home/sathwik/ArogyaKhosh/backend/core/community/tasks.py", line 141, in broadcast_message
+    created_at = message.created_at
+                ^^^^^^^^^^^^^^^^^
+AttributeError: 'Message' object has no attribute 'sender_id'
+
+2025-04-08 10:38:21,368 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 10:38:21,368 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 10:38:21,369 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 11:15:55,085 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 11:15:55,085 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 11:15:55,088 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 11:21:23,225 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 11:21:23,225 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 11:21:23,228 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 11:22:16,837 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 11:22:16,837 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 11:22:16,840 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 11:23:31,846 - harassment_detection - INFO - [START] Processing message d09f6fef-04d8-466b-a03a-0e7262122797
+2025-04-08 11:23:31,860 - harassment_detection - INFO - Retrieved message d09f6fef-04d8-466b-a03a-0e7262122797: kill yourself1...
+2025-04-08 11:23:31,861 - harassment_detection - INFO - Checking message d09f6fef-04d8-466b-a03a-0e7262122797 for harassment: 'kill yourself1'
+2025-04-08 11:23:31,861 - harassment_detection - DEBUG - Checking text for harassment: 'kill yourself1'
+2025-04-08 11:23:31,861 - harassment_detection - INFO - MATCH FOUND! Direct match: 'kill yourself' in 'kill yourself1'
+2025-04-08 11:23:31,861 - harassment_detection - INFO - Harassment check result for message d09f6fef-04d8-466b-a03a-0e7262122797: True, reason: Contains harmful phrase: kill yourself
+2025-04-08 11:23:31,861 - harassment_detection - WARNING - BLOCKED HARASSING MESSAGE d09f6fef-04d8-466b-a03a-0e7262122797: Contains harmful phrase: kill yourself
+2025-04-08 11:23:31,861 - harassment_detection - WARNING - Blocked message content: kill yourself1
+2025-04-08 11:23:31,862 - harassment_detection - INFO - Deleting message d09f6fef-04d8-466b-a03a-0e7262122797
+2025-04-08 11:23:31,873 - harassment_detection - INFO - Successfully deleted message d09f6fef-04d8-466b-a03a-0e7262122797
+2025-04-08 11:23:31,873 - harassment_detection - INFO - [END] Message d09f6fef-04d8-466b-a03a-0e7262122797 blocked due to harassment
+2025-04-08 11:25:04,991 - harassment_detection - INFO - [START] Processing message a45b2ce0-3567-4b20-ad75-fd7a057f56bd
+2025-04-08 11:25:04,999 - harassment_detection - INFO - Retrieved message a45b2ce0-3567-4b20-ad75-fd7a057f56bd: kill yourself...
+2025-04-08 11:25:05,000 - harassment_detection - INFO - Checking message a45b2ce0-3567-4b20-ad75-fd7a057f56bd for harassment: 'kill yourself'
+2025-04-08 11:25:05,000 - harassment_detection - DEBUG - Checking text for harassment: 'kill yourself'
+2025-04-08 11:25:05,000 - harassment_detection - INFO - MATCH FOUND! Direct match: 'kill yourself' in 'kill yourself'
+2025-04-08 11:25:05,000 - harassment_detection - INFO - Harassment check result for message a45b2ce0-3567-4b20-ad75-fd7a057f56bd: True, reason: Contains harmful phrase: kill yourself
+2025-04-08 11:25:05,000 - harassment_detection - WARNING - BLOCKED HARASSING MESSAGE a45b2ce0-3567-4b20-ad75-fd7a057f56bd: Contains harmful phrase: kill yourself
+2025-04-08 11:25:05,001 - harassment_detection - WARNING - Blocked message content: kill yourself
+2025-04-08 11:25:05,001 - harassment_detection - INFO - Deleting message a45b2ce0-3567-4b20-ad75-fd7a057f56bd
+2025-04-08 11:25:05,012 - harassment_detection - INFO - Successfully deleted message a45b2ce0-3567-4b20-ad75-fd7a057f56bd
+2025-04-08 11:25:05,012 - harassment_detection - INFO - [END] Message a45b2ce0-3567-4b20-ad75-fd7a057f56bd blocked due to harassment
+2025-04-08 11:25:47,574 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 11:25:47,575 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 11:25:47,577 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 11:26:14,513 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 11:26:14,513 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 11:26:14,515 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 11:26:22,304 - harassment_detection - INFO - [START] Processing message 008059e0-5b90-4456-9715-5eedf71dda6e
+2025-04-08 11:26:22,309 - harassment_detection - INFO - Retrieved message 008059e0-5b90-4456-9715-5eedf71dda6e: you are mental...
+2025-04-08 11:26:22,310 - harassment_detection - INFO - Checking message 008059e0-5b90-4456-9715-5eedf71dda6e for harassment: 'you are mental'
+2025-04-08 11:26:22,310 - harassment_detection - DEBUG - Checking text for harassment: 'you are mental'
+2025-04-08 11:26:22,311 - harassment_detection - INFO - MATCH FOUND! Pattern match: 'mental' in 'you are mental'
+2025-04-08 11:26:22,312 - harassment_detection - INFO - Harassment check result for message 008059e0-5b90-4456-9715-5eedf71dda6e: True, reason: Contains harmful term or pattern: mental
+2025-04-08 11:26:22,313 - harassment_detection - WARNING - BLOCKED HARASSING MESSAGE 008059e0-5b90-4456-9715-5eedf71dda6e: Contains harmful term or pattern: mental
+2025-04-08 11:26:22,314 - harassment_detection - WARNING - Blocked message content: you are mental
+2025-04-08 11:26:22,315 - harassment_detection - INFO - Deleting message 008059e0-5b90-4456-9715-5eedf71dda6e
+2025-04-08 11:26:22,334 - harassment_detection - INFO - Successfully deleted message 008059e0-5b90-4456-9715-5eedf71dda6e
+2025-04-08 11:26:22,335 - harassment_detection - INFO - [END] Message 008059e0-5b90-4456-9715-5eedf71dda6e blocked due to harassment
+2025-04-08 11:27:30,068 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 11:27:30,068 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 11:27:30,071 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 11:58:41,497 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 11:58:41,498 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 11:58:41,501 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 12:01:28,815 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 12:01:28,815 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 12:01:28,819 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 12:16:45,419 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 12:16:45,419 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 12:16:45,424 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 12:18:05,675 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 12:18:05,676 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 12:18:05,679 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 12:21:37,055 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 12:21:37,056 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 12:21:37,059 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 12:21:40,087 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 12:21:40,088 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 12:21:40,095 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 12:22:30,891 - harassment_detection - INFO - [START] Processing message a05fdcdc-29d2-4ddc-84e4-7b9f9affaeef
+2025-04-08 12:22:30,908 - harassment_detection - INFO - Retrieved message a05fdcdc-29d2-4ddc-84e4-7b9f9affaeef: kill urself...
+2025-04-08 12:22:30,910 - harassment_detection - INFO - Checking message a05fdcdc-29d2-4ddc-84e4-7b9f9affaeef for harassment: 'kill urself'
+2025-04-08 12:22:30,911 - harassment_detection - DEBUG - Checking text for harassment: 'kill urself'
+2025-04-08 12:22:30,912 - harassment_detection - DEBUG - No harassment detected in text
+2025-04-08 12:22:30,912 - harassment_detection - INFO - Harassment check result for message a05fdcdc-29d2-4ddc-84e4-7b9f9affaeef: False, reason: 
+2025-04-08 12:22:30,912 - harassment_detection - INFO - Broadcasting message a05fdcdc-29d2-4ddc-84e4-7b9f9affaeef
+2025-04-08 12:22:30,924 - harassment_detection - INFO - Successfully broadcast message a05fdcdc-29d2-4ddc-84e4-7b9f9affaeef
+2025-04-08 12:22:30,925 - harassment_detection - INFO - [END] Message a05fdcdc-29d2-4ddc-84e4-7b9f9affaeef processed successfully
+2025-04-08 12:22:56,742 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 12:22:56,743 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 12:22:56,746 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 12:22:59,742 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 12:22:59,742 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 12:22:59,746 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 12:24:46,216 - harassment_detection - INFO - [START] Processing message 74c6f160-d615-40c7-af5c-c88d0f285ea6
+2025-04-08 12:24:46,222 - harassment_detection - INFO - Retrieved message 74c6f160-d615-40c7-af5c-c88d0f285ea6: dont do that...
+2025-04-08 12:24:46,222 - harassment_detection - INFO - Checking message 74c6f160-d615-40c7-af5c-c88d0f285ea6 for harassment: 'dont do that'
+2025-04-08 12:24:46,223 - harassment_detection - DEBUG - Checking text for harassment: 'dont do that'
+2025-04-08 12:24:46,223 - harassment_detection - DEBUG - No harassment detected in text
+2025-04-08 12:24:46,223 - harassment_detection - INFO - Harassment check result for message 74c6f160-d615-40c7-af5c-c88d0f285ea6: False, reason: 
+2025-04-08 12:24:46,223 - harassment_detection - INFO - Broadcasting message 74c6f160-d615-40c7-af5c-c88d0f285ea6
+2025-04-08 12:24:46,239 - harassment_detection - INFO - Successfully broadcast message 74c6f160-d615-40c7-af5c-c88d0f285ea6
+2025-04-08 12:24:46,240 - harassment_detection - INFO - [END] Message 74c6f160-d615-40c7-af5c-c88d0f285ea6 processed successfully
+2025-04-08 12:31:23,062 - harassment_detection - INFO - [START] Processing message afa7c2eb-2668-40fa-8867-38ba9b2963c1
+2025-04-08 12:31:23,066 - harassment_detection - INFO - Retrieved message afa7c2eb-2668-40fa-8867-38ba9b2963c1: dont do that life valuable...
+2025-04-08 12:31:23,066 - harassment_detection - INFO - Checking message afa7c2eb-2668-40fa-8867-38ba9b2963c1 for harassment: 'dont do that life valuable'
+2025-04-08 12:31:23,066 - harassment_detection - DEBUG - Checking text for harassment: 'dont do that life valuable'
+2025-04-08 12:31:23,067 - harassment_detection - DEBUG - No harassment detected in text
+2025-04-08 12:31:23,067 - harassment_detection - INFO - Harassment check result for message afa7c2eb-2668-40fa-8867-38ba9b2963c1: False, reason: 
+2025-04-08 12:31:23,067 - harassment_detection - INFO - Broadcasting message afa7c2eb-2668-40fa-8867-38ba9b2963c1
+2025-04-08 12:31:23,079 - harassment_detection - INFO - Successfully broadcast message afa7c2eb-2668-40fa-8867-38ba9b2963c1
+2025-04-08 12:31:23,080 - harassment_detection - INFO - [END] Message afa7c2eb-2668-40fa-8867-38ba9b2963c1 processed successfully
+2025-04-08 12:32:27,165 - harassment_detection - INFO - [START] Processing message 1afb037a-dd90-4c50-b5e0-97a420d667cd
+2025-04-08 12:32:27,194 - harassment_detection - INFO - Retrieved message 1afb037a-dd90-4c50-b5e0-97a420d667cd: Hihi...
+2025-04-08 12:32:27,194 - harassment_detection - INFO - Checking message 1afb037a-dd90-4c50-b5e0-97a420d667cd for harassment: 'Hihi'
+2025-04-08 12:32:27,194 - harassment_detection - DEBUG - Checking text for harassment: 'Hihi'
+2025-04-08 12:32:27,195 - harassment_detection - DEBUG - No harassment detected in text
+2025-04-08 12:32:27,195 - harassment_detection - INFO - Harassment check result for message 1afb037a-dd90-4c50-b5e0-97a420d667cd: False, reason: 
+2025-04-08 12:32:27,195 - harassment_detection - INFO - Broadcasting message 1afb037a-dd90-4c50-b5e0-97a420d667cd
+2025-04-08 12:32:27,211 - harassment_detection - INFO - Successfully broadcast message 1afb037a-dd90-4c50-b5e0-97a420d667cd
+2025-04-08 12:32:27,212 - harassment_detection - INFO - [END] Message 1afb037a-dd90-4c50-b5e0-97a420d667cd processed successfully
+2025-04-08 12:33:58,791 - harassment_detection - INFO - [START] Processing message 254a71bb-1b49-4eb9-b990-d248aa1840fc
+2025-04-08 12:33:58,797 - harassment_detection - INFO - Retrieved message 254a71bb-1b49-4eb9-b990-d248aa1840fc: Thank you so much for the motivation...
+2025-04-08 12:33:58,798 - harassment_detection - INFO - Checking message 254a71bb-1b49-4eb9-b990-d248aa1840fc for harassment: 'Thank you so much for the motivation'
+2025-04-08 12:33:58,799 - harassment_detection - DEBUG - Checking text for harassment: 'Thank you so much for the motivation'
+2025-04-08 12:33:58,800 - harassment_detection - DEBUG - No harassment detected in text
+2025-04-08 12:33:58,800 - harassment_detection - INFO - Harassment check result for message 254a71bb-1b49-4eb9-b990-d248aa1840fc: False, reason: 
+2025-04-08 12:33:58,800 - harassment_detection - INFO - Broadcasting message 254a71bb-1b49-4eb9-b990-d248aa1840fc
+2025-04-08 12:33:58,816 - harassment_detection - INFO - Successfully broadcast message 254a71bb-1b49-4eb9-b990-d248aa1840fc
+2025-04-08 12:33:58,816 - harassment_detection - INFO - [END] Message 254a71bb-1b49-4eb9-b990-d248aa1840fc processed successfully
+2025-04-08 14:57:43,853 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 14:57:43,854 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 14:57:43,857 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-08 14:58:33,804 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-08 14:58:33,805 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-08 14:58:33,809 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 04:01:53,616 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 04:01:53,618 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 04:01:53,621 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 04:07:32,332 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 04:07:32,332 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 04:07:32,335 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 04:08:01,630 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 04:08:01,630 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 04:08:01,641 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 04:09:53,704 - harassment_detection - INFO - [START] Processing message a3879138-4790-4ad6-8850-f5438f225102
+2025-04-11 04:09:53,718 - harassment_detection - INFO - Retrieved message a3879138-4790-4ad6-8850-f5438f225102: hi...
+2025-04-11 04:09:53,718 - harassment_detection - INFO - Checking message a3879138-4790-4ad6-8850-f5438f225102 for harassment: 'hi'
+2025-04-11 04:09:53,718 - harassment_detection - DEBUG - Checking text for harassment: 'hi'
+2025-04-11 04:09:53,719 - harassment_detection - DEBUG - No harassment detected in text
+2025-04-11 04:09:53,719 - harassment_detection - INFO - Harassment check result for message a3879138-4790-4ad6-8850-f5438f225102: False, reason: 
+2025-04-11 04:09:53,719 - harassment_detection - INFO - Broadcasting message a3879138-4790-4ad6-8850-f5438f225102
+2025-04-11 04:09:53,731 - harassment_detection - INFO - Successfully broadcast message a3879138-4790-4ad6-8850-f5438f225102
+2025-04-11 04:09:53,731 - harassment_detection - INFO - [END] Message a3879138-4790-4ad6-8850-f5438f225102 processed successfully
+2025-04-11 09:16:04,324 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 09:16:04,325 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 09:16:04,328 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 09:18:16,245 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 09:18:16,245 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 09:18:16,252 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:41:43,050 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:41:43,053 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:41:43,055 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:48:08,123 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:48:08,124 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:48:08,126 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:48:38,440 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:48:38,441 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:48:38,445 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:49:01,807 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:49:01,807 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:49:01,810 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:49:24,094 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:49:24,095 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:49:24,098 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:51:11,874 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:51:11,875 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:51:11,879 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:51:15,631 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:51:15,631 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:51:15,636 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:51:20,826 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:51:20,828 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:51:20,833 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:51:34,013 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:51:34,013 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:51:34,015 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:53:51,718 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:53:51,719 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:53:51,723 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:55:13,897 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:55:13,897 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:55:13,900 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:56:51,058 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:56:51,058 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:56:51,061 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:57:01,240 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:57:01,244 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:57:01,250 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:57:06,541 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:57:06,542 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:57:06,544 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:58:05,128 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:58:05,129 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:58:05,131 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 13:58:18,212 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 13:58:18,213 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 13:58:18,216 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:00:33,597 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:00:33,598 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:00:33,601 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:00:45,611 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:00:45,611 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:00:45,622 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:00:49,454 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:00:49,454 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:00:49,459 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:00:54,404 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:00:54,404 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:00:54,407 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:01:04,145 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:01:04,145 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:01:04,148 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:05:22,156 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:05:22,156 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:05:22,159 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:05:30,653 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:05:30,653 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:05:30,656 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:05:36,396 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:05:36,396 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:05:36,399 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:10:22,367 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:10:22,368 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:10:22,370 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:21:19,372 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:21:19,373 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:21:19,375 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:22:10,720 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:22:10,720 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:22:10,722 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:23:18,028 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:23:18,028 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:23:18,032 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:23:49,128 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:23:49,128 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:23:49,132 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:25:44,035 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:25:44,036 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:25:44,038 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:25:51,332 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:25:51,332 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:25:51,333 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:42:44,776 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:42:44,778 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:42:44,779 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:45:37,794 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:45:37,795 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:45:37,797 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:45:45,712 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:45:45,712 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:45:45,714 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:47:10,074 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:47:10,074 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:47:10,077 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:47:24,977 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:47:24,977 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:47:24,978 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:49:07,412 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:49:07,413 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:49:07,415 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:49:10,761 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:49:10,761 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:49:10,763 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:49:18,265 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:49:18,265 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:49:18,266 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:52:59,490 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:52:59,490 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:52:59,491 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:53:07,904 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:53:07,904 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:53:07,905 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:57:40,714 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:57:40,715 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:57:40,716 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:58:18,963 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:58:18,963 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:58:18,964 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 14:58:31,907 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 14:58:31,907 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 14:58:31,908 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:02:21,391 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:02:21,393 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:02:21,394 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:02:43,176 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:02:43,176 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:02:43,178 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:05:20,715 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:05:20,715 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:05:20,716 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:05:25,985 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:05:25,985 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:05:25,987 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:05:37,208 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:05:37,208 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:05:37,209 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:11:01,928 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:11:01,928 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:11:01,930 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:11:17,428 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:11:17,428 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:11:17,429 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:11:30,107 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:11:30,107 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:11:30,108 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:19:36,686 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:19:36,686 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:19:36,688 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:19:42,136 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:19:42,137 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:19:42,138 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:19:48,535 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:19:48,535 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:19:48,537 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:19:55,801 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:19:55,802 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:19:55,803 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:20:31,745 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:20:31,745 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:20:31,747 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:21:08,202 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:21:08,202 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:21:08,204 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:21:12,493 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:21:12,494 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:21:12,495 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:21:34,234 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:21:34,235 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:21:34,236 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:21:40,671 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:21:40,671 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:21:40,673 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:21:49,314 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:21:49,314 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:21:49,316 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:22:09,134 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:22:09,134 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:22:09,136 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:22:18,728 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:22:18,729 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:22:18,731 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:22:23,170 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:22:23,170 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:22:23,171 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:22:30,590 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:22:30,591 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:22:30,592 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:22:34,897 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:22:34,898 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:22:34,899 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:24:46,153 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:24:46,153 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:24:46,154 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:24:51,580 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:24:51,580 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:24:51,582 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:27:28,678 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:27:28,678 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:27:28,680 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:27:34,123 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:27:34,123 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:27:34,124 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:29:43,481 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:29:43,481 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:29:43,482 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:30:09,054 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:30:09,055 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:30:09,056 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:30:14,341 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:30:14,342 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:30:14,343 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:30:17,643 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:30:17,643 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:30:17,644 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:30:52,226 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:30:52,226 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:30:52,227 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:30:59,507 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:30:59,507 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:30:59,509 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:31:27,519 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:31:27,519 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:31:27,521 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:33:31,456 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:33:31,456 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:33:31,458 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:34:49,793 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:34:49,793 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:34:49,794 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:35:08,947 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:35:08,948 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:35:08,949 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:35:30,383 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:35:30,384 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:35:30,385 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:37:55,598 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:37:55,598 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:37:55,600 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:39:26,043 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:39:26,043 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:39:26,045 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:39:56,076 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:39:56,077 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:39:56,078 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:39:58,389 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:39:58,390 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:39:58,391 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:40:03,764 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:40:03,764 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:40:03,767 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:40:07,236 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:40:07,236 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:40:07,237 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:40:10,416 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:40:10,416 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:40:10,417 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:40:13,805 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:40:13,806 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:40:13,809 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:40:19,019 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:40:19,019 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:40:19,022 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:40:25,679 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:40:25,680 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:40:25,682 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:41:56,877 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:41:56,877 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:41:56,879 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:42:02,538 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:42:02,538 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:42:02,539 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:42:12,031 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:42:12,031 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:42:12,032 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:42:14,290 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:42:14,290 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:42:14,292 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:42:43,305 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:42:43,305 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:42:43,307 - harassment_detection - INFO - Successfully compiled 41 patterns
+2025-04-11 15:45:20,395 - harassment_detection - INFO - Harassment detection module initialized
+2025-04-11 15:45:20,395 - harassment_detection - INFO - Compiling harassment detection patterns
+2025-04-11 15:45:20,396 - harassment_detection - INFO - Successfully compiled 41 patterns
