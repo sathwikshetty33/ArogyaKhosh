@@ -1167,6 +1167,141 @@ footer {
       transform: scaleX(0);
     }
   }   
+  /* Summary button styles */
+#view-summary-btn {
+    padding: 8px 16px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#view-summary-btn:hover {
+    background-color: #3a7bc8;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    width: 80%;
+    max-width: 700px;
+    position: relative;
+    animation: modalFade 0.3s;
+}
+
+@keyframes modalFade {
+    from {opacity: 0; transform: translateY(-30px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.close-summary-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-summary-modal:hover {
+    color: #333;
+}
+
+/* Summary content styles */
+.summary-content {
+    margin-top: 15px;
+    max-height: 60vh;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    padding: 15px;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.summary-text p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.highlight-term {
+    background-color: #ffeb3b50;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: 500;
+}
+
+.summary-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#read-summary-btn {
+    background-color: #5cb85c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s;
+}
+
+#read-summary-btn:hover {
+    background-color: #4cae4c;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error {
+    color: #d9534f;
+    padding: 15px;
+    text-align: center;
+}
+
+.retry-btn {
+    display: block;
+    margin: 15px auto;
+    padding: 8px 16px;
+    background-color: #f0ad4e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.retry-btn:hover {
+    background-color: #ec971f;
+}
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -1225,7 +1360,7 @@ footer {
         <i class="fa-solid fa-eye"></i>
 
         <span>
-            <a href="https://d7d5-2401-4900-61b3-9c34-412e-3b80-b926-274.ngrok-free.app/" style="text-decoration: none; color: inherit;">VibeSync</a>
+            <a href="https://2b06-14-195-89-114.ngrok-free.app/" style="text-decoration: none; color: inherit;">VibeSync</a>
         </span>
     </div>
     <div class="menu-item">
@@ -1263,8 +1398,12 @@ footer {
                   <p style="margin: 5px 0;"><span id="patient-blood-group"></span></p>
                   <p style="margin: 5px 0;">Contact: <span id="patient-contact"></span></p>
                   <p style="margin: 5px 0;">Emergency Contact: <span id="patient-emergency-contact"></span></p>
-                  <p style="margin: 5px 0;">Address: <span id="patient-address"></span></p>
-              </div>
+                  
+                <p style="margin: 5px 0;">Address: <span id="patient-address"></span></p>
+                <button id="view-summary-btn" class="btn btn-primary" style="margin-top: 10px;">
+                    <i class="fas fa-file-medical-alt"></i> View Medical Summary
+                </button>
+            </div>
                     <!-- Add the QR code section here -->
                     <div class="qr-code-section">
                         <div class="qr-code-title">PATIENT QR CODE</div>
@@ -1272,7 +1411,15 @@ footer {
                     </div>
           </div>
       </div>
-      
+      <div id="summary-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-summary-modal">&times;</span>
+            <h2>Medical Summary</h2>
+            <div id="summary-content" class="summary-content">
+                <div class="loading">Loading summary...</div>
+            </div>
+        </div>
+    </div>
       <div class="content-card">
         <div class="search-upload-container">
             <div class="search-container">
@@ -2488,6 +2635,139 @@ document.addEventListener('DOMContentLoaded', function() {
         window.speechSynthesis.cancel();
         speaking = false;
         readAloudBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read Aloud';
+    }
+});
+// Function to fetch and display patient summary
+function fetchPatientSummary() {
+    console.log(`Fetching summary for patient ID: ${patientId}`);
+    
+    // Get auth token from cookies
+    const authToken = getCookie('authToken');
+    
+    // Show loading state in modal
+    const summaryContent = document.getElementById('summary-content');
+    summaryContent.innerHTML = '<div class="loading">Loading summary...</div>';
+    
+    // Display the modal
+    const modal = document.getElementById('summary-modal');
+    modal.style.display = 'block';
+    
+    // Fetch the summary from the API
+    fetch(`/displaysum/${patientId}/`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${authToken}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                throw new Error('You are not authorized to view this patient summary');
+            } else {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.summary) {
+            // Format and display the summary text
+            summaryContent.innerHTML = `
+                <div class="summary-text">
+                    ${formatSummaryText(data.summary)}
+                </div>
+                <div class="summary-actions">
+                    <button id="read-summary-btn" onclick="readSummaryText()">
+                        <i class="fas fa-volume-up"></i> Read Aloud
+                    </button>
+                </div>
+            `;
+        } else {
+            summaryContent.innerHTML = '<div class="error">No summary available for this patient</div>';
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching patient summary:', error);
+        summaryContent.innerHTML = `
+            <div class="error">
+                ${error.message || 'Failed to load patient summary'}
+            </div>
+            <button onclick="fetchPatientSummary()" class="retry-btn">
+                <i class="fas fa-redo"></i> Retry
+            </button>
+        `;
+    });
+}
+
+// Helper function to format summary text with paragraphs and highlighting
+function formatSummaryText(text) {
+    if (!text) return '';
+    
+    // Split by newlines and wrap in paragraph tags
+    const paragraphs = text.split('\n').filter(p => p.trim() !== '');
+    
+    // Format each paragraph, highlighting important medical terms
+    const formattedParagraphs = paragraphs.map(p => {
+        // Highlight medical keywords (basic example - expand as needed)
+        p = p.replace(/\b(condition|diagnosis|treatment|medication|allergies|history|symptoms)\b/gi, 
+            '<span class="highlight-term">$1</span>');
+            
+        return `<p>${p}</p>`;
+    });
+    
+    return formattedParagraphs.join('');
+}
+
+// Function to read summary text aloud
+function readSummaryText() {
+    const summary = document.querySelector('#summary-content .summary-text');
+    if (!summary) return;
+    
+    // Extract only the text content without HTML tags
+    const textToRead = summary.textContent;
+    
+    // Create speech synthesis utterance
+    const speech = new SpeechSynthesisUtterance();
+    speech.text = textToRead;
+    speech.volume = 1;
+    speech.rate = 1;
+    speech.pitch = 1;
+    
+    // Get current language from translator if available
+    const currentLang = document.querySelector('.goog-te-combo')?.value || 'en-US';
+    speech.lang = currentLang;
+    
+    // Speak the text
+    window.speechSynthesis.speak(speech);
+}
+
+// Add event listeners when document is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up click handler for summary button
+    const summaryBtn = document.getElementById('view-summary-btn');
+    if (summaryBtn) {
+        summaryBtn.addEventListener('click', fetchPatientSummary);
+    }
+    
+    // Set up modal close functionality
+    const modal = document.getElementById('summary-modal');
+    const closeBtn = document.querySelector('.close-summary-modal');
+    
+    if (closeBtn && modal) {
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+            // Stop any ongoing speech when closing the modal
+            window.speechSynthesis.cancel();
+        };
+        
+        // Close when clicking outside the modal
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                // Stop any ongoing speech
+                window.speechSynthesis.cancel();
+            }
+        };
     }
 });
 </script>

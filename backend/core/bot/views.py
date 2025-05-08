@@ -1,4 +1,4 @@
-
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,6 +11,51 @@ from rest_framework.authentication import TokenAuthentication
 import requests
 from .models import chat, chatMessages
 from home.models import patient
+
+# Updated Langchain imports
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_groq import ChatGroq  # Correct import for Groq
+from langchain.schema import SystemMessage, HumanMessage, AIMessage
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_community.document_loaders import TextLoader
+from langchain.memory import ConversationBufferMemory
+
+# Constants
+GROQ_API_KEY = settings.GROQ_API_KEY# Should be in environment variables
+
+
+def initialize_rag_system(documents_path="medical_knowledge_base/"):
+    """Initialize the RAG system with medical documents"""
+    try:
+        # Load documents - replace with your actual document loading logic
+        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        # This is a placeholder - you'd need to implement actual document loading
+        # Example: documents = TextLoader(documents_path).load_and_split(text_splitter)
+        
+        # For demo purposes, we'll create a simple document list
+        documents = [
+            "Common cold: Symptoms include runny nose, sore throat, cough, and mild fever.",
+            "Hypertension: High blood pressure, often asymptomatic but can lead to heart disease.",
+            "Diabetes: A condition characterized by high blood glucose levels.",
+            # Add more medical information as needed
+        ]
+        
+        # Convert to Langchain document format
+        from langchain.schema import Document
+        docs = [Document(page_content=text) for text in documents]
+        
+        # Create embeddings and vector store
+        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        vector_store = FAISS.from_documents(docs, embeddings)
+        
+        return vector_store
+    except Exception as e:
+        print(f"Error initializing RAG system: {e}")
+        return None
+
+# Initialize vector store
+vector_store = initialize_rag_system()
 
 class ChatView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -41,22 +86,21 @@ class ChatView(APIView):
         return Response(chats_data)
     
     def post(self, request):
-    # Create a new chat session
+        # Create a new chat session
         try:
             patient_obj = patient.objects.get(user=request.user)
             new_chat = chat.objects.create(user=patient_obj)
-            print(1)
+            
             # Add welcome message from Dr. Dhoomkethu
             welcome_message = "Hello, I'm Dr. Dhoomkethu. Welcome to your virtual consultation. How may I assist you with your health concerns today?"
-            print(11)
-            # Create the first message in the chat (assuming you have a message model)
-            # Update this part based on your actual message model structure
+            
+            # Create the first message in the chat
             chat_message = chatMessages.objects.create(
                 chat=new_chat,
-                type="ai",  # or whatever field you use to identify the sender
+                type="ai",
                 message=welcome_message,
             )
-            print(1111)
+            
             return Response({"chat_id": new_chat.id}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -105,14 +149,20 @@ class ChatMessageView(APIView):
             
             # Get last 10 messages for context
             recent_messages = chatMessages.objects.filter(chat=chat_obj).order_by('-created_at')[:10]
-            conversation_history = []
             
+            # Convert to langchain message format
+            langchain_messages = []
             for msg in reversed(list(recent_messages)):
-                role = "user" if msg.type == "user" else "assistant"
-                conversation_history.append({"role": role, "content": msg.message})
-            summ = patient_obj.summary
-            # Call Groq API
-            ai_response = self.get_ai_response(conversation_history,summ)
+                if msg.type == "user":
+                    langchain_messages.append(HumanMessage(content=msg.message))
+                else:
+                    langchain_messages.append(AIMessage(content=msg.message))
+            
+            # Get patient summary for context
+            patient_summary = patient_obj.summary
+            
+            # Get AI response using RAG
+            ai_response = self.get_rag_response(user_message, langchain_messages, patient_summary)
             
             # Save AI response
             ai_message = chatMessages.objects.create(
@@ -139,53 +189,50 @@ class ChatMessageView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
-    def get_ai_response(self, conversation_history,summ):
-    # Configure your Groq API call here
-        GROQ_API_KEY = "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" # Store this in environment variables for security
-        
-        # If conversation is empty, initialize with a system message and welcome message
-        if not conversation_history:
-            system_message = {
-                "role": "system",
-                "content": f"You are Dhoomkethu, a professional virtual doctor. Maintain a formal, medical professional tone. Provide clear and accurate medical information when possible, but always remind patients to seek in-person medical care for serious conditions. Never diagnose specific conditions without proper examination. Use medical terminology appropriately but explain concepts in patient-friendly language. Begin the conversation with a warm welcome introducing yourself as Dr. Dhoomkethu. This is contains the brief context of the patients health {summ}"
-            }
-            
-            welcome_message = {
-                "role": "assistant",
-                "content": "Hello, I'm Dr. Dhoomkethu. Welcome to your virtual consultation. How may I assist you with your health concerns today?"
-            }
-            
-            conversation_history = [system_message, welcome_message]
-           
-        # If conversation exists but doesn't have a system message, add it at the beginning
-        elif conversation_history and conversation_history[0]["role"] != "system":
-            system_message = {
-                "role": "system",
-                "content": f"You are Dhoomkethu, a professional virtual doctor. Maintain a formal, medical professional tone. Provide clear and accurate medical information when possible, but always remind patients to seek in-person medical care for serious conditions. Never diagnose specific conditions without proper examination. Use medical terminology appropriately but explain concepts in patient-friendly language. This contains the brief context of the patient's health: {summ}"
-            }
-
-            
-            conversation_history.insert(0, system_message)
-        
-        headers = {
-            "Authorization": f"Bearer {GROQ_API_KEY}",
-            "Content-Type": "application/json"
-        }
-        
-        data = {
-            "model": "llama3-70b-8192",  # or your preferred model
-            "messages": conversation_history,
-            "temperature": 0.7,
-            "max_tokens": 1024
-        }
-        
+    def get_rag_response(self, query, conversation_history, patient_summary):
+        """Use RAG to generate a response based on the query and retrieved documents"""
         try:
-            response = requests.post(
-                "https://api.groq.com/openai/v1/chat/completions",
-                headers=headers,
-                json=data
+            # Create system message with patient context
+            system_message = SystemMessage(
+                content=f"You are Dhoomkethu, a professional virtual doctor. Maintain a formal, medical professional tone. "
+                        f"Provide clear and accurate medical information when possible, but always remind patients to seek "
+                        f"in-person medical care for serious conditions. Never diagnose specific conditions without proper examination. "
+                        f"Use medical terminology appropriately but explain concepts in patient-friendly language. "
+                        f"This contains the brief context of the patient's health: {patient_summary}"
             )
-            response_data = response.json()
-            return response_data['choices'][0]['message']['content']
+            
+            # If vector store is available, use RAG
+            if vector_store:
+                # Retrieve relevant documents
+                retriever = vector_store.as_retriever(search_kwargs={"k": 3})
+                relevant_docs = retriever.get_relevant_documents(query)
+                
+                # Extract the content from relevant documents
+                retrieved_content = "\n".join([doc.page_content for doc in relevant_docs])
+                
+                # Add retrieved context to the prompt
+                context_message = SystemMessage(
+                    content=f"Based on medical literature, here is some relevant information that might help with your response: {retrieved_content}"
+                )
+                
+                # Combine messages: system message, context, conversation history
+                messages = [system_message, context_message] + conversation_history
+            else:
+                # Fallback if vector store is not available
+                messages = [system_message] + conversation_history
+            
+            # Initialize the Groq chat model
+            chat_model = ChatGroq(
+                api_key=GROQ_API_KEY,
+                model_name="llama3-70b-8192",
+                temperature=0.7,
+                max_tokens=1024
+            )
+            
+            # Generate response
+            response = chat_model.invoke(messages)
+            return response.content
+        
         except Exception as e:
-            return f"I apologize, but I'm unable to respond at the moment. Please try again later."
+            print(f"Error in RAG response generation: {e}")
+            return "I apologize, but I'm unable to respond at the moment. Please try again later."

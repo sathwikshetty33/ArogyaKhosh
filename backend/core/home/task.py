@@ -12,8 +12,68 @@ import requests
 from .hash import *
 from .models import patient, patientDocument, DocumentProcessStatus
 
+# Langchain imports
+from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_groq import ChatGroq
+from langchain.schema import SystemMessage, HumanMessage
+from langchain.text_splitter import CharacterTextSplitter
+from io import BytesIO
+
 # Set up logger
 logger = logging.getLogger(__name__)
+GROQ_API_KEY = settings.GROQ_API_KEY# Should be in environment variables
+
+# Initialize or load vector store for medical knowledge
+def get_medical_knowledge_vectorstore():
+    """Initialize or load medical knowledge vector store for RAG"""
+    try:
+        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        knowledge_base_path = os.path.join(settings.BASE_DIR, "medical_knowledge_base")
+        
+        # Check if vector store exists
+        if os.path.exists(os.path.join(knowledge_base_path, "index.faiss")):
+            logger.info("Loading existing medical knowledge vector store")
+            return FAISS.load_local(knowledge_base_path, embeddings)
+        else:
+            logger.info("Creating new medical knowledge vector store")
+            # Sample medical knowledge - replace with actual medical reference documents
+            medical_knowledge = [
+                "Medical reports often contain vital signs including blood pressure, heart rate, temperature, and respiratory rate.",
+                "Laboratory tests such as CBC, metabolic panels, lipid profiles, and urinalysis provide critical diagnostic information.",
+                "Imaging reports from X-rays, CT scans, MRIs, and ultrasounds should be summarized with key findings.",
+                "Surgical history should include procedure type, date, complications, and outcomes.",
+                "Medication lists should include drug names, dosages, frequencies, and the conditions they treat.",
+                "Patient allergies must be prominently noted, including the type of reaction.",
+                "Family history should highlight conditions with genetic components or risk factors.",
+                "Medical summaries should organize information by body systems or chronologically.",
+                "Chronic conditions require tracking of disease progression, treatment responses, and complications.",
+                "Recent hospitalizations should note admission reason, treatments, length of stay, and discharge disposition."
+            ]
+            
+            # Convert to Langchain document format
+            from langchain.schema import Document
+            docs = [Document(page_content=text) for text in medical_knowledge]
+            
+            # Create vector store
+            vector_store = FAISS.from_documents(docs, embeddings)
+            
+            # Save for future use
+            os.makedirs(knowledge_base_path, exist_ok=True)
+            vector_store.save_local(knowledge_base_path)
+            
+            return vector_store
+    except Exception as e:
+        logger.error(f"Error initializing medical knowledge vector store: {str(e)}")
+        return None
+
+# Try to initialize the vector store at module level
+try:
+    medical_vectorstore = get_medical_knowledge_vectorstore()
+    logger.info("Medical knowledge vector store initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize medical knowledge vector store: {str(e)}")
+    medical_vectorstore = None
 
 @shared_task(bind=True)
 def upload_document_to_ipfs_and_blockchain(self, patient_id, file_name, file_content, summary=False):
@@ -78,7 +138,6 @@ def upload_document_to_ipfs_and_blockchain(self, patient_id, file_name, file_con
                     logger.info("Detected PDF content, using PyPDF2 for extraction")
                     try:
                         import PyPDF2
-                        from io import BytesIO
                         
                         pdf_file = BytesIO(file_content_bytes)
                         pdf_reader = PyPDF2.PdfReader(pdf_file)
@@ -112,7 +171,6 @@ def upload_document_to_ipfs_and_blockchain(self, patient_id, file_name, file_con
                     logger.info("Extracting text from DOCX file")
                     try:
                         import docx
-                        from io import BytesIO
                         
                         doc = docx.Document(BytesIO(file_content_bytes))
                         file_text = "\n".join([para.text for para in doc.paragraphs])
@@ -129,7 +187,6 @@ def upload_document_to_ipfs_and_blockchain(self, patient_id, file_name, file_con
                     # Try basic UTF-8 decoding for unknown types but check for binary content
                     logger.info(f"Attempting basic text extraction for {file_name}")
                     try:
-                        
                         sample = file_content_bytes[:1000]
                         non_printable = sum(1 for b in sample if b < 32 and b not in (9, 10, 13))  # Tab, LF, CR
                         
@@ -165,60 +222,132 @@ def upload_document_to_ipfs_and_blockchain(self, patient_id, file_name, file_con
                         logger.warning(f"Extracted text too large ({len(file_text)} chars), truncating to {max_chars} chars")
                         file_text = file_text[:max_chars] + "\n\n[Text truncated due to size limitations]"
                     
-                    # Call Groq API to process the summary
-                    logger.info("Calling Groq API")
-                    groq_api_url = "https://api.groq.com/openai/v1/chat/completions"
-                    groq_api_key = settings.GROQ_API_KEY
-                    
-                    if not groq_api_key:
-                        logger.error("GROQ_API_KEY not set in settings")
-                        process_status.error_message = 'Warning: GROQ_API_KEY not set'
-                        process_status.save()
-                        return {'error': 'GROQ_API_KEY not set'}
-                    
-                    groq_headers = {
-                        "Authorization": f"Bearer {groq_api_key}",
-                        "Content-Type": "application/json"
-                    }
-                    
-                    payload = {
-                        "model": "llama3-70b-8192",
-                        "messages": [
-                            {
-                                "role": "system",
-                                "content": "You are a medical documentation assistant. Create concise medical summaries that focus only on clinical data. Never include patient names or personal identifiers. Do not include recommendations or lifestyle advice. Focus exclusively on medical findings, test results, and diagnoses. Keep it structured and highlight new findings and also include the prvious summary that is provided in the context and the summary must be a combination of both."
-                            },
-                            {
-                                "role": "user",
-                                "content": f"Existing summary:\n{existing_summary}\n\nNew medical report:\n{file_text}\n\nCreate an updated clinical summary with only the essential medical information."
-                            }
-                        ],
-                        "temperature": 0.3
-                    }
+                    # Instead of directly calling Groq API, use Langchain with RAG
+                    logger.info("Starting RAG-based summary generation")
                     
                     try:
-                        groq_response = requests.post(groq_api_url, headers=groq_headers, json=payload, timeout=30)
+                        # Prepare query for RAG
+                        query = f"Create a medical summary for: {file_text[:200]}..."
                         
-                        logger.info(f"Groq API response status: {groq_response.status_code}")
-                        if groq_response.status_code == 200:
-                            result = groq_response.json()
-                            updated_summary = result["choices"][0]["message"]["content"]
+                        # If we have a vector store, retrieve relevant medical knowledge
+                        retrieved_context = ""
+                        if medical_vectorstore:
+                            logger.info("Retrieving relevant medical knowledge")
+                            retriever = medical_vectorstore.as_retriever(search_kwargs={"k": 3})
+                            relevant_docs = retriever.get_relevant_documents(query)
                             
-                            logger.info(f"Updated summary received, length: {len(updated_summary)}")
-                            
-                            # Update patient summary
-                            pat.summary = updated_summary
-                            pat.save()
-                            logger.info("Patient summary saved successfully")
-                            summary_actually_updated = True
-                        else:
-                            logger.error(f"Groq API error: {groq_response.text}")
-                            process_status.error_message = f'Warning: Summary update failed: {groq_response.text}, but continuing with upload'
+                            retrieved_context = "\n".join([doc.page_content for doc in relevant_docs])
+                            logger.info(f"Retrieved context: {retrieved_context[:200]}...")
+                        
+                        # Initialize the Groq chat model through Langchain
+                        groq_api_key = settings.GROQ_API_KEY
+                        
+                        if not groq_api_key:
+                            logger.error("GROQ_API_KEY not set in settings")
+                            process_status.error_message = 'Warning: GROQ_API_KEY not set'
                             process_status.save()
-                    except requests.exceptions.RequestException as e:
-                        logger.error(f"Request error when calling Groq API: {str(e)}")
-                        process_status.error_message = f'Warning: Groq API request error: {str(e)}'
+                            return {'error': 'GROQ_API_KEY not set'}
+                        
+                        chat_model = ChatGroq(
+                            api_key=groq_api_key,
+                            model_name="llama3-70b-8192",
+                            temperature=0.3,
+                            max_tokens=1024
+                        )
+                        
+                        # Create system message with retrieved context
+                        context_prefix = ""
+                        if retrieved_context:
+                            context_prefix = f"""Consider the following medical knowledge when creating your summary:
+                            {retrieved_context}
+                            
+                            """
+                        
+                        system_message = SystemMessage(
+                            content=f"""{context_prefix}You are a medical documentation assistant. Create concise medical summaries in Markdown format.
+                            Never include patient names or personal identifiers. Do not include recommendations or lifestyle advice unless explicitly stated in the source documents.
+                            Format the summary with appropriate Markdown headers (# for main title, ## for sections, ### for subsections),
+                            bullet points (- for items), and text formatting (**bold** for important values and diagnoses).
+                            Always include sections for: Previous Summary, New Findings, Diagnosis, and any other relevant clinical sections.
+                            Focus exclusively on medical findings, test results, and diagnoses. Include the previous summary information.
+                            The final summary must be properly formatted in Markdown."""
+)
+
+                        
+                        # Create user message
+                        user_message = HumanMessage(
+                            content=f"Existing summary:\n{existing_summary}\n\nNew medical report:\n{file_text}\n\nCreate an updated clinical summary with only the essential medical information."
+                        )
+                        
+                        # Generate response
+                        logger.info("Calling Groq model through Langchain")
+                        response = chat_model.invoke([system_message, user_message])
+                        
+                        # Extract the response content
+                        updated_summary = response.content
+                        
+                        logger.info(f"Updated summary received, length: {len(updated_summary)}")
+                        
+                        # Update patient summary
+                        pat.summary = updated_summary
+                        pat.save()
+                        logger.info("Patient summary saved successfully")
+                        summary_actually_updated = True
+                        
+                    except Exception as e:
+                        logger.error(f"Error in RAG-based summary generation: {str(e)}")
+                        logger.error(traceback.format_exc())
+                        process_status.error_message = f'Warning: RAG summary generation error: {str(e)}, falling back to direct API call'
                         process_status.save()
+                        
+                        # Fall back to direct Groq API call if RAG fails
+                        logger.info("Falling back to direct Groq API call")
+                        groq_api_url = "https://api.groq.com/openai/v1/chat/completions"
+                        groq_api_key = settings.GROQ_API_KEY
+                        
+                        groq_headers = {
+                            "Authorization": f"Bearer {groq_api_key}",
+                            "Content-Type": "application/json"
+                        }
+                        
+                        payload = {
+                            "model": "llama3-70b-8192",
+                            "messages": [
+                                {
+                                    "role": "system",
+                                    "content": "You are a medical documentation assistant. Create concise medical summaries in Markdown format. Never include patient names or personal identifiers. Format the summary with appropriate Markdown headers (# for main title, ## for sections, ### for subsections), bullet points (- for items), and text formatting (**bold** for important values and diagnoses). Always include sections for: Previous Summary, New Findings, Diagnosis, and any other relevant clinical sections. Focus exclusively on medical findings, test results, and diagnoses. Include the previous summary information. The final summary must be properly formatted in Markdown."
+                                },
+                                {
+                                    "role": "user",
+                                    "content": f"Existing summary:\n{existing_summary}\n\nNew medical report:\n{file_text}\n\nCreate an updated clinical summary with the essential medical information formatted in Markdown."
+                                }
+                            ],
+                            "temperature": 0.3
+                        }
+                                                
+                        try:
+                            groq_response = requests.post(groq_api_url, headers=groq_headers, json=payload, timeout=30)
+                            
+                            logger.info(f"Groq API response status: {groq_response.status_code}")
+                            if groq_response.status_code == 200:
+                                result = groq_response.json()
+                                updated_summary = result["choices"][0]["message"]["content"]
+                                
+                                logger.info(f"Updated summary received, length: {len(updated_summary)}")
+                                
+                                # Update patient summary
+                                pat.summary = updated_summary
+                                pat.save()
+                                logger.info("Patient summary saved successfully")
+                                summary_actually_updated = True
+                            else:
+                                logger.error(f"Groq API error: {groq_response.text}")
+                                process_status.error_message = f'Warning: Summary update failed: {groq_response.text}, but continuing with upload'
+                                process_status.save()
+                        except requests.exceptions.RequestException as e:
+                            logger.error(f"Request error when calling Groq API: {str(e)}")
+                            process_status.error_message = f'Warning: Groq API request error: {str(e)}'
+                            process_status.save()
             
             except Exception as e:
                 # Don't fail the whole process if summary fails
@@ -243,7 +372,6 @@ def upload_document_to_ipfs_and_blockchain(self, patient_id, file_name, file_con
                 logger.info("Using file-like object for Pinata upload")
             else:
                 # It's bytes, wrap it for the request
-                from io import BytesIO
                 files = {"file": (file_name, BytesIO(file_content))}
                 logger.info("Using BytesIO wrapper for Pinata upload")
 
@@ -277,7 +405,7 @@ def upload_document_to_ipfs_and_blockchain(self, patient_id, file_name, file_con
             import json
 
             web3 = Web3(Web3.HTTPProvider(settings.SEPOLIA_NODE_URL))
-            with open(r'/home/sathwik/new/ArogyaKhosh/backend/core/home/abi.json', "r") as abi_file:
+            with open(r'/home/sathwik/ArogyaKhosh/backend/core/home/abi.json', "r") as abi_file:
                 contract_abi = json.load(abi_file)
             # Account setup
             account: LocalAccount = Account.from_key(settings.ETHEREUM_PRIVATE_KEY)

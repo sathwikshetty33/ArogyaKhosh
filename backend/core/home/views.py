@@ -35,7 +35,7 @@ from django.core.mail import send_mail
 
 # print(checksum_address)  
 
-with open(r'/home/sathwik/new/ArogyaKhosh/backend/core/home/abi.json', "r") as abi_file:
+with open(r'/home/sathwik/ArogyaKhosh/backend/core/home/abi.json', "r") as abi_file:
     contract_abi = json.load(abi_file)
 
 # LOCAL_NODE_URL =  
@@ -362,84 +362,86 @@ class PatientDoc(APIView):
         }
         return Response(context, status=status.HTTP_200_OK)
 class getPatientDocStatus(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, id):
-        pat = patientDocument.objects.filter(id=id).first().patient
-        if not pat:
-            return Response({"error": "Patient does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        # Here the user is guaranteed authenticated
         try:
             patd = patientDocument.objects.get(id=id)
         except patientDocument.DoesNotExist:
             return Response({"error": "Patient document does not exist."}, status=status.HTTP_404_NOT_FOUND)
-        if PatinetDocumentAcess.objects.filter(doc=patd,to=request.user,sanctioned=True).exists():
+
+        pat = patd.patient
+        if not pat:
+            return Response({"error": "Patient does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        if PatinetDocumentAcess.objects.filter(doc=patd, to=request.user, sanctioned=True).exists():
             return Response(status=status.HTTP_200_OK)
-        if accident.objects.filter(user=pat).exists(): 
+        
+        if accident.objects.filter(user=pat).exists():
             return Response(status=status.HTTP_200_OK)
-        if patd.isPrivate == False:
+
+        if not patd.isPrivate:
             return Response(status=status.HTTP_200_OK)
-        try:
-            tok = request.COOKIES.get('authToken')
-        except KeyError:
-            return Response({"error": "Authentication token not found"}, status=status.HTTP_403_FORBIDDEN)
-        try:
-            token = Token.objects.get(key=tok)
-        except Token.DoesNotExist:
-            return Response({"error": "Invalid authentication token"}, status=status.HTTP_403_FORBIDDEN)
-        if token.user!= patd.patient.user:
+
+        if request.user != patd.patient.user:
             return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
+
         return Response(status=status.HTTP_200_OK)
     
 class getHospitalDocStatus(APIView):
-    def get(self,request, id):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, id):
         try:
             patd = hospitalDocument.objects.get(id=id)
         except hospitalDocument.DoesNotExist:
             return Response({"error": "Hospital document does not exist."}, status=status.HTTP_404_NOT_FOUND)
-        pat = hospitalDocument.objects.filter(id=id).first().hospitalLedger.patient
+
+        pat = patd.hospitalLedger.patient
         if not pat:
             return Response({"error": "Patient does not exist."}, status=status.HTTP_404_NOT_FOUND)
-        if accident.objects.filter(user=pat).exists(): 
+
+        # Check if user has sanctioned access
+        if HospitalDocumentAcess.objects.filter(doc=patd, to=request.user, sanctioned=True).exists():
             return Response(status=status.HTTP_200_OK)
-        if HospitalDocumentAcess.objects.filter(doc=patd,to=request.user,sanctioned=True).exists():
+
+        # Check if accident record exists
+        if accident.objects.filter(user=pat).exists():
             return Response(status=status.HTTP_200_OK)
-        if patd.isPrivate == False:
+
+        # Check if document is not private
+        if not patd.isPrivate:
             return Response(status=status.HTTP_200_OK)
+
+        # Check if the user is either the hospital user or the patient user
         if patd.hospitalLedger.hospital.user == request.user:
             return Response(status=status.HTTP_200_OK)
+        
         if patd.hospitalLedger.patient.user == request.user:
             return Response(status=status.HTTP_200_OK)
+
         return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
 class checkPatient(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, id):
-        try:
-            tok = request.COOKIES.get('authToken')
-        except KeyError:
-            return Response({"error": "Authentication token not found"}, status=status.HTTP_403_FORBIDDEN)
-        try:
-            token = Token.objects.get(key=tok)
-        except Token.DoesNotExist:
-            return Response({"error": "Invalid authentication token"}, status=status.HTTP_403_FORBIDDEN)
         try:
             patd = patient.objects.get(id=id)
         except patient.DoesNotExist:
             return Response({"error": "Patient does not exist."}, status=status.HTTP_404_NOT_FOUND)
-        if token.user!= patd.user:
+        if request.user!= patd.user:
             return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(status=status.HTTP_200_OK)
 class checkHospital(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def get(self, request, id):
-        try:
-            tok = request.COOKIES.get('authToken')
-        except KeyError:
-            return Response({"error": "Authentication token not found"}, status=status.HTTP_403_FORBIDDEN)
-        try:
-            token = Token.objects.get(key=tok)
-        except Token.DoesNotExist:
-            return Response({"error": "Invalid authentication token"}, status=status.HTTP_403_FORBIDDEN)
         try:
             patd = hospital.objects.get(id=id)
         except hospital.DoesNotExist:
             return Response({"error": "hospital does not exist."}, status=status.HTTP_404_NOT_FOUND)
-        if token.user!= patd.user:
+        if request.user!= patd.user:
             return Response({"error": "Unauthorized access"}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(status=status.HTTP_200_OK)
 
@@ -1170,16 +1172,26 @@ class Accidentadd(APIView):
         return Response({'status':'created'},status=status.HTTP_201_CREATED)
     
 class create_accident(APIView):
-    def post(self, request):
+    def post(self, request,id):
         try:
-            patid = request.data.get('patId')
-        except:
-            return Response({"error": "Patient id not sent"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            patd = patient.objects.get(id=patid)
+            patd = patient.objects.get(id=id)
         except:
             return Response({'error' : 'Patient not found '},status=status.HTTP_404_NOT_FOUND)
         accident.objects.create(
                 user = patd,
             )
         return Response({'status':'created'},status=status.HTTP_201_CREATED)
+
+class displaysum(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    def get(self, request, id):
+        try:
+            patd = patient.objects.get(id=id)
+        except:
+            return Response({'error' : 'Patient not found '},status=status.HTTP_404_NOT_FOUND)
+        
+        if accident.objects.filter(user=patd).exists() or patd.user==request.user:
+            return Response({'summary':patd.summary},status=status.HTTP_200_OK)
+        else:
+            return Response({'error' : 'You are not the patient or you are not authorized'},status=status.HTTP_401_UNAUTHORIZED)
