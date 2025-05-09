@@ -1,0 +1,742 @@
+INFO 2025-05-08 22:35:05,719 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:35:05,720 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:35:10,779 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:35:10,779 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:35:16,642 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:35:16,644 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:35:17,511 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:35:17,511 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:35:35,850 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:35:35,855 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:35:40,142 connection Connected to redis://localhost:6380/0
+INFO 2025-05-08 22:35:40,147 mingle mingle: searching for neighbors
+INFO 2025-05-08 22:35:40,487 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:35:40,487 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:35:41,164 mingle mingle: all alone
+INFO 2025-05-08 22:35:41,186 worker celery@sathwik ready.
+INFO 2025-05-08 22:35:42,281 beat beat: Starting...
+INFO 2025-05-08 22:35:42,322 celery Beat scheduler initialized
+INFO 2025-05-08 22:35:42,323 celery Current beat schedule: {'detect-suspicious-accident-patterns-daily': <ScheduleEntry: detect-suspicious-accident-patterns-daily cronutils.task.detect_suspicious_accident_patterns() <crontab: 36 22 * * * (m/h/dM/MY/d)>}
+INFO 2025-05-08 22:36:00,002 beat Scheduler: Sending due task detect-suspicious-accident-patterns-daily (cronutils.task.detect_suspicious_accident_patterns)
+INFO 2025-05-08 22:36:00,016 strategy Task cronutils.task.detect_suspicious_accident_patterns[e32cde70-4da4-434f-9e3e-29bda592b360] received
+INFO 2025-05-08 22:36:00,021 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 22:36:00,021 task Analyzing data from 2025-04-08 17:06:00.021704+00:00 to 2025-05-08 17:06:00.021704+00:00
+INFO 2025-05-08 22:36:00,021 task Checking for patients with multiple accidents
+INFO 2025-05-08 22:36:00,061 task Found 1 recent accidents
+INFO 2025-05-08 22:36:00,064 task Found 1 unique patients with accidents
+INFO 2025-05-08 22:36:00,064 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 22:36:00,066 task Found accidents in 0 different hospitals
+INFO 2025-05-08 22:36:00,066 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 22:36:00,066 task Checking for patterns with the same police officer
+INFO 2025-05-08 22:36:00,067 task Found 0 accident reports with police officers
+INFO 2025-05-08 22:36:00,067 task Found 0 unique police officers reporting accidents
+INFO 2025-05-08 22:36:00,067 task Suspicious patterns found: False
+INFO 2025-05-08 22:36:00,067 task Preparing task execution confirmation email
+INFO 2025-05-08 22:36:00,068 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 22:36:03,463 task Confirmation email sent successfully
+INFO 2025-05-08 22:36:03,464 task Task execution confirmation email sent successfully
+INFO 2025-05-08 22:36:03,464 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 22:36:03,466 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 22:36:03,467 trace Task cronutils.task.detect_suspicious_accident_patterns[e32cde70-4da4-434f-9e3e-29bda592b360] succeeded in 3.4489795560002676s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 22:39:01,168 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:39:01,168 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:39:01,996 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:39:01,996 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:39:14,344 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:39:14,345 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:39:18,360 connection Connected to redis://localhost:6380/0
+INFO 2025-05-08 22:39:18,365 mingle mingle: searching for neighbors
+INFO 2025-05-08 22:39:19,389 mingle mingle: all alone
+INFO 2025-05-08 22:39:19,413 worker celery@sathwik ready.
+INFO 2025-05-08 22:39:20,482 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:39:20,483 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:39:22,183 beat beat: Starting...
+INFO 2025-05-08 22:39:22,224 celery Beat scheduler initialized
+INFO 2025-05-08 22:39:22,225 celery Current beat schedule: {'detect-suspicious-accident-patterns-daily': <ScheduleEntry: detect-suspicious-accident-patterns-daily cronutils.task.detect_suspicious_accident_patterns() <crontab: 40 22 * * * (m/h/dM/MY/d)>}
+INFO 2025-05-08 22:40:00,004 beat Scheduler: Sending due task detect-suspicious-accident-patterns-daily (cronutils.task.detect_suspicious_accident_patterns)
+INFO 2025-05-08 22:40:00,054 strategy Task cronutils.task.detect_suspicious_accident_patterns[39d6bec5-5131-4636-96eb-c35bc76bf068] received
+INFO 2025-05-08 22:40:00,063 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 22:40:00,063 task Analyzing data from 2025-04-08 17:10:00.063797+00:00 to 2025-05-08 17:10:00.063797+00:00
+INFO 2025-05-08 22:40:00,064 task Checking for patients with multiple accidents
+INFO 2025-05-08 22:40:00,076 task Found 3 recent accidents
+INFO 2025-05-08 22:40:00,080 task Found 1 unique patients with accidents
+INFO 2025-05-08 22:40:00,081 task Found suspicious pattern: Patient Patient ID: 5 with 3 accidents
+INFO 2025-05-08 22:40:00,081 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 22:40:00,084 task Found accidents in 2 different hospitals
+INFO 2025-05-08 22:40:00,084 task Average accidents per hospital: 1.00
+INFO 2025-05-08 22:40:00,084 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 22:40:00,086 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-08 22:40:00,087 task Hospital ID 2: 0 deaths out of 1 accidents
+INFO 2025-05-08 22:40:00,087 task Checking for patterns with the same police officer
+INFO 2025-05-08 22:40:00,089 task Found 2 accident reports with police officers
+INFO 2025-05-08 22:40:00,089 task Found 1 unique police officers reporting accidents
+INFO 2025-05-08 22:40:00,090 task Average reports per officer: 2.00
+INFO 2025-05-08 22:40:00,090 task Suspicious patterns found: True
+INFO 2025-05-08 22:40:00,090 task Sending suspicious activity report
+INFO 2025-05-08 22:40:00,090 task Preparing suspicious activity email report
+INFO 2025-05-08 22:40:00,090 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 22:40:03,178 task Email sent successfully
+INFO 2025-05-08 22:40:03,179 task Suspicious activity report sent successfully
+INFO 2025-05-08 22:40:03,180 task Preparing task execution confirmation email
+INFO 2025-05-08 22:40:03,180 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 22:40:07,013 task Confirmation email sent successfully
+INFO 2025-05-08 22:40:07,014 task Task execution confirmation email sent successfully
+INFO 2025-05-08 22:40:07,014 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 22:40:07,016 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 22:40:07,016 trace Task cronutils.task.detect_suspicious_accident_patterns[39d6bec5-5131-4636-96eb-c35bc76bf068] succeeded in 6.956898345000809s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 22:45:18,327 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:45:18,338 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:45:56,317 strategy Task cronutils.task.detect_suspicious_accident_patterns[cf9bff7d-cf11-4e56-8bca-14f8cee1c6f7] received
+INFO 2025-05-08 22:45:56,320 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 22:45:56,320 task Analyzing data from 2025-04-08 17:15:56.320869+00:00 to 2025-05-08 17:15:56.320869+00:00
+INFO 2025-05-08 22:45:56,321 task Checking for patients with multiple accidents
+INFO 2025-05-08 22:45:56,323 task Found 3 recent accidents
+INFO 2025-05-08 22:45:56,326 task Found 1 unique patients with accidents
+INFO 2025-05-08 22:45:56,326 task Found suspicious pattern: Patient Patient ID: 5 with 3 accidents
+INFO 2025-05-08 22:45:56,326 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 22:45:56,328 task Found accidents in 2 different hospitals
+INFO 2025-05-08 22:45:56,329 task Average accidents per hospital: 1.00
+INFO 2025-05-08 22:45:56,329 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 22:45:56,332 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-08 22:45:56,333 task Hospital ID 2: 0 deaths out of 1 accidents
+INFO 2025-05-08 22:45:56,334 task Checking for patterns with the same police officer
+INFO 2025-05-08 22:45:56,336 task Found 2 accident reports with police officers
+INFO 2025-05-08 22:45:56,336 task Found 1 unique police officers reporting accidents
+INFO 2025-05-08 22:45:56,336 task Average reports per officer: 2.00
+INFO 2025-05-08 22:45:56,336 task Suspicious patterns found: True
+INFO 2025-05-08 22:45:56,336 task Sending suspicious activity report
+INFO 2025-05-08 22:45:56,336 task Preparing suspicious activity email report
+INFO 2025-05-08 22:45:56,337 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 22:45:59,437 task Email sent successfully
+INFO 2025-05-08 22:45:59,438 task Suspicious activity report sent successfully
+INFO 2025-05-08 22:45:59,438 task Preparing task execution confirmation email
+INFO 2025-05-08 22:45:59,438 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 22:46:03,223 task Confirmation email sent successfully
+INFO 2025-05-08 22:46:03,226 task Task execution confirmation email sent successfully
+INFO 2025-05-08 22:46:03,226 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 22:46:03,232 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 22:46:03,239 trace Task cronutils.task.detect_suspicious_accident_patterns[cf9bff7d-cf11-4e56-8bca-14f8cee1c6f7] succeeded in 6.913272754998616s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 22:49:19,536 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:49:19,546 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:49:28,095 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:49:28,102 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:49:36,608 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:49:36,615 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:49:44,152 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:49:44,157 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:49:50,366 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:49:50,372 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:49:57,280 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:49:57,285 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:50:07,677 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:50:07,684 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:50:18,898 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:50:18,904 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:50:24,207 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:50:24,213 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:50:31,392 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:50:31,397 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:50:37,361 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:50:37,369 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:50:43,356 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:50:43,362 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:50:50,525 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:50:50,532 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:50:56,916 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:50:56,922 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:51:05,110 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:51:05,124 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:51:11,101 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:51:11,106 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:51:19,144 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:51:19,150 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:51:28,339 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:51:28,345 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:58:27,013 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:58:27,014 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:58:28,979 connection Connected to redis://localhost:6380/0
+INFO 2025-05-08 22:58:28,982 mingle mingle: searching for neighbors
+INFO 2025-05-08 22:58:29,988 mingle mingle: all alone
+INFO 2025-05-08 22:58:29,999 worker celery@sathwik ready.
+INFO 2025-05-08 22:58:30,647 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 22:58:30,648 apps Successfully imported cronutils tasks
+INFO 2025-05-08 22:58:31,392 beat beat: Starting...
+INFO 2025-05-08 22:58:31,416 celery Beat scheduler initialized
+INFO 2025-05-08 22:58:31,417 celery Current beat schedule: {'detect-suspicious-accident-patterns-daily': <ScheduleEntry: detect-suspicious-accident-patterns-daily cronutils.task.detect_suspicious_accident_patterns() <crontab: 59 22 * * * (m/h/dM/MY/d)>}
+INFO 2025-05-08 22:59:00,004 beat Scheduler: Sending due task detect-suspicious-accident-patterns-daily (cronutils.task.detect_suspicious_accident_patterns)
+INFO 2025-05-08 22:59:00,025 strategy Task cronutils.task.detect_suspicious_accident_patterns[4973ed40-687f-4aa9-ac6a-f80a4a8c98d1] received
+INFO 2025-05-08 22:59:00,032 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 22:59:00,032 task Analyzing data from 2025-04-08 17:29:00.032870+00:00 to 2025-05-08 17:29:00.032870+00:00
+INFO 2025-05-08 22:59:00,033 task Checking for patients with multiple accidents
+INFO 2025-05-08 22:59:00,039 task Found 4 recent accidents
+INFO 2025-05-08 22:59:00,041 task Found 2 unique patients with accidents
+INFO 2025-05-08 22:59:00,041 task Found suspicious pattern: Patient Patient ID: 5 with 3 accidents
+INFO 2025-05-08 22:59:00,041 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 22:59:00,043 task Found accidents in 2 different hospitals
+INFO 2025-05-08 22:59:00,043 task Average accidents per hospital: 2.00
+INFO 2025-05-08 22:59:00,043 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 22:59:00,044 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-08 22:59:00,044 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-08 22:59:00,044 task Checking for patterns with the same police officer
+INFO 2025-05-08 22:59:00,045 task Found 3 accident reports with police officers
+INFO 2025-05-08 22:59:00,045 task Found 1 unique police officers reporting accidents
+INFO 2025-05-08 22:59:00,045 task Average reports per officer: 3.00
+INFO 2025-05-08 22:59:00,045 task Suspicious patterns found: True
+INFO 2025-05-08 22:59:00,045 task Sending suspicious activity report
+INFO 2025-05-08 22:59:00,045 task Preparing suspicious activity email report
+INFO 2025-05-08 22:59:00,051 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 22:59:03,146 task Email sent successfully
+INFO 2025-05-08 22:59:03,147 task Suspicious activity report sent successfully
+INFO 2025-05-08 22:59:03,147 task Preparing task execution confirmation email
+INFO 2025-05-08 22:59:03,148 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 22:59:06,038 task Confirmation email sent successfully
+INFO 2025-05-08 22:59:06,038 task Task execution confirmation email sent successfully
+INFO 2025-05-08 22:59:06,038 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 22:59:06,040 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 22:59:06,040 trace Task cronutils.task.detect_suspicious_accident_patterns[4973ed40-687f-4aa9-ac6a-f80a4a8c98d1] succeeded in 6.011491784996906s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 23:09:28,852 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:09:28,855 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:09:31,741 connection Connected to redis://localhost:6380/0
+INFO 2025-05-08 23:09:31,743 mingle mingle: searching for neighbors
+INFO 2025-05-08 23:09:32,751 mingle mingle: all alone
+INFO 2025-05-08 23:09:32,766 worker celery@sathwik ready.
+INFO 2025-05-08 23:09:38,936 strategy Task cronutils.task.detect_suspicious_accident_patterns[a80218e8-198e-43d2-ace4-e3a5a2038ac1] received
+INFO 2025-05-08 23:09:38,940 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 23:09:38,940 task Analyzing data from 2025-04-08 17:39:38.940704+00:00 to 2025-05-08 17:39:38.940704+00:00
+INFO 2025-05-08 23:09:38,940 task Checking for patients with multiple accidents
+INFO 2025-05-08 23:09:38,950 task Found 4 recent accidents
+INFO 2025-05-08 23:09:38,953 task Found 2 unique patients with accidents
+INFO 2025-05-08 23:09:38,954 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-08 23:09:38,954 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 23:09:38,956 task Found accidents in 2 different hospitals
+INFO 2025-05-08 23:09:38,956 task Average accidents per hospital: 2.00
+INFO 2025-05-08 23:09:38,957 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 23:09:38,959 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-08 23:09:38,959 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-08 23:09:38,960 task Checking for patterns with the same police officer
+INFO 2025-05-08 23:09:38,960 task Found 3 accident reports with police officers
+INFO 2025-05-08 23:09:38,960 task Found 1 unique police officers reporting accidents
+INFO 2025-05-08 23:09:38,961 task Average reports per officer: 3.00
+INFO 2025-05-08 23:09:38,961 task Suspicious patterns found: True
+INFO 2025-05-08 23:09:38,961 task Sending suspicious activity report
+INFO 2025-05-08 23:09:38,961 task Preparing suspicious activity email report
+INFO 2025-05-08 23:09:38,963 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:09:42,000 task Email sent successfully
+INFO 2025-05-08 23:09:42,001 task Suspicious activity report sent successfully
+INFO 2025-05-08 23:09:42,001 task Preparing task execution confirmation email
+INFO 2025-05-08 23:09:42,002 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:09:44,959 task Confirmation email sent successfully
+INFO 2025-05-08 23:09:44,960 task Task execution confirmation email sent successfully
+INFO 2025-05-08 23:09:44,960 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 23:09:44,961 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 23:09:44,961 trace Task cronutils.task.detect_suspicious_accident_patterns[a80218e8-198e-43d2-ace4-e3a5a2038ac1] succeeded in 6.024321811000846s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 23:18:45,009 strategy Task cronutils.task.detect_suspicious_accident_patterns[d4a284ba-3df7-423e-96ce-6061a7be64c5] received
+INFO 2025-05-08 23:18:45,012 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 23:18:45,012 task Analyzing data from 2025-04-08 17:48:45.012794+00:00 to 2025-05-08 17:48:45.012794+00:00
+INFO 2025-05-08 23:18:45,012 task Checking for patients with multiple accidents
+INFO 2025-05-08 23:18:45,019 task Found 4 recent accidents
+INFO 2025-05-08 23:18:45,029 task Found 2 unique patients with accidents
+INFO 2025-05-08 23:18:45,030 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-08 23:18:45,030 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 23:18:45,033 task Found accidents in 2 different hospitals
+INFO 2025-05-08 23:18:45,033 task Average accidents per hospital: 2.00
+INFO 2025-05-08 23:18:45,034 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 23:18:45,035 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-08 23:18:45,035 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-08 23:18:45,035 task Checking for patterns with the same police officer
+INFO 2025-05-08 23:18:45,036 task Found 3 accident reports with police officers
+INFO 2025-05-08 23:18:45,036 task Found 1 unique police officers reporting accidents
+INFO 2025-05-08 23:18:45,036 task Average reports per officer: 3.00
+INFO 2025-05-08 23:18:45,036 task Suspicious patterns found: True
+INFO 2025-05-08 23:18:45,036 task Sending suspicious activity report
+INFO 2025-05-08 23:18:45,036 task Preparing suspicious activity email report
+INFO 2025-05-08 23:18:45,040 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:18:48,125 task Email sent successfully
+INFO 2025-05-08 23:18:48,126 task Suspicious activity report sent successfully
+INFO 2025-05-08 23:18:48,126 task Preparing task execution confirmation email
+INFO 2025-05-08 23:18:48,126 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:18:51,231 task Confirmation email sent successfully
+INFO 2025-05-08 23:18:51,232 task Task execution confirmation email sent successfully
+INFO 2025-05-08 23:18:51,232 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 23:18:51,233 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 23:18:51,233 trace Task cronutils.task.detect_suspicious_accident_patterns[d4a284ba-3df7-423e-96ce-6061a7be64c5] succeeded in 6.222612738998578s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 23:19:35,975 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:19:35,975 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:19:36,419 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:19:36,419 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:19:49,029 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:19:49,030 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:19:51,218 connection Connected to redis://localhost:6380/0
+INFO 2025-05-08 23:19:51,220 mingle mingle: searching for neighbors
+INFO 2025-05-08 23:19:52,228 mingle mingle: all alone
+INFO 2025-05-08 23:19:52,242 worker celery@sathwik ready.
+INFO 2025-05-08 23:19:56,085 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:19:56,086 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:19:56,989 beat beat: Starting...
+INFO 2025-05-08 23:19:57,018 celery Beat scheduler initialized
+INFO 2025-05-08 23:19:57,018 celery Current beat schedule: {'detect-suspicious-accident-patterns-daily': <ScheduleEntry: detect-suspicious-accident-patterns-daily cronutils.task.detect_suspicious_accident_patterns() <crontab: 59 22 * * * (m/h/dM/MY/d)>}
+INFO 2025-05-08 23:20:04,386 strategy Task cronutils.task.detect_suspicious_accident_patterns[c84e40b0-558e-4f64-9b61-2019c01912ac] received
+INFO 2025-05-08 23:20:04,390 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 23:20:04,390 task Analyzing data from 2025-04-08 17:50:04.390696+00:00 to 2025-05-08 17:50:04.390696+00:00
+INFO 2025-05-08 23:20:04,396 task Total accidents in period: 4
+INFO 2025-05-08 23:20:04,396 task Checking for patients with multiple accidents
+INFO 2025-05-08 23:20:04,397 task Found 4 recent accidents
+INFO 2025-05-08 23:20:04,399 task Found 2 unique patients with accidents
+INFO 2025-05-08 23:20:04,399 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-08 23:20:04,399 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 23:20:04,400 task Found accidents in 2 different hospitals
+INFO 2025-05-08 23:20:04,400 task Average accidents per hospital: 2.00
+WARNING 2025-05-08 23:20:04,401 task HIGH CONCENTRATION: Hospital nandhe hospital has 75.0% of all accidents
+INFO 2025-05-08 23:20:04,402 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 23:20:04,402 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-08 23:20:04,403 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-08 23:20:04,403 task Checking for patterns with the same police officer
+INFO 2025-05-08 23:20:04,403 task Found 3 accident reports with police officers
+INFO 2025-05-08 23:20:04,403 task Found 1 unique police officers reporting accidents
+INFO 2025-05-08 23:20:04,403 task Average reports per officer: 3.00
+WARNING 2025-05-08 23:20:04,404 task HIGH CONCENTRATION: Officer qwerty filed 100.0% of all police reports
+INFO 2025-05-08 23:20:04,404 task Suspicious patterns found: True
+INFO 2025-05-08 23:20:04,404 task Sending suspicious activity report
+INFO 2025-05-08 23:20:04,404 task Preparing suspicious activity email report
+INFO 2025-05-08 23:20:04,410 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:20:07,240 task Email sent successfully
+INFO 2025-05-08 23:20:07,241 task Suspicious activity report sent successfully
+INFO 2025-05-08 23:20:07,241 task Preparing task execution confirmation email
+INFO 2025-05-08 23:20:07,241 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:20:10,746 task Confirmation email sent successfully
+INFO 2025-05-08 23:20:10,747 task Task execution confirmation email sent successfully
+INFO 2025-05-08 23:20:10,748 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 23:20:10,750 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 23:20:10,751 trace Task cronutils.task.detect_suspicious_accident_patterns[c84e40b0-558e-4f64-9b61-2019c01912ac] succeeded in 6.362816247998126s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 23:20:11,379 strategy Task cronutils.task.detect_suspicious_accident_patterns[5a6c35a9-5ece-44bd-b984-3ae732b05011] received
+INFO 2025-05-08 23:20:11,381 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 23:20:11,381 task Analyzing data from 2025-04-08 17:50:11.381585+00:00 to 2025-05-08 17:50:11.381585+00:00
+INFO 2025-05-08 23:20:11,383 task Total accidents in period: 4
+INFO 2025-05-08 23:20:11,383 task Checking for patients with multiple accidents
+INFO 2025-05-08 23:20:11,383 task Found 4 recent accidents
+INFO 2025-05-08 23:20:11,385 task Found 2 unique patients with accidents
+INFO 2025-05-08 23:20:11,385 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-08 23:20:11,385 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 23:20:11,385 task Found accidents in 2 different hospitals
+INFO 2025-05-08 23:20:11,385 task Average accidents per hospital: 2.00
+WARNING 2025-05-08 23:20:11,386 task HIGH CONCENTRATION: Hospital nandhe hospital has 75.0% of all accidents
+INFO 2025-05-08 23:20:11,386 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 23:20:11,387 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-08 23:20:11,387 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-08 23:20:11,387 task Checking for patterns with the same police officer
+INFO 2025-05-08 23:20:11,388 task Found 3 accident reports with police officers
+INFO 2025-05-08 23:20:11,388 task Found 1 unique police officers reporting accidents
+INFO 2025-05-08 23:20:11,388 task Average reports per officer: 3.00
+WARNING 2025-05-08 23:20:11,388 task HIGH CONCENTRATION: Officer qwerty filed 100.0% of all police reports
+INFO 2025-05-08 23:20:11,388 task Suspicious patterns found: True
+INFO 2025-05-08 23:20:11,388 task Sending suspicious activity report
+INFO 2025-05-08 23:20:11,388 task Preparing suspicious activity email report
+INFO 2025-05-08 23:20:11,392 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:20:14,231 task Email sent successfully
+INFO 2025-05-08 23:20:14,231 task Suspicious activity report sent successfully
+INFO 2025-05-08 23:20:14,232 task Preparing task execution confirmation email
+INFO 2025-05-08 23:20:14,232 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:20:17,132 task Confirmation email sent successfully
+INFO 2025-05-08 23:20:17,132 task Task execution confirmation email sent successfully
+INFO 2025-05-08 23:20:17,133 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 23:20:17,134 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 23:20:17,134 trace Task cronutils.task.detect_suspicious_accident_patterns[5a6c35a9-5ece-44bd-b984-3ae732b05011] succeeded in 5.7541275459989265s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 23:25:24,170 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:25:24,174 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:25:27,711 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:25:27,714 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:25:30,647 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:25:30,651 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:25:33,820 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:25:33,824 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:25:36,802 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:25:36,813 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:25:41,991 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:25:41,997 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:25:58,215 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:25:58,221 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:04,551 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:04,557 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:15,833 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:15,838 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:19,842 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:19,846 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:23,141 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:23,147 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:32,195 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:32,203 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:37,552 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:37,556 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:42,805 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:42,810 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:49,778 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:49,782 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:54,635 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:54,639 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:26:58,134 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:26:58,155 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:01,488 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:01,493 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:04,655 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:04,659 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:09,783 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:09,788 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:18,815 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:18,819 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:27,804 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:27,808 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:36,662 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:36,666 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:39,569 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:39,573 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:44,390 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:44,394 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:27:49,393 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:27:49,394 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:05,419 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:05,423 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:09,201 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:09,206 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:14,172 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:14,176 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:18,030 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:18,036 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:21,304 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:21,314 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:24,502 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:24,506 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:27,459 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:27,463 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:32,186 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:32,190 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:41,140 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:41,144 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:46,354 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:46,359 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:49,488 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:49,493 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:53,322 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:53,328 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:28:56,430 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:28:56,434 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:29:08,519 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:29:08,519 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:29:11,470 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:29:11,470 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:29:26,682 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:29:26,682 apps Successfully imported cronutils tasks
+WARNING 2025-05-08 23:29:36,578 consumer consumer: Connection to broker lost. Trying to re-establish the connection...
+Traceback (most recent call last):
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/celery/worker/consumer/consumer.py", line 340, in start
+    blueprint.start(self)
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/celery/bootsteps.py", line 116, in start
+    step.start(parent)
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/celery/worker/consumer/consumer.py", line 746, in start
+    c.loop(*c.loop_args())
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/celery/worker/loops.py", line 97, in asynloop
+    next(loop)
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/kombu/asynchronous/hub.py", line 373, in create_loop
+    cb(*cbargs)
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/kombu/transport/redis.py", line 1352, in on_readable
+    self.cycle.on_readable(fileno)
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/kombu/transport/redis.py", line 569, in on_readable
+    chan.handlers[type]()
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/kombu/transport/redis.py", line 918, in _receive
+    ret.append(self._receive_one(c))
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/kombu/transport/redis.py", line 928, in _receive_one
+    response = c.parse_response()
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/client.py", line 865, in parse_response
+    response = self._execute(conn, try_read)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/client.py", line 841, in _execute
+    return conn.retry.call_with_retry(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/retry.py", line 65, in call_with_retry
+    fail(error)
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/client.py", line 843, in <lambda>
+    lambda error: self._disconnect_raise_connect(conn, error),
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/client.py", line 830, in _disconnect_raise_connect
+    raise error
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/retry.py", line 62, in call_with_retry
+    return do()
+           ^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/client.py", line 842, in <lambda>
+    lambda: command(*args, **kwargs),
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/client.py", line 863, in try_read
+    return conn.read_response(disconnect_on_error=False, push_request=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/connection.py", line 592, in read_response
+    response = self._parser.read_response(disable_decoding=disable_decoding)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/_parsers/resp2.py", line 15, in read_response
+    result = self._read_response(disable_decoding=disable_decoding)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/_parsers/resp2.py", line 25, in _read_response
+    raw = self._buffer.readline()
+          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/_parsers/socket.py", line 115, in readline
+    self._read_from_socket()
+  File "/home/sathwik/ArogyaKhosh/backend/.venv/lib/python3.12/site-packages/redis/_parsers/socket.py", line 68, in _read_from_socket
+    raise ConnectionError(SERVER_CLOSED_CONNECTION_ERROR)
+redis.exceptions.ConnectionError: Connection closed by server.
+ERROR 2025-05-08 23:29:36,603 consumer consumer: Cannot connect to redis://localhost:6380/0: Error 111 connecting to localhost:6380. Connection refused..
+Trying again in 2.00 seconds... (1/100)
+
+ERROR 2025-05-08 23:29:38,604 consumer consumer: Cannot connect to redis://localhost:6380/0: Error 111 connecting to localhost:6380. Connection refused..
+Trying again in 4.00 seconds... (2/100)
+
+INFO 2025-05-08 23:29:42,611 connection Connected to redis://localhost:6380/0
+INFO 2025-05-08 23:29:42,614 mingle mingle: searching for neighbors
+INFO 2025-05-08 23:29:43,619 mingle mingle: all alone
+INFO 2025-05-08 23:29:50,643 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:29:50,644 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:29:51,044 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:29:51,044 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:29:55,398 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:29:55,399 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:29:56,182 beat beat: Starting...
+INFO 2025-05-08 23:29:56,204 celery Beat scheduler initialized
+INFO 2025-05-08 23:29:56,205 celery Current beat schedule: {'detect-suspicious-accident-patterns-daily': <ScheduleEntry: detect-suspicious-accident-patterns-daily cronutils.task.detect_suspicious_accident_patterns() <crontab: 31 23 * * * (m/h/dM/MY/d)>}
+INFO 2025-05-08 23:29:58,997 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:29:58,997 apps Successfully imported cronutils tasks
+INFO 2025-05-08 23:30:00,916 connection Connected to redis://localhost:6380/0
+INFO 2025-05-08 23:30:00,919 mingle mingle: searching for neighbors
+INFO 2025-05-08 23:30:01,926 mingle mingle: all alone
+INFO 2025-05-08 23:30:01,938 worker celery@sathwik ready.
+INFO 2025-05-08 23:31:00,010 beat Scheduler: Sending due task detect-suspicious-accident-patterns-daily (cronutils.task.detect_suspicious_accident_patterns)
+INFO 2025-05-08 23:31:00,024 strategy Task cronutils.task.detect_suspicious_accident_patterns[a737bde3-17db-4f1e-802f-099a7651ad56] received
+INFO 2025-05-08 23:31:00,032 task Starting suspicious accident pattern detection task
+INFO 2025-05-08 23:31:00,032 task Analyzing data from 2025-04-08 18:01:00.032933+00:00 to 2025-05-08 18:01:00.032933+00:00
+INFO 2025-05-08 23:31:00,047 task Total accidents in period: 4
+INFO 2025-05-08 23:31:00,047 task Checking for patients with multiple accidents
+INFO 2025-05-08 23:31:00,047 task Found 4 recent accidents
+INFO 2025-05-08 23:31:00,050 task Found 2 unique patients with accidents
+INFO 2025-05-08 23:31:00,050 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-08 23:31:00,050 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-08 23:31:00,052 task Found accidents in 2 different hospitals
+INFO 2025-05-08 23:31:00,052 task Average accidents per hospital: 2.00
+WARNING 2025-05-08 23:31:00,053 task HIGH CONCENTRATION: Hospital nandhe hospital has 75.0% of all accidents
+INFO 2025-05-08 23:31:00,054 task Checking for hospitals with abnormal death rates
+INFO 2025-05-08 23:31:00,055 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-08 23:31:00,056 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-08 23:31:00,056 task Checking for patterns with the same police officer
+INFO 2025-05-08 23:31:00,057 task Found 3 accident reports with police officers
+INFO 2025-05-08 23:31:00,057 task Found 1 unique police officers reporting accidents
+INFO 2025-05-08 23:31:00,057 task Average reports per officer: 3.00
+WARNING 2025-05-08 23:31:00,057 task HIGH CONCENTRATION: Officer qwerty filed 100.0% of all police reports
+INFO 2025-05-08 23:31:00,057 task Suspicious patterns found: True
+INFO 2025-05-08 23:31:00,057 task Sending suspicious activity report
+INFO 2025-05-08 23:31:00,057 task Preparing suspicious activity email report
+INFO 2025-05-08 23:31:00,061 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:31:03,173 task Email sent successfully
+INFO 2025-05-08 23:31:03,173 task Suspicious activity report sent successfully
+INFO 2025-05-08 23:31:03,173 task Preparing task execution confirmation email
+INFO 2025-05-08 23:31:03,173 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-08 23:31:06,081 task Confirmation email sent successfully
+INFO 2025-05-08 23:31:06,081 task Task execution confirmation email sent successfully
+INFO 2025-05-08 23:31:06,081 task Suspicious accident pattern detection task completed
+INFO 2025-05-08 23:31:06,082 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-08 23:31:06,083 trace Task cronutils.task.detect_suspicious_accident_patterns[a737bde3-17db-4f1e-802f-099a7651ad56] succeeded in 6.055982766996749s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-08 23:34:45,608 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-08 23:34:45,609 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:17:03,281 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-09 03:17:03,282 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:17:03,700 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-09 03:17:03,700 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:17:07,679 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-09 03:17:07,679 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:17:08,471 beat beat: Starting...
+INFO 2025-05-09 03:17:08,499 celery Beat scheduler initialized
+INFO 2025-05-09 03:17:08,500 celery Current beat schedule: {'detect-suspicious-accident-patterns-daily': <ScheduleEntry: detect-suspicious-accident-patterns-daily cronutils.task.detect_suspicious_accident_patterns() <crontab: 18 3 * * * (m/h/dM/MY/d)>}
+INFO 2025-05-09 03:17:18,025 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-09 03:17:18,026 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:17:20,025 connection Connected to redis://localhost:6380/0
+INFO 2025-05-09 03:17:20,028 mingle mingle: searching for neighbors
+INFO 2025-05-09 03:17:21,036 mingle mingle: all alone
+INFO 2025-05-09 03:17:21,056 worker celery@sathwik ready.
+INFO 2025-05-09 03:18:00,004 beat Scheduler: Sending due task detect-suspicious-accident-patterns-daily (cronutils.task.detect_suspicious_accident_patterns)
+INFO 2025-05-09 03:18:00,032 strategy Task cronutils.task.detect_suspicious_accident_patterns[a0535f44-cddd-43bb-afae-32a5b4028950] received
+INFO 2025-05-09 03:18:00,037 task Starting suspicious accident pattern detection task
+INFO 2025-05-09 03:18:00,037 task Analyzing data from 2025-04-08 21:48:00.037321+00:00 to 2025-05-08 21:48:00.037321+00:00
+INFO 2025-05-09 03:18:00,045 task Total accidents in period: 4
+INFO 2025-05-09 03:18:00,045 task Checking for patients with multiple accidents
+INFO 2025-05-09 03:18:00,046 task Found 4 recent accidents
+INFO 2025-05-09 03:18:00,048 task Found 2 unique patients with accidents
+INFO 2025-05-09 03:18:00,049 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-09 03:18:00,049 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-09 03:18:00,050 task Found accidents in 2 different hospitals
+INFO 2025-05-09 03:18:00,050 task Average accidents per hospital: 2.00
+WARNING 2025-05-09 03:18:00,052 task HIGH CONCENTRATION: Hospital nandhe hospital has 75.0% of all accidents
+INFO 2025-05-09 03:18:00,052 task Checking for hospitals with abnormal death rates
+INFO 2025-05-09 03:18:00,053 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-09 03:18:00,054 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-09 03:18:00,054 task Checking for patterns with the same police officer
+INFO 2025-05-09 03:18:00,054 task Found 3 accident reports with police officers
+INFO 2025-05-09 03:18:00,055 task Found 1 unique police officers reporting accidents
+INFO 2025-05-09 03:18:00,055 task Average reports per officer: 3.00
+WARNING 2025-05-09 03:18:00,055 task HIGH CONCENTRATION: Officer qwerty filed 100.0% of all police reports
+INFO 2025-05-09 03:18:00,055 task Suspicious patterns found: True
+INFO 2025-05-09 03:18:00,055 task Sending suspicious activity report
+INFO 2025-05-09 03:18:00,055 task Preparing suspicious activity email report
+INFO 2025-05-09 03:18:00,058 task Sending email to: sathwikshetty9876@gmail.com
+ERROR 2025-05-09 03:18:10,076 task Failed to send email: [Errno -3] Temporary failure in name resolution
+ERROR 2025-05-09 03:18:10,076 task Error sending suspicious activity report: [Errno -3] Temporary failure in name resolution
+INFO 2025-05-09 03:18:10,076 task Preparing task execution confirmation email
+INFO 2025-05-09 03:18:10,076 task Sending confirmation email to: sathwikshetty9876@gmail.com
+ERROR 2025-05-09 03:18:20,088 task Failed to send confirmation email: [Errno -3] Temporary failure in name resolution
+ERROR 2025-05-09 03:18:20,089 task Error sending task execution confirmation email: [Errno -3] Temporary failure in name resolution
+INFO 2025-05-09 03:18:20,090 task Suspicious accident pattern detection task completed
+INFO 2025-05-09 03:18:20,094 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-09 03:18:20,095 trace Task cronutils.task.detect_suspicious_accident_patterns[a0535f44-cddd-43bb-afae-32a5b4028950] succeeded in 20.060420450001402s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-09 03:19:16,626 strategy Task cronutils.task.detect_suspicious_accident_patterns[4bac0295-edd7-4b9f-a55c-c918b4e00bbb] received
+INFO 2025-05-09 03:19:16,628 task Starting suspicious accident pattern detection task
+INFO 2025-05-09 03:19:16,628 task Analyzing data from 2025-04-08 21:49:16.628747+00:00 to 2025-05-08 21:49:16.628747+00:00
+INFO 2025-05-09 03:19:16,633 task Total accidents in period: 4
+INFO 2025-05-09 03:19:16,633 task Checking for patients with multiple accidents
+INFO 2025-05-09 03:19:16,634 task Found 4 recent accidents
+INFO 2025-05-09 03:19:16,636 task Found 2 unique patients with accidents
+INFO 2025-05-09 03:19:16,636 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-09 03:19:16,636 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-09 03:19:16,638 task Found accidents in 2 different hospitals
+INFO 2025-05-09 03:19:16,638 task Average accidents per hospital: 2.00
+WARNING 2025-05-09 03:19:16,639 task HIGH CONCENTRATION: Hospital nandhe hospital has 75.0% of all accidents
+INFO 2025-05-09 03:19:16,640 task Checking for hospitals with abnormal death rates
+INFO 2025-05-09 03:19:16,642 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-09 03:19:16,642 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-09 03:19:16,642 task Checking for patterns with the same police officer
+INFO 2025-05-09 03:19:16,643 task Found 3 accident reports with police officers
+INFO 2025-05-09 03:19:16,643 task Found 1 unique police officers reporting accidents
+INFO 2025-05-09 03:19:16,643 task Average reports per officer: 3.00
+WARNING 2025-05-09 03:19:16,643 task HIGH CONCENTRATION: Officer qwerty filed 100.0% of all police reports
+INFO 2025-05-09 03:19:16,643 task Suspicious patterns found: True
+INFO 2025-05-09 03:19:16,644 task Sending suspicious activity report
+INFO 2025-05-09 03:19:16,644 task Preparing suspicious activity email report
+INFO 2025-05-09 03:19:16,647 task Sending email to: sathwikshetty9876@gmail.com
+ERROR 2025-05-09 03:19:26,658 task Failed to send email: [Errno -3] Temporary failure in name resolution
+ERROR 2025-05-09 03:19:26,658 task Error sending suspicious activity report: [Errno -3] Temporary failure in name resolution
+INFO 2025-05-09 03:19:26,659 task Preparing task execution confirmation email
+INFO 2025-05-09 03:19:26,659 task Sending confirmation email to: sathwikshetty9876@gmail.com
+ERROR 2025-05-09 03:19:36,666 task Failed to send confirmation email: [Errno -3] Temporary failure in name resolution
+ERROR 2025-05-09 03:19:36,667 task Error sending task execution confirmation email: [Errno -3] Temporary failure in name resolution
+INFO 2025-05-09 03:19:36,667 task Suspicious accident pattern detection task completed
+INFO 2025-05-09 03:19:36,669 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-09 03:19:36,669 trace Task cronutils.task.detect_suspicious_accident_patterns[4bac0295-edd7-4b9f-a55c-c918b4e00bbb] succeeded in 20.041768916002184s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-09 03:19:50,523 strategy Task cronutils.task.detect_suspicious_accident_patterns[9fa0c110-4693-41a9-b02d-466e19083972] received
+INFO 2025-05-09 03:19:50,524 task Starting suspicious accident pattern detection task
+INFO 2025-05-09 03:19:50,525 task Analyzing data from 2025-04-08 21:49:50.525058+00:00 to 2025-05-08 21:49:50.525058+00:00
+INFO 2025-05-09 03:19:50,526 task Total accidents in period: 4
+INFO 2025-05-09 03:19:50,526 task Checking for patients with multiple accidents
+INFO 2025-05-09 03:19:50,526 task Found 4 recent accidents
+INFO 2025-05-09 03:19:50,528 task Found 2 unique patients with accidents
+INFO 2025-05-09 03:19:50,528 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-09 03:19:50,528 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-09 03:19:50,528 task Found accidents in 2 different hospitals
+INFO 2025-05-09 03:19:50,528 task Average accidents per hospital: 2.00
+WARNING 2025-05-09 03:19:50,529 task HIGH CONCENTRATION: Hospital nandhe hospital has 75.0% of all accidents
+INFO 2025-05-09 03:19:50,529 task Checking for hospitals with abnormal death rates
+INFO 2025-05-09 03:19:50,530 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-09 03:19:50,530 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-09 03:19:50,530 task Checking for patterns with the same police officer
+INFO 2025-05-09 03:19:50,531 task Found 3 accident reports with police officers
+INFO 2025-05-09 03:19:50,531 task Found 1 unique police officers reporting accidents
+INFO 2025-05-09 03:19:50,531 task Average reports per officer: 3.00
+WARNING 2025-05-09 03:19:50,531 task HIGH CONCENTRATION: Officer qwerty filed 100.0% of all police reports
+INFO 2025-05-09 03:19:50,531 task Suspicious patterns found: True
+INFO 2025-05-09 03:19:50,531 task Sending suspicious activity report
+INFO 2025-05-09 03:19:50,531 task Preparing suspicious activity email report
+INFO 2025-05-09 03:19:50,534 task Sending email to: sathwikshetty9876@gmail.com
+ERROR 2025-05-09 03:20:00,545 task Failed to send email: [Errno -3] Temporary failure in name resolution
+ERROR 2025-05-09 03:20:00,546 task Error sending suspicious activity report: [Errno -3] Temporary failure in name resolution
+INFO 2025-05-09 03:20:00,546 task Preparing task execution confirmation email
+INFO 2025-05-09 03:20:00,546 task Sending confirmation email to: sathwikshetty9876@gmail.com
+ERROR 2025-05-09 03:20:10,558 task Failed to send confirmation email: [Errno -3] Temporary failure in name resolution
+ERROR 2025-05-09 03:20:10,558 task Error sending task execution confirmation email: [Errno -3] Temporary failure in name resolution
+INFO 2025-05-09 03:20:10,559 task Suspicious accident pattern detection task completed
+INFO 2025-05-09 03:20:10,562 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-09 03:20:10,562 trace Task cronutils.task.detect_suspicious_accident_patterns[9fa0c110-4693-41a9-b02d-466e19083972] succeeded in 20.037877032002143s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-09 03:31:18,297 strategy Task cronutils.task.detect_suspicious_accident_patterns[55f5bbbb-1bcb-42d0-a47c-efb5925c2a9e] received
+INFO 2025-05-09 03:31:18,301 task Starting suspicious accident pattern detection task
+INFO 2025-05-09 03:31:18,301 task Analyzing data from 2025-04-08 22:01:18.301701+00:00 to 2025-05-08 22:01:18.301701+00:00
+INFO 2025-05-09 03:31:18,308 task Total accidents in period: 4
+INFO 2025-05-09 03:31:18,308 task Checking for patients with multiple accidents
+INFO 2025-05-09 03:31:18,308 task Found 4 recent accidents
+INFO 2025-05-09 03:31:18,310 task Found 2 unique patients with accidents
+INFO 2025-05-09 03:31:18,310 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-09 03:31:18,310 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-09 03:31:18,311 task Found accidents in 2 different hospitals
+INFO 2025-05-09 03:31:18,311 task Average accidents per hospital: 2.00
+WARNING 2025-05-09 03:31:18,312 task HIGH CONCENTRATION: Hospital nandhe hospital has 75.0% of all accidents
+INFO 2025-05-09 03:31:18,313 task Checking for hospitals with abnormal death rates
+INFO 2025-05-09 03:31:18,314 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-09 03:31:18,314 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-09 03:31:18,314 task Checking for patterns with the same police officer
+INFO 2025-05-09 03:31:18,315 task Found 3 accident reports with police officers
+INFO 2025-05-09 03:31:18,315 task Found 1 unique police officers reporting accidents
+INFO 2025-05-09 03:31:18,315 task Average reports per officer: 3.00
+WARNING 2025-05-09 03:31:18,315 task HIGH CONCENTRATION: Officer qwerty filed 100.0% of all police reports
+INFO 2025-05-09 03:31:18,315 task Suspicious patterns found: True
+INFO 2025-05-09 03:31:18,315 task Sending suspicious activity report
+INFO 2025-05-09 03:31:18,316 task Preparing suspicious activity email report
+INFO 2025-05-09 03:31:18,323 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-09 03:31:21,691 task Email sent successfully
+INFO 2025-05-09 03:31:21,692 task Suspicious activity report sent successfully
+INFO 2025-05-09 03:31:21,692 task Preparing task execution confirmation email
+INFO 2025-05-09 03:31:21,692 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-09 03:31:24,659 task Confirmation email sent successfully
+INFO 2025-05-09 03:31:24,660 task Task execution confirmation email sent successfully
+INFO 2025-05-09 03:31:24,660 task Suspicious accident pattern detection task completed
+INFO 2025-05-09 03:31:24,662 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-09 03:31:24,663 trace Task cronutils.task.detect_suspicious_accident_patterns[55f5bbbb-1bcb-42d0-a47c-efb5925c2a9e] succeeded in 6.362459055999352s: 'Suspicious accident pattern detection completed'
+INFO 2025-05-09 03:59:12,078 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-09 03:59:12,079 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:59:12,514 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-09 03:59:12,515 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:59:17,145 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-09 03:59:17,146 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:59:17,917 beat beat: Starting...
+INFO 2025-05-09 03:59:17,940 celery Beat scheduler initialized
+INFO 2025-05-09 03:59:17,940 celery Current beat schedule: {'detect-suspicious-accident-patterns-daily': <ScheduleEntry: detect-suspicious-accident-patterns-daily cronutils.task.detect_suspicious_accident_patterns() <crontab: 0 4 * * * (m/h/dM/MY/d)>}
+INFO 2025-05-09 03:59:26,562 apps CronutilsConfig ready method called - loading tasks
+INFO 2025-05-09 03:59:26,563 apps Successfully imported cronutils tasks
+INFO 2025-05-09 03:59:28,799 connection Connected to redis://localhost:6380/0
+INFO 2025-05-09 03:59:28,802 mingle mingle: searching for neighbors
+INFO 2025-05-09 03:59:29,817 mingle mingle: all alone
+INFO 2025-05-09 03:59:29,835 worker celery@sathwik ready.
+INFO 2025-05-09 04:00:00,004 beat Scheduler: Sending due task detect-suspicious-accident-patterns-daily (cronutils.task.detect_suspicious_accident_patterns)
+INFO 2025-05-09 04:00:00,015 strategy Task cronutils.task.detect_suspicious_accident_patterns[640fac28-44e7-42ec-a501-a91b0414467e] received
+INFO 2025-05-09 04:00:00,020 task Starting suspicious accident pattern detection task
+INFO 2025-05-09 04:00:00,021 task Analyzing data from 2025-04-08 22:30:00.021094+00:00 to 2025-05-08 22:30:00.021094+00:00
+INFO 2025-05-09 04:00:00,031 task Total accidents in period: 4
+INFO 2025-05-09 04:00:00,031 task Checking for patients with multiple accidents
+INFO 2025-05-09 04:00:00,032 task Found 4 recent accidents
+INFO 2025-05-09 04:00:00,035 task Found 2 unique patients with accidents
+INFO 2025-05-09 04:00:00,035 task Found suspicious pattern: Patient sathwikshetty with 3 accidents
+INFO 2025-05-09 04:00:00,035 task Checking for unusual concentration of accidents in hospitals
+INFO 2025-05-09 04:00:00,037 task Found accidents in 2 different hospitals
+INFO 2025-05-09 04:00:00,037 task Average accidents per hospital: 2.00
+WARNING 2025-05-09 04:00:00,038 task HIGH CONCENTRATION: Hospital nandhe hospital has 75.0% of all accidents
+INFO 2025-05-09 04:00:00,039 task Checking for hospitals with abnormal death rates
+INFO 2025-05-09 04:00:00,040 task Hospital ID 1: 0 deaths out of 1 accidents
+INFO 2025-05-09 04:00:00,040 task Hospital ID 2: 0 deaths out of 3 accidents
+INFO 2025-05-09 04:00:00,041 task Checking for patterns with the same police officer
+INFO 2025-05-09 04:00:00,041 task Found 3 accident reports with police officers
+INFO 2025-05-09 04:00:00,041 task Found 1 unique police officers reporting accidents
+INFO 2025-05-09 04:00:00,041 task Average reports per officer: 3.00
+WARNING 2025-05-09 04:00:00,042 task HIGH CONCENTRATION: Officer qwerty filed 100.0% of all police reports
+INFO 2025-05-09 04:00:00,042 task Suspicious patterns found: True
+INFO 2025-05-09 04:00:00,042 task Sending suspicious activity report
+INFO 2025-05-09 04:00:00,042 task Preparing suspicious activity email report
+INFO 2025-05-09 04:00:00,049 task Sending email to: sathwikshetty9876@gmail.com
+INFO 2025-05-09 04:00:03,944 task Email sent successfully
+INFO 2025-05-09 04:00:03,945 task Suspicious activity report sent successfully
+INFO 2025-05-09 04:00:03,945 task Preparing task execution confirmation email
+INFO 2025-05-09 04:00:03,945 task Sending confirmation email to: sathwikshetty9876@gmail.com
+INFO 2025-05-09 04:00:06,908 task Confirmation email sent successfully
+INFO 2025-05-09 04:00:06,909 task Task execution confirmation email sent successfully
+INFO 2025-05-09 04:00:06,909 task Suspicious accident pattern detection task completed
+INFO 2025-05-09 04:00:06,910 celery Task cronutils.task.detect_suspicious_accident_patterns completed successfully
+INFO 2025-05-09 04:00:06,911 trace Task cronutils.task.detect_suspicious_accident_patterns[640fac28-44e7-42ec-a501-a91b0414467e] succeeded in 6.893266291001055s: 'Suspicious accident pattern detection completed'

@@ -81,13 +81,21 @@ class accident(models.Model):
     user = models.ForeignKey(patient, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     hosptial = models.ForeignKey(hospital, on_delete=models.CASCADE,blank=True,null=True)
+    police = models.CharField(max_length=100,blank=True,null=True)
     def __str__(self):
         return f"Accident with {self.user.full_name if hasattr(self.user, 'full_name') else self.user}"
-    
+class death(models.Model):
+    user = models.ForeignKey(accident, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    hosptial = models.ForeignKey(hospital, on_delete=models.CASCADE,blank=True,null=True)
+    def __str__(self):
+        return f"Death of {self.user.full_name if hasattr(self.user, 'full_name') else self.user}"
 class DocumentProcessStatus(models.Model):
     patient = models.ForeignKey(patient, on_delete=models.CASCADE)
     document = models.ForeignKey(patientDocument, on_delete=models.CASCADE,blank=True,null=True)
     task_id = models.CharField(max_length=100,blank=True,null=True)
     file_name = models.CharField(max_length=100,blank=True,null=True)
     status = models.CharField(max_length=100)
+
+
 from . import signals  

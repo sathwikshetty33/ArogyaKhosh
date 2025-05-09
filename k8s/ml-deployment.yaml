@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-ml
+  namespace: my-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-ml
+  template:
+    metadata:
+      labels:
+        app: flask-ml
+    spec:
+      containers:
+      - name: flask-ml
+        image: sathwikshetty50/flask-ml:latest
+        ports:
+        - containerPort: 5000
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 20
+          periodSeconds: 10

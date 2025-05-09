@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'community',
     'django_celery_results',
     'channels',
+    'cronutils',
 ]
 
 MIDDLEWARE = [
@@ -145,7 +146,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'  # Or your specific timezone
+USE_TZ = True
 
 USE_I18N = True
 
@@ -181,6 +183,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER =  os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD =  os.getenv('EMAIL_HOST_PASSWORD')
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+ADMIN_EMAIL = "sathwikshetty9876@gmail.com"
 import os
 
 MEDIA_URL = '/media/'
@@ -193,7 +196,8 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6380/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+CELERY_TIMEZONE = 'Asia/Kolkata'  # Change this from 'UTC' to 'Asia/Kolkata'
+
 
 # Redis Configuration
 CACHES = {
@@ -211,6 +215,54 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             'hosts': [('localhost', 6380)],
+        },
+    },
+}
+
+# Add this to your settings.py file
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'celery_tasks.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'celery': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'core': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'cronutils': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
 }
