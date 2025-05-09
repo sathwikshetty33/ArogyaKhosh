@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_REGISTRY = "your-registry.io"
+        DOCKER_REGISTRY = "sathwikshetty50"
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/django-backend"
         ML_IMAGE = "${DOCKER_REGISTRY}/flask-ml"
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/react-frontend"
@@ -90,9 +90,9 @@ pipeline {
         stage('Update Kubernetes Manifests') {
             steps {
                 sh """
-                    sed -i 's|image: ${BACKEND_IMAGE}:.*|image: ${BACKEND_IMAGE}:${VERSION}|' kubernetes/backend-deployment.yaml
-                    sed -i 's|image: ${ML_IMAGE}:.*|image: ${ML_IMAGE}:${VERSION}|' kubernetes/ml-deployment.yaml
-                    sed -i 's|image: ${FRONTEND_IMAGE}:.*|image: ${FRONTEND_IMAGE}:${VERSION}|' kubernetes/frontend-deployment.yaml
+                    sed -i 's|image: ${BACKEND_IMAGE}:.*|image: ${BACKEND_IMAGE}:${VERSION}|' k8s/backend-deployment.yaml
+                    sed -i 's|image: ${ML_IMAGE}:.*|image: ${ML_IMAGE}:${VERSION}|' k8s/ml-deployment.yaml
+                    sed -i 's|image: ${FRONTEND_IMAGE}:.*|image: ${FRONTEND_IMAGE}:${VERSION}|' k8s/frontend-deployment.yaml
                 """
             }
         }
