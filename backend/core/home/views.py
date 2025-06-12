@@ -35,7 +35,7 @@ from django.core.mail import send_mail
 
 # print(checksum_address)  
 
-with open(r'./abi.json', "r") as abi_file:
+with open(r'./home/abi.json', "r") as abi_file:
     contract_abi = json.load(abi_file)
 
 # LOCAL_NODE_URL =  
