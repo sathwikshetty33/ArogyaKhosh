@@ -2002,7 +2002,7 @@ function generatePatientQRCode() {
     const patientQRImage = document.getElementById("patient-qr-code");
     if (patientQRImage && patientId) {
         // Generate the full URL for the patient dashboard
-        const patientDashboardUrl = `https://arogyakhosh.onrender.com/route/patient-dashboard/${{id}}`;
+        const patientDashboardUrl = `https://arogyakhosh.onrender.com/route/patient-dashboard/{{id}}`;
         
         // Generate QR code URL using the full patient dashboard URL
         // Using QR Server API with the complete URL
