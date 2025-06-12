@@ -149,33 +149,53 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
+# SSL configuration for rediss:// URLs
 if REDIS_URL.startswith("rediss://"):
-    CELERY_BROKER_USE_SSL = {
+    SSL_CONFIG = {
         'ssl_cert_reqs': ssl.CERT_NONE
     }
-    CELERY_RESULT_BACKEND_USE_SSL = {
-        'ssl_cert_reqs': ssl.CERT_NONE
-    }
+    
+    # Celery SSL config
+    CELERY_BROKER_USE_SSL = SSL_CONFIG
+    CELERY_RESULT_BACKEND_USE_SSL = SSL_CONFIG
+else:
+    SSL_CONFIG = None
 
 # Cache
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': REDIS_URL.replace('/0', '/1'),  # Use DB 1 for cache
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
+CACHE_CONFIG = {
+    'BACKEND': 'django_redis.cache.RedisCache',
+    'LOCATION': REDIS_URL.replace('/0', '/1'),  # Use DB 1 for cache
+    'OPTIONS': {
+        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
     }
 }
 
+# Add SSL config to cache if using rediss://
+if REDIS_URL.startswith("rediss://"):
+    CACHE_CONFIG['OPTIONS']['CONNECTION_POOL_KWARGS'] = {
+        'ssl_cert_reqs': ssl.CERT_NONE
+    }
+
+CACHES = {
+    'default': CACHE_CONFIG
+}
+
 # Channels
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [REDIS_URL.replace('/0', '')],  # Strip DB for channel
-        },
+CHANNEL_CONFIG = {
+    'BACKEND': 'channels_redis.core.RedisChannelLayer',
+    'CONFIG': {
+        'hosts': [REDIS_URL.replace('/0', '')],  # Strip DB for channel
     },
+}
+
+# Add SSL config to channels if using rediss://
+if REDIS_URL.startswith("rediss://"):
+    # For channels_redis, we need to modify the host URL to include ssl_cert_reqs
+    redis_host = REDIS_URL.replace('/0', '') + '?ssl_cert_reqs=none'
+    CHANNEL_CONFIG['CONFIG']['hosts'] = [redis_host]
+
+CHANNEL_LAYERS = {
+    'default': CHANNEL_CONFIG
 }
 
 # Logging
