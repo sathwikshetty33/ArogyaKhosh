@@ -114,11 +114,6 @@ class DoctorLogin(APIView):
                 return  Response({
                     "error" : "You are not Doctor register as one"
                 },status=status.HTTP_401_UNAUTHORIZED)
-            d = doctor.objects.filter(user=us,address=add).first()
-            if d is None:
-                return  Response({
-                    "error" : "Incorrect metamask address"
-                },status=status.HTTP_401_UNAUTHORIZED)
             token,_ = Token.objects.get_or_create(user=us)
             return Response({
                 "token" : token.key,
