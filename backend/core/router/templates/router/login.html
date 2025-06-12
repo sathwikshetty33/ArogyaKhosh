@@ -200,37 +200,6 @@
             background-position: right;
         }
 
-        .metamask-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            height: 50px;
-            border-radius: 25px;
-            outline: none;
-            border: none;
-            background-image: linear-gradient(to right, #FF8C00, #FFA500, #FF8C00);
-            background-size: 200%;
-            font-size: 1.1rem;
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            margin: 1rem 0;
-            cursor: pointer;
-            transition: .5s;
-        }
-
-        .metamask-btn:hover {
-            background-position: right;
-        }
-
-        .metamask-icon {
-            width: 140px;
-            height: 0px;
-            background-color: #fff;
-            border-radius: 50%;
-        }
-
         .tabs {
             display: flex;
             justify-content: center;
@@ -284,14 +253,6 @@
             font-size: 0.9rem;
         }
 
-        .metamask-address {
-            margin-top: 10px;
-            font-size: 0.8rem;
-            color: #666;
-            word-break: break-all;
-            display: none; /* Hidden by default, will be shown by JavaScript */
-        }
-        
         .verification-container {
             display: none;
             margin-top: 20px;
@@ -303,6 +264,26 @@
             margin-top: 10px;
             font-size: 0.9rem;
             display: none;
+        }
+
+        .demo-credentials {
+            background: #f8f9ff;
+            border: 1px solid #e0e4ff;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 15px 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .demo-credentials h6 {
+            color: #0cadfe;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .demo-credentials div {
+            margin: 3px 0;
         }
         
         @media screen and (max-width: 1050px) {
@@ -368,6 +349,12 @@
                 
                 <!-- Hospital Login Form -->
                 <form id="hospital-form" class="form-container active">
+                    <div class="demo-credentials">
+                        <h6>Demo Credentials:</h6>
+                        <div><strong>Username:</strong> shetty</div>
+                        <div><strong>Password:</strong> 7760</div>
+                    </div>
+                    
                     <div class="input-div one">
                         <div class="i">
                             <i class="fas fa-hospital"></i>
@@ -386,11 +373,6 @@
                             <input type="password" class="input" id="hospital-password">
                         </div>
                     </div>
-                    <button type="button" class="metamask-btn" id="hospital-metamask-btn">
-                        <div class="metamask-icon">🦊</div>Connect MetaMask
-                    </button>
-                    <div id="hospital-metamask-confirmation" class="confirmation"></div>
-                    <div id="hospital-metamask-address" class="metamask-address"></div>
                     <input type="submit" class="btn" value="Login" id="hospital-login-btn">
                     <div class="loading-indicator" id="hospital-loading">Loading...</div>
                     <div class="error-message" id="hospital-error"></div>
@@ -398,6 +380,12 @@
                 
                 <!-- Doctor Login Form -->
                 <form id="doctor-form" class="form-container">
+                    <div class="demo-credentials">
+                        <h6>Demo Credentials:</h6>
+                        <div><strong>Username:</strong> shetty</div>
+                        <div><strong>Password:</strong> 7760</div>
+                    </div>
+                    
                     <div class="input-div one">
                         <div class="i">
                             <i class="fas fa-user-md"></i>
@@ -416,11 +404,6 @@
                             <input type="password" class="input" id="doctor-password">
                         </div>
                     </div>
-                    <button type="button" class="metamask-btn" id="doctor-metamask-btn">
-                        <div class="metamask-icon">🦊</div>Connect MetaMask
-                    </button>
-                    <div id="doctor-metamask-confirmation" class="confirmation"></div>
-                    <div id="doctor-metamask-address" class="metamask-address"></div>
                     <input type="submit" class="btn" value="Login" id="doctor-login-btn">
                     <div class="loading-indicator" id="doctor-loading">Loading...</div>
                     <div class="error-message" id="doctor-error"></div>
@@ -428,6 +411,13 @@
                 
                 <!-- Patient Login Form -->
                 <form id="patient-form" class="form-container">
+                    <div class="demo-credentials">
+                        <h6>Demo Credentials:</h6>
+                        <div><strong>Username:</strong> shetty</div>
+                        <div><strong>Password:</strong> 7760</div>
+                        <div><strong>Verification Code:</strong> 123456</div>
+                    </div>
+                    
                     <div class="input-div one">
                         <div class="i">
                             <i class="fas fa-user"></i>
@@ -487,8 +477,17 @@
 
         // Global variables
         let currentUserType = 'hospital';
-        let web3Account = null;
         let awaiting2FA = false;
+
+        // Generate random wallet address for backend
+        function generateRandomWalletAddress() {
+            const chars = '0123456789abcdef';
+            let address = '0x';
+            for (let i = 0; i < 40; i++) {
+                address += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return address;
+        }
 
         // Input animations
         const inputs = document.querySelectorAll(".input");
@@ -529,100 +528,6 @@
             });
         });
         
-        // MetaMask connection function
-        async function connectMetaMask(userType) {
-            const metamaskBtn = document.getElementById(`${userType}-metamask-btn`);
-            const addressDisplay = document.getElementById(`${userType}-metamask-address`);
-            const confirmation = document.getElementById(`${userType}-metamask-confirmation`);
-            const errorMessage = document.getElementById(`${userType}-error`);
-            
-            // Reset any previous connection display
-            confirmation.style.display = 'none';
-            addressDisplay.style.display = 'none';
-            addressDisplay.textContent = '';
-            errorMessage.style.display = 'none';
-            
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    // Show loading state
-                    metamaskBtn.disabled = true;
-                    metamaskBtn.innerHTML = '<div class="metamask-icon">🦊</div>Connecting...';
-                    
-                    // Request accounts with retries
-                    let accounts = [];
-                    let retries = 3;
-                    
-                    while (retries > 0 && accounts.length === 0) {
-                        try {
-                            accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                            break;
-                        } catch (err) {
-                            // If user rejected, don't retry
-                            if (err.code === 4001) {
-                                throw err;
-                            }
-                            retries--;
-                            await new Promise(resolve => setTimeout(resolve, 500));
-                        }
-                    }
-                    
-                    if (accounts.length === 0) {
-                        throw new Error("Failed to get accounts after retries");
-                    }
-                    
-                    // Get the first account
-                    web3Account = accounts[0];
-                    
-                    // Update UI after successful connection
-                    metamaskBtn.innerHTML = '<div class="metamask-icon">🦊</div>Connected';
-                    addressDisplay.textContent = `Wallet Address: ${web3Account}`;
-                    addressDisplay.style.display = 'block';
-                    confirmation.style.display = 'block';
-                    metamaskBtn.style.backgroundImage = 'linear-gradient(to right, #2ecc71, #27ae60, #2ecc71)';
-                    
-                    // Listen for account changes
-                    window.ethereum.on('accountsChanged', function (accounts) {
-                        if (accounts.length === 0) {
-                            // User disconnected
-                            resetMetaMaskConnection(userType);
-                        } else {
-                            // Account changed
-                            web3Account = accounts[0];
-                            addressDisplay.textContent = `Wallet Address: ${web3Account}`;
-                        }
-                    });
-                    
-                    // Add this to debug
-                    console.log("MetaMask connected with address:", web3Account);
-                    
-                    return web3Account;
-                } catch (error) {
-                    console.error('MetaMask connection failed:', error);
-                    showError(userType, error.message || 'Failed to connect MetaMask. Please try again.');
-                    
-                    // Reset button on error
-                    resetMetaMaskConnection(userType);
-                    return null;
-                }
-            } else {
-                showError(userType, 'MetaMask is not installed. Please install it first.');
-                return null;
-            }
-        }
-
-        function resetMetaMaskConnection(userType) {
-            const metamaskBtn = document.getElementById(`${userType}-metamask-btn`);
-            const addressDisplay = document.getElementById(`${userType}-metamask-address`);
-            const confirmation = document.getElementById(`${userType}-metamask-confirmation`);
-            
-            web3Account = null;
-            metamaskBtn.disabled = false;
-            metamaskBtn.innerHTML = '<div class="metamask-icon">🦊</div>Connect MetaMask';
-            metamaskBtn.style.backgroundImage = 'linear-gradient(to right, #FF8C00, #FFA500, #FF8C00)';
-            addressDisplay.style.display = 'none';
-            confirmation.style.display = 'none';
-        }
-
         // Login handlers
         async function handleLogin(userType) {
             const usernameInput = document.getElementById(`${userType}-username`);
@@ -663,32 +568,11 @@
                 requestData.verification_code = verificationCode;
             }
 
-            // Add wallet address for hospital and doctor
+            // Add hardcoded wallet address for hospital and doctor
             if (userType !== 'patient') {
-                // Check if MetaMask is connected
-                if (!web3Account) {
-                    try {
-                        // Attempt to get accounts in case MetaMask is connected but web3Account wasn't set
-                        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                        if (accounts && accounts.length > 0) {
-                            web3Account = accounts[0];
-                        } else {
-                            showError(userType, 'Please connect your MetaMask wallet.');
-                            loadingIndicator.style.display = 'none';
-                            loginBtn.disabled = false;
-                            return;
-                        }
-                    } catch (error) {
-                        showError(userType, 'Please connect your MetaMask wallet.');
-                        loadingIndicator.style.display = 'none';
-                        loginBtn.disabled = false;
-                        return;
-                    }
-                }
-                
-                // Ensure address is in the correct format (lowercase for consistency)
-                requestData.address = web3Account.toLowerCase();
-                console.log("Using wallet address for login:", requestData.address);
+                // Generate a random wallet address or use hardcoded one
+                requestData.address = generateRandomWalletAddress();
+                console.log(`Using ${userType} wallet address for login:`, requestData.address);
             }
 
             try {
@@ -831,15 +715,6 @@
             }
         }
 
-        // Add event listeners for MetaMask buttons
-        document.getElementById('hospital-metamask-btn').addEventListener('click', () => {
-            connectMetaMask('hospital');
-        });
-
-        document.getElementById('doctor-metamask-btn').addEventListener('click', () => {
-            connectMetaMask('doctor');
-        });
-
         // Attach login event listeners
         document.getElementById('hospital-form').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -881,21 +756,6 @@
                 resetPatient2FA();
             }
 
-            // Hide/show MetaMask related elements
-            const hospitalMetamaskElements = document.querySelectorAll('#hospital-metamask-btn, #hospital-metamask-confirmation, #hospital-metamask-address');
-            const doctorMetamaskElements = document.querySelectorAll('#doctor-metamask-btn, #doctor-metamask-confirmation, #doctor-metamask-address');
-
-            if (userType === 'hospital') {
-                hospitalMetamaskElements.forEach(el => el.style.display = 'block');
-                doctorMetamaskElements.forEach(el => el.style.display = 'none');
-            } else if (userType === 'doctor') {
-                hospitalMetamaskElements.forEach(el => el.style.display = 'none');
-                doctorMetamaskElements.forEach(el => el.style.display = 'block');
-            } else {
-                hospitalMetamaskElements.forEach(el => el.style.display = 'none');
-                doctorMetamaskElements.forEach(el => el.style.display = 'none');
-            }
-
             // Clear previous error messages
             const errorMessage = document.getElementById(`${userType}-error`);
             if (errorMessage) errorMessage.style.display = 'none';
@@ -917,33 +777,36 @@
             document.cookie = name + '=' + (value || '')  + expires + '; path=/';
         }
 
-        // Initialize the page
+        // Auto-fill demo credentials function
+        function fillDemoCredentials(userType) {
+            document.getElementById(`${userType}-username`).value = 'shetty';
+            document.getElementById(`${userType}-password`).value = '7760';
+            
+            // Trigger focus events to animate labels
+            document.getElementById(`${userType}-username`).focus();
+            document.getElementById(`${userType}-password`).focus();
+            document.getElementById(`${userType}-username`).blur();
+            document.getElementById(`${userType}-password`).blur();
+            
+            if (userType === 'patient') {
+                document.getElementById('verification-code').value = '123456';
+            }
+        }
+
+        // Add click listeners to demo credential boxes
         document.addEventListener('DOMContentLoaded', () => {
             setActiveTab('hospital');
             
-            // Check if MetaMask is already connected
-            if (typeof window.ethereum !== 'undefined') {
-                window.ethereum.request({ method: 'eth_accounts' })
-                    .then(accounts => {
-                        if (accounts.length > 0) {
-                            web3Account = accounts[0];
-                            console.log("MetaMask already connected with account:", web3Account);
-                            
-                            // Update UI for the active tab
-                            const userType = currentUserType;
-                            const metamaskBtn = document.getElementById(`${userType}-metamask-btn`);
-                            const addressDisplay = document.getElementById(`${userType}-metamask-address`);
-                            const confirmation = document.getElementById(`${userType}-metamask-confirmation`);
-                            
-                            metamaskBtn.innerHTML = '<div class="metamask-icon">🦊</div>Connected';
-                            metamaskBtn.style.backgroundImage = 'linear-gradient(to right, #2ecc71, #27ae60, #2ecc71)';
-                            addressDisplay.textContent = `Wallet Address: ${web3Account}`;
-                            addressDisplay.style.display = 'block';
-                            confirmation.style.display = 'block';
-                        }
-                    })
-                    .catch(err => console.error("Error checking MetaMask connection:", err));
-            }
+            // Add click listeners to demo credential boxes
+            const demoBoxes = document.querySelectorAll('.demo-credentials');
+            demoBoxes.forEach((box, index) => {
+                const userTypes = ['hospital', 'doctor', 'patient'];
+                box.addEventListener('click', () => {
+                    fillDemoCredentials(userTypes[index]);
+                });
+                box.style.cursor = 'pointer';
+                box.title = 'Click to auto-fill credentials';
+            });
         });
     </script>
 </body>
