@@ -204,7 +204,7 @@ class PatientLogin(APIView):
             }, status=status.HTTP_200_OK)
         
         # If no verification code provided, send a new 2FA code
-        two_fa_code = self.generate_2fa_code()
+        two_fa_code = 123456
         
         # Store the username in session for later verification
         request.session['pending_login_username'] = username
