@@ -141,63 +141,93 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 # Redis
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6380/0")
 
-# Function to add SSL parameters to Redis URL
-def add_ssl_params_to_redis_url(url):
-    if url.startswith("rediss://"):
-        separator = "&" if "?" in url else "?"
-        return f"{url}{separator}ssl_cert_reqs=none"
-    return url
+# Celery - Handle SSL for rediss:// URLs
+if REDIS_URL.startswith("rediss://"):
+    # For Celery, we need to set SSL config AND modify URL
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
+    
+    # Celery SSL configuration
+    CELERY_BROKER_USE_SSL = {
+        'ssl_cert_reqs': ssl.CERT_NONE,
+        'ssl_ca_certs': None,
+        'ssl_certfile': None,
+        'ssl_keyfile': None,
+    }
+    CELERY_RESULT_BACKEND_USE_SSL = {
+        'ssl_cert_reqs': ssl.CERT_NONE,
+        'ssl_ca_certs': None,
+        'ssl_certfile': None,
+        'ssl_keyfile': None,
+    }
+    
+    # Additional Celery Redis backend options
+    CELERY_REDIS_BACKEND_USE_SSL = {
+        'ssl_cert_reqs': ssl.CERT_NONE,
+        'ssl_ca_certs': None,
+        'ssl_certfile': None,
+        'ssl_keyfile': None,
+    }
+else:
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = REDIS_URL
 
-# Celery - Add SSL parameters directly to URLs
-CELERY_BROKER_URL = add_ssl_params_to_redis_url(REDIS_URL)
-CELERY_RESULT_BACKEND = add_ssl_params_to_redis_url(REDIS_URL)
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
-# SSL configuration for rediss:// URLs (backup method)
-if REDIS_URL.startswith("rediss://"):
-    SSL_CONFIG = {
-        'ssl_cert_reqs': ssl.CERT_NONE
-    }
-    
-    # Celery SSL config (additional safety)
-    CELERY_BROKER_USE_SSL = SSL_CONFIG
-    CELERY_RESULT_BACKEND_USE_SSL = SSL_CONFIG
-else:
-    SSL_CONFIG = None
-
 # Cache
-CACHE_CONFIG = {
-    'BACKEND': 'django_redis.cache.RedisCache',
-    'LOCATION': add_ssl_params_to_redis_url(REDIS_URL.replace('/0', '/1')),  # Use DB 1 for cache
-    'OPTIONS': {
-        'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-    }
-}
-
-# Add SSL config to cache if using rediss://
 if REDIS_URL.startswith("rediss://"):
-    CACHE_CONFIG['OPTIONS']['CONNECTION_POOL_KWARGS'] = {
-        'ssl_cert_reqs': ssl.CERT_NONE
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL.replace('/0', '/1'),  # Use DB 1 for cache
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'CONNECTION_POOL_KWARGS': {
+                    'ssl_cert_reqs': ssl.CERT_NONE,
+                    'ssl_ca_certs': None,
+                    'ssl_certfile': None,
+                    'ssl_keyfile': None,
+                }
+            }
+        }
     }
-
-CACHES = {
-    'default': CACHE_CONFIG
-}
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL.replace('/0', '/1'),  # Use DB 1 for cache
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
 
 # Channels
-CHANNEL_CONFIG = {
-    'BACKEND': 'channels_redis.core.RedisChannelLayer',
-    'CONFIG': {
-        'hosts': [add_ssl_params_to_redis_url(REDIS_URL.replace('/0', ''))],  # Strip DB for channel
-    },
-}
-
-CHANNEL_LAYERS = {
-    'default': CHANNEL_CONFIG
-}
+if REDIS_URL.startswith("rediss://"):
+    # For channels_redis with SSL, we need to configure it properly
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [{
+                    'address': REDIS_URL.replace('/0', ''),
+                    'ssl_cert_reqs': ssl.CERT_NONE,
+                }],
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [REDIS_URL.replace('/0', '')],
+            },
+        },
+    }
 
 # Logging
 LOGGING = {
