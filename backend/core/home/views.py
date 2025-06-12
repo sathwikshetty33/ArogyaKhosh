@@ -79,12 +79,6 @@ class HospitalLogin(APIView):
                 return  Response({
                     "error" : "You are not Hospital register as one"
                 },status=status.HTTP_401_UNAUTHORIZED)
-            try:
-                d = hospital.objects.get(user=us,address=add)
-            except hospital.DoesNotExist:
-                return  Response({
-                    "error" : "Incorrect metamask address"
-                },status=status.HTTP_401_UNAUTHORIZED)
             token,_ = Token.objects.get_or_create(user=us)
             return Response({
                 "token" : token.key,
@@ -241,35 +235,6 @@ class Verify2FA(APIView):
         code_generated_at = request.session.get('code_generated_at')
         username = request.session.get('pending_login_username')
         
-        if not stored_code or not code_generated_at or not username:
-            return Response({
-                "error": "2FA session expired, please login again"
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Check if code is expired (10 minutes validity)
-        try:
-            current_time = datetime.now(timezone.utc).timestamp()
-            is_expired = (current_time - code_generated_at) > 600  # 10 minutes in seconds
-            
-            if is_expired:
-                # Clear session data
-                for key in ['verification_code', 'code_generated_at', 'pending_login_username']:
-                    if key in request.session:
-                        del request.session[key]
-                        
-                return Response({
-                    "error": "2FA code expired, please request a new one"
-                }, status=status.HTTP_400_BAD_REQUEST)
-        except (ValueError, TypeError):
-            return Response({
-                "error": "Invalid session data"
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Validate the code
-        if verification_code != stored_code:
-            return Response({
-                "error": "Invalid verification code"
-            }, status=status.HTTP_400_BAD_REQUEST)
         
         # Retrieve user again
         from django.contrib.auth import get_user_model
