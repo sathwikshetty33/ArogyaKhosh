@@ -141,21 +141,28 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 # Redis
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6380/0")
 
-# Celery
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
+# Function to add SSL parameters to Redis URL
+def add_ssl_params_to_redis_url(url):
+    if url.startswith("rediss://"):
+        separator = "&" if "?" in url else "?"
+        return f"{url}{separator}ssl_cert_reqs=none"
+    return url
+
+# Celery - Add SSL parameters directly to URLs
+CELERY_BROKER_URL = add_ssl_params_to_redis_url(REDIS_URL)
+CELERY_RESULT_BACKEND = add_ssl_params_to_redis_url(REDIS_URL)
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
-# SSL configuration for rediss:// URLs
+# SSL configuration for rediss:// URLs (backup method)
 if REDIS_URL.startswith("rediss://"):
     SSL_CONFIG = {
         'ssl_cert_reqs': ssl.CERT_NONE
     }
     
-    # Celery SSL config
+    # Celery SSL config (additional safety)
     CELERY_BROKER_USE_SSL = SSL_CONFIG
     CELERY_RESULT_BACKEND_USE_SSL = SSL_CONFIG
 else:
@@ -164,7 +171,7 @@ else:
 # Cache
 CACHE_CONFIG = {
     'BACKEND': 'django_redis.cache.RedisCache',
-    'LOCATION': REDIS_URL.replace('/0', '/1'),  # Use DB 1 for cache
+    'LOCATION': add_ssl_params_to_redis_url(REDIS_URL.replace('/0', '/1')),  # Use DB 1 for cache
     'OPTIONS': {
         'CLIENT_CLASS': 'django_redis.client.DefaultClient',
     }
@@ -184,15 +191,9 @@ CACHES = {
 CHANNEL_CONFIG = {
     'BACKEND': 'channels_redis.core.RedisChannelLayer',
     'CONFIG': {
-        'hosts': [REDIS_URL.replace('/0', '')],  # Strip DB for channel
+        'hosts': [add_ssl_params_to_redis_url(REDIS_URL.replace('/0', ''))],  # Strip DB for channel
     },
 }
-
-# Add SSL config to channels if using rediss://
-if REDIS_URL.startswith("rediss://"):
-    # For channels_redis, we need to modify the host URL to include ssl_cert_reqs
-    redis_host = REDIS_URL.replace('/0', '') + '?ssl_cert_reqs=none'
-    CHANNEL_CONFIG['CONFIG']['hosts'] = [redis_host]
 
 CHANNEL_LAYERS = {
     'default': CHANNEL_CONFIG
