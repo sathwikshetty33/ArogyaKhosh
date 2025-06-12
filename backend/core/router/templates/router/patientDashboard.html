@@ -1998,12 +1998,20 @@ window.onload = function() {
 };
 
 // Generate QR code for patient
-function generatePatientQRCode() {
+function generatePatientQRCode(patientId) {
     const patientQRImage = document.getElementById("patient-qr-code");
-    if (patientQRImage) {
-        // Generate QR code URL using the patient ID
-        // This uses a placeholder API for demonstration - replace with your actual QR code service
-        patientQRImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=patient:${patientId}`;
+    if (patientQRImage && patientId) {
+        // Generate the full URL for the patient dashboard
+        const patientDashboardUrl = `https://arogyakhosh.onrender.com/route/patient-dashboard/${patientId}`;
+        
+        // Generate QR code URL using the full patient dashboard URL
+        // Using QR Server API with the complete URL
+        patientQRImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(patientDashboardUrl)}`;
+        
+        // Optional: Add alt text for accessibility
+        patientQRImage.alt = `QR Code for Patient Dashboard - ID: ${patientId}`;
+    } else {
+        console.error("QR code image element not found or patient ID not provided");
     }
 }
 
