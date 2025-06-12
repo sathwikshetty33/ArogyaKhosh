@@ -1050,9 +1050,6 @@ class UploadToIPFSHospital(APIView):
                 return Response({'detail': 'Ledger does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
             # Validate hospital's blockchain address
-            hospital_address = hosp.address
-            if not hospital_address:
-                return Response({"error": "Hospital has no blockchain address configured"}, status=status.HTTP_400_BAD_REQUEST)
 
             # Upload file to IPFS via Pinata
             try:
