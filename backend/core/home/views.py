@@ -921,7 +921,7 @@ class UploadToIPFS(APIView):
                 
                 # Web3 connection setup
                 web3 = Web3(Web3.HTTPProvider(settings.SEPOLIA_NODE_URL))
-                with open(r'/home/sathwik/ArogyaKhosh/backend/core/home/abi.json', "r") as abi_file:
+                with open(r'./home/abi.json', "r") as abi_file:
                     contract_abi = json.load(abi_file)
                 
                 # Account setup
