@@ -1314,53 +1314,58 @@ footer {
   
 
   <div class="hamburger-menu" id="hamburger-menu">
-      <span></span>
-      <span></span>
-      <span></span>
-  </div>
-  
-  <!-- Overlay for mobile -->
-  <div class="overlay" id="overlay"></div>
-  
-  <!-- Sidebar Navigation -->
-  <div class="sidebar" id="sidebar">
-      <div class="logo">
-          <div class="logo-icon">+</div>
-          <div class="logo-text">AROGYAKOSH</div>
-      </div>
-      
-  
-      <div class="menu-item active">
-          <i class="fas fa-user"></i>
-          <span>Patient Dashboard</span>
-      </div>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <div class="logo-icon">+</div>
+            <div class="logo-text">AROGYAKOSH</div>
+        </div>
+        
+        <!-- Menu Items -->
+        <div class="menu-item active">
+            <i class="fas fa-user"></i>
+            <span>Patient Dashboard</span>
+        </div>
+        
+        <div class="menu-item">
+            <i class="fas fa-robot"></i>
+            <span>
+                <a href="{% url 'chat_page' %}">Virtual Doctor</a>
+            </span>
+        </div>
+        
+        <div class="menu-item">
+            <i class="fas fa-file-medical"></i>
+            <span>
+                <a href="{% url 'access' %}">Document Access Requests</a>
+            </span>
+        </div>
+        
+        <div class="menu-item">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>
+                <a href="{% url 'login' %}">Logout</a>
+            </span>
+        </div>
+        
+        <!-- Read Aloud Button -->
+        <button id="readAloudBtn" onclick="readText()" title="Read page content aloud">
+            <i class="fas fa-volume-up"></i>
+            <span>Read Aloud</span>
+        </button>
+        
+        <!-- Google Translate -->
+        <div id="google_translate_element"></div>
+    </div>
 
-    </div>
-    <div class="menu-item">
-        <i class="fa-solid fa-right-from-bracket"></i>
-        <span>
-            <a href="{% url 'login' %}" style="text-decoration: none; color: inherit;">Logout</a>
-        </span>
-         <span>
-            <a href="{% url 'chat_page' %}" style="text-decoration: none; color: inherit;">Virtual Doctor</a>
-        </span>
-        <span>
-            <a href="{% url 'access' %}" style="text-decoration: none; color: inherit;">Document access requests</a>
-        </span>
-    </div>
-    <div id="google_translate_element"></div>
-    </div>
-</div>
-<button onclick="readText()">Read Aloud</button>
-</div>
-
-    <div class="menu-item">
-   <!-- Add this button where you want the read aloud control to appear -->
-<button id="readAloudBtn" title="Read page content aloud">
-    <i class="fas fa-volume-up"></i> Read Aloud
-</button>
-    </div>
-  </div>
   
   <!-- Main Content Area -->
   <div class="main-content" id="main-content">
@@ -2006,10 +2011,18 @@ window.onload = function() {
 // Generate QR code for patient
 function generatePatientQRCode() {
     const patientQRImage = document.getElementById("patient-qr-code");
-    if (patientQRImage) {
-        // Generate QR code URL using the patient ID
-        // This uses a placeholder API for demonstration - replace with your actual QR code service
-        patientQRImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=patient:${patientId}`;
+     if (patientQRImage && patientId) {
+        // Generate the full URL for the patient dashboard
+        const patientDashboardUrl = `https://arogyakhosh.onrender.com/route/patient-dashboard/{{id}}`;Add commentMore actions
+        
+        // Generate QR code URL using the full patient dashboard URL
+        // Using QR Server API with the complete URL
+        patientQRImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(patientDashboardUrl)}`;
+        
+        // Optional: Add alt text for accessibility
+        patientQRImage.alt = `QR Code for Patient Dashboard - ID: ${{id}}`;
+    } else {
+        console.error("QR code image element not found or patient ID not provided");
     }
 }
 
