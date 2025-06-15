@@ -1306,96 +1306,87 @@ footer {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <!-- Background image can be added here -->
-  <div class="bg-image">
-      <!-- Add your background image here -->
-      <img src="/api/placeholder/1200/800" alt="background" style="width:100%; height:100%; object-fit:cover;">
-  </div>
-  
+<!-- Background image can be added here -->
+<div class="bg-image">
+    <!-- Add your background image here -->
+    <img src="/api/placeholder/1200/800" alt="background" style="width:100%; height:100%; object-fit:cover;">
+</div>
 
-  <div class="hamburger-menu" id="hamburger-menu">
-        <span></span>
-        <span></span>
-        <span></span>
+<div class="hamburger-menu" id="hamburger-menu">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+<!-- Overlay for mobile -->
+<div class="overlay" id="overlay"></div>
+
+<!-- Sidebar Navigation -->
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <div class="logo-icon">+</div>
+        <div class="logo-text">AROGYAKOSH</div>
     </div>
     
-    <!-- Overlay for mobile -->
-    <div class="overlay" id="overlay"></div>
+    <div class="menu-item active">
+        <i class="fas fa-user"></i>
+        <span>Patient Dashboard</span>
+    </div>
     
-    <!-- Sidebar Navigation -->
-    <div class="sidebar" id="sidebar">
-        <div class="logo">
-            <div class="logo-icon">+</div>
-            <div class="logo-text">AROGYAKOSH</div>
-        </div>
-        
-        <!-- Menu Items -->
-        <div class="menu-item active">
-            <i class="fas fa-user"></i>
-            <span>Patient Dashboard</span>
-        </div>
-        
-        <div class="menu-item">
-            <i class="fas fa-robot"></i>
+    <div class="menu-item">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <div class="menu-links">
             <span>
-                <a href="{% url 'chat_page' %}">Virtual Doctor</a>
+                <a href="{% url 'login' %}" style="text-decoration: none; color: inherit;">Logout</a>
+            </span>
+            <span>
+                <a href="{% url 'chat_page' %}" style="text-decoration: none; color: inherit;">Virtual Doctor</a>
+            </span>
+            <span>
+                <a href="{% url 'access' %}" style="text-decoration: none; color: inherit;">Document access requests</a>
             </span>
         </div>
-        
-        <div class="menu-item">
-            <i class="fas fa-file-medical"></i>
-            <span>
-                <a href="{% url 'access' %}">Document Access Requests</a>
-            </span>
-        </div>
-        
-        <div class="menu-item">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>
-                <a href="{% url 'login' %}">Logout</a>
-            </span>
-        </div>
-        
-        <!-- Read Aloud Button -->
+    </div>
+    
+    <div class="menu-item">
         <button id="readAloudBtn" onclick="readText()" title="Read page content aloud">
-            <i class="fas fa-volume-up"></i>
-            <span>Read Aloud</span>
+            <i class="fas fa-volume-up"></i> Read Aloud
         </button>
-        
-        <!-- Google Translate -->
-        <div id="google_translate_element"></div>
     </div>
+    
+    <div id="google_translate_element"></div>
+</div>
 
-  
-  <!-- Main Content Area -->
-  <div class="main-content" id="main-content">
-      <div class="header">
-          <h1 class="page-title">Patient Documents</h1>
-      </div>
-      
-      <div class="content-card">
-          <h2 class="card-title">Patient Information</h2>
-          <div style="display: flex; align-items: center">
-              <div style="margin-right: 20px; margin-bottom: 10px;">
-                  <h3 style="margin: 0; font-size: 18px;"><span id="patient-name"></span></h3>
-                  <p style="margin: 5px 0; color: #777;"><span id="patient-age"></span></p>
-                  <p style="margin: 5px 0;"><span id="patient-blood-group"></span></p>
-                  <p style="margin: 5px 0;">Contact: <span id="patient-contact"></span></p>
-                  <p style="margin: 5px 0;">Emergency Contact: <span id="patient-emergency-contact"></span></p>
-                  
+<!-- Main Content Area -->
+<div class="main-content" id="main-content">
+    <div class="header">
+        <h1 class="page-title">Patient Documents</h1>
+    </div>
+    
+    <div class="content-card">
+        <h2 class="card-title">Patient Information</h2>
+        <div style="display: flex; align-items: center;">
+            <div style="margin-right: 20px; margin-bottom: 10px;">
+                <h3 style="margin: 0; font-size: 18px;"><span id="patient-name"></span></h3>
+                <p style="margin: 5px 0; color: #777;"><span id="patient-age"></span></p>
+                <p style="margin: 5px 0;"><span id="patient-blood-group"></span></p>
+                <p style="margin: 5px 0;">Contact: <span id="patient-contact"></span></p>
+                <p style="margin: 5px 0;">Emergency Contact: <span id="patient-emergency-contact"></span></p>
                 <p style="margin: 5px 0;">Address: <span id="patient-address"></span></p>
                 <button id="view-summary-btn" class="btn btn-primary" style="margin-top: 10px;">
                     <i class="fas fa-file-medical-alt"></i> View Medical Summary
                 </button>
             </div>
-                    <!-- Add the QR code section here -->
-                    <div class="qr-code-section">
-                        <div class="qr-code-title">PATIENT QR CODE</div>
-                        <img id="patient-qr-code" class="qr-code" alt="Patient QR Code" src="">
-                    </div>
-          </div>
-      </div>
-      <div id="summary-modal" class="modal">
+            <!-- Add the QR code section here -->
+            <div class="qr-code-section">
+                <div class="qr-code-title">PATIENT QR CODE</div>
+                <img id="patient-qr-code" class="qr-code" alt="Patient QR Code" src="">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Modal -->
+    <div id="summary-modal" class="modal">
         <div class="modal-content">
             <span class="close-summary-modal">&times;</span>
             <h2>Medical Summary</h2>
@@ -1404,7 +1395,8 @@ footer {
             </div>
         </div>
     </div>
-      <div class="content-card">
+    
+    <div class="content-card">
         <div class="search-upload-container">
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>
@@ -1419,90 +1411,85 @@ footer {
         
         <h3>Personal Documents</h3>
         <div class="slider-container">
-            
             <div class="slider" id="personal-slider">
                 <!-- Personal documents will be added here via JavaScript -->
             </div>
-          
         </div>
         
         <h3>Hospital Documents</h3>
         <div class="slider-container">
-            
             <div class="slider" id="hospital-slider">
                 <!-- Hospital documents will be added here via JavaScript -->
             </div>
-          
         </div>
     </div>
-      
-      
-    
-  </div>
-  <!-- Add this near the end of your body tag -->
-<div id="toast-container" class="toast-container" color="green"> </div>
-  <!-- Footer -->
-  <footer>
-      <div class="footer-container">
-          <!-- Footer Navigation -->
-          <nav class="footer-nav">
-              <a href="#about">About Us</a>
-              <a href="#services">Services</a>
-              <a href="#awards">Awards</a>
-              <a href="#help">Help</a>
-              <a href="#contact">Contact</a>
-          </nav>
-         
-          <!-- Mission Statement -->
-          <div class="mission-statement">
-              <p>
-                  AROGYAKOSH provides comprehensive medical care with compassion and expertise.
-                  Our mission is to deliver high-quality healthcare tailored to individual patient needs.
-                  We believe in accessible healthcare for all and strive to innovate in providing medical services.
-              </p>
-          </div>
-         
-          <!-- Social Media Icons -->
-          <div class="social-icons">
-              <a href="#">
-                  <i class="fab fa-facebook-f"></i>
-              </a>
-              <a href="#">
-                  <i class="fab fa-twitter"></i>
-              </a>
-              <a href="#">
-                  <i class="fab fa-google"></i>
-              </a>
-              <a href="#">
-                  <i class="fab fa-instagram"></i>
-              </a>
-              <a href="#">
-                  <i class="fab fa-linkedin-in"></i>
-              </a>
-              <a href="#">
-                  <i class="fab fa-github"></i>
-              </a>
-          </div>
-         
-          <!-- Contact Information -->
-          <div class="contact-info">
-              <div>
-                  <i class="fas fa-phone-alt"></i> +919620146061
-              </div>
-              <div>
-                  <i class="fas fa-envelope"></i> arogyakoshh@gmail.com
-              </div>
-              <div>
-                  <i class="fas fa-map-marker-alt"></i> Mumbai
-              </div>
-          </div>
-         
-          <!-- Copyright Text -->
-          <div class="copyright">
-              ©️ 2025 AROGYAKOSH. All Rights Reserved.
-          </div>
-      </div>
-  </footer>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container" color="green"></div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-container">
+        <!-- Footer Navigation -->
+        <nav class="footer-nav">
+            <a href="#about">About Us</a>
+            <a href="#services">Services</a>
+            <a href="#awards">Awards</a>
+            <a href="#help">Help</a>
+            <a href="#contact">Contact</a>
+        </nav>
+       
+        <!-- Mission Statement -->
+        <div class="mission-statement">
+            <p>
+                AROGYAKOSH provides comprehensive medical care with compassion and expertise.
+                Our mission is to deliver high-quality healthcare tailored to individual patient needs.
+                We believe in accessible healthcare for all and strive to innovate in providing medical services.
+            </p>
+        </div>
+       
+        <!-- Social Media Icons -->
+        <div class="social-icons">
+            <a href="#">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="#">
+                <i class="fab fa-google"></i>
+            </a>
+            <a href="#">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="#">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
+       
+        <!-- Contact Information -->
+        <div class="contact-info">
+            <div>
+                <i class="fas fa-phone-alt"></i> +919620146061
+            </div>
+            <div>
+                <i class="fas fa-envelope"></i> arogyakoshh@gmail.com
+            </div>
+            <div>
+                <i class="fas fa-map-marker-alt"></i> Mumbai
+            </div>
+        </div>
+       
+        <!-- Copyright Text -->
+        <div class="copyright">
+            ©️ 2025 AROGYAKOSH. All Rights Reserved.
+        </div>
+    </div>
+</footer>
   <script>
 // Get patient ID from URL or set a default
 const urlParams = new URLSearchParams(window.location.search);
@@ -2011,16 +1998,17 @@ window.onload = function() {
 // Generate QR code for patient
 function generatePatientQRCode() {
     const patientQRImage = document.getElementById("patient-qr-code");
-     if (patientQRImage && patientId) {
+    
+    if (patientQRImage && patientId) {
         // Generate the full URL for the patient dashboard
-        const patientDashboardUrl = `https://arogyakhosh.onrender.com/route/patient-dashboard/{{id}}`;Add commentMore actions
+        const patientDashboardUrl = `https://arogyakhosh.onrender.com/route/patient-dashboard/{{id}}`;
         
         // Generate QR code URL using the full patient dashboard URL
         // Using QR Server API with the complete URL
         patientQRImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(patientDashboardUrl)}`;
         
         // Optional: Add alt text for accessibility
-        patientQRImage.alt = `QR Code for Patient Dashboard - ID: ${{id}}`;
+        patientQRImage.alt = `QR Code for Patient Dashboard - ID: ${patientId}`;
     } else {
         console.error("QR code image element not found or patient ID not provided");
     }
