@@ -1322,6 +1322,7 @@ footer {
 <div class="overlay" id="overlay"></div>
 
 <!-- Sidebar Navigation -->
+<!-- Sidebar Navigation -->
 <div class="sidebar" id="sidebar">
     <div class="logo">
         <div class="logo-icon">+</div>
@@ -1335,22 +1336,30 @@ footer {
     
     <div class="menu-item">
         <i class="fa-solid fa-right-from-bracket"></i>
-        <div class="menu-links">
-            <span>
-                <a href="{% url 'login' %}" style="text-decoration: none; color: inherit;">Logout</a>
-            </span>
-            <span>
-                <a href="{% url 'chat_page' %}" style="text-decoration: none; color: inherit;">Virtual Doctor</a>
-            </span>
-            <span>
-                <a href="{% url 'access' %}" style="text-decoration: none; color: inherit;">Document access requests</a>
-            </span>
-        </div>
+        <span>
+            <a href="{% url 'login' %}" style="text-decoration: none; color: inherit;">Logout</a>
+        </span>
     </div>
     
     <div class="menu-item">
-        <button id="readAloudBtn" onclick="readText()" title="Read page content aloud">
-            <i class="fas fa-volume-up"></i> Read Aloud
+        <i class="fas fa-user-md"></i>
+        <span>
+            <a href="{% url 'chat_page' %}" style="text-decoration: none; color: inherit;">Virtual Doctor</a>
+        </span>
+    </div>
+    
+    <div class="menu-item">
+        <i class="fas fa-file-medical"></i>
+        <span>
+            <a href="{% url 'access' %}" style="text-decoration: none; color: inherit;">Document access requests</a>
+        </span>
+    </div>
+    
+    <div class="menu-item">
+        <i class="fas fa-volume-up"></i>
+        <span>Read Aloud</span>
+        <button id="readAloudBtn" onclick="readText()" title="Read page content aloud" style="display: none;">
+            Read Aloud
         </button>
     </div>
     
