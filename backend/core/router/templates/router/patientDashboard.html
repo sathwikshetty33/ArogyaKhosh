@@ -1312,7 +1312,7 @@ footer {
       <img src="/api/placeholder/1200/800" alt="background" style="width:100%; height:100%; object-fit:cover;">
   </div>
   
-  <!-- Hamburger Menu Button -->
+
   <div class="hamburger-menu" id="hamburger-menu">
       <span></span>
       <span></span>
@@ -1340,6 +1340,12 @@ footer {
         <i class="fa-solid fa-right-from-bracket"></i>
         <span>
             <a href="{% url 'login' %}" style="text-decoration: none; color: inherit;">Logout</a>
+        </span>
+         <span>
+            <a href="{% url 'chat_page' %}" style="text-decoration: none; color: inherit;">Virtual Doctor</a>
+        </span>
+        <span>
+            <a href="{% url 'access' %}" style="text-decoration: none; color: inherit;">Document access requests</a>
         </span>
     </div>
     <div id="google_translate_element"></div>
@@ -2109,7 +2115,7 @@ function checkPatientAuth() {
 function redirectToLogin() {
     // Store current location for redirect back after login
     localStorage.setItem('redirectAfterLogin', window.location.href);
-    window.location.href = "/route/login/";
+    window.location.href = "{% url 'login' %}";
 }
 
 function addDocument() {
