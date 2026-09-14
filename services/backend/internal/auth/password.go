@@ -12,6 +12,8 @@ const (
 	MaxPasswordLength = 72
 )
 
+const dummyHash = "$2a$10$D/d5XFCYXlUoIY0GeVmBIeKdnOcxfadnJcysACN1js/qaRsRj644G"
+
 var (
 	ErrPasswordTooShort = errors.New("password must be at least 8 characters")
 	ErrPasswordTooLong  = errors.New("password must be at most 72 bytes")
@@ -36,6 +38,13 @@ func HashPassword(password string) (string, error) {
 }
 
 func ComparePassword(hash, password string) error {
+	// Using dummy hash so to prevent giving hint when the account does
+	// not exist.
+	if hash == "" {
+		_ = bcrypt.CompareHashAndPassword([]byte(dummyHash), []byte(password))
+		return ErrPasswordMismatch
+	}
+
 	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password)); err != nil {
 		return ErrPasswordMismatch
 	}

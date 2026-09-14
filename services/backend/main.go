@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/db"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/server"
-	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 )
 
 func main() {

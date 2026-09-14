@@ -9,8 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 
-	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/models"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/models"
 )
 
 const uniqueViolationCode = "23505"
@@ -223,4 +223,56 @@ func trimOptional(value *string) *string {
 	}
 
 	return &trimmed
+}
+
+type loginRequest struct {
+	Identifier string `json:"identifier" binding:"required,min=3,max=254"`
+	Password   string `json:"password" binding:"required,max=72"`
+}
+
+type loginResponse struct {
+	Token     string       `json:"token"`
+	ExpiresIn int64        `json:"expires_in"`
+	Role      models.Role  `json:"role"`
+	User      *models.User `json:"user"`
+}
+
+func (s *Server) login(c *gin.Context) {
+	var req loginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequest(c, err)
+		return
+	}
+
+	identifier := strings.ToLower(strings.TrimSpace(req.Identifier))
+
+	var user models.User
+	lookupErr := s.cfg.DB.
+		Where("lower(username) = ? OR lower(email) = ?", identifier, identifier).
+		First(&user).Error
+
+	if lookupErr != nil && !errors.Is(lookupErr, gorm.ErrRecordNotFound) {
+		c.Error(lookupErr)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not sign in"})
+		return
+	}
+
+	if err := utils.ComparePassword(user.PasswordHash, req.Password); err != nil || lookupErr != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
+		return
+	}
+
+	token, err := s.cfg.JWT.Encode(user.ID, user.Role)
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not issue token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, loginResponse{
+		Token:     token,
+		ExpiresIn: int64(s.cfg.JWT.TTL().Seconds()),
+		Role:      user.Role,
+		User:      &user,
+	})
 }

@@ -71,6 +71,7 @@ func (s *Server) registerRoutes() {
 	auth := v1.Group("/auth")
 	auth.POST("/register/patient", s.registerPatient)
 	auth.POST("/register/doctor", s.registerDoctor)
+	auth.POST("/login", s.login)
 }
 
 func (s *Server) ready(c *gin.Context) {
