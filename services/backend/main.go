@@ -4,17 +4,35 @@ import (
 	"log"
 	"os"
 
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/db"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/server"
 )
 
 func main() {
+	dsn := os.Getenv(envDatabaseURL)
+	if dsn == "" {
+		log.Fatalf("%s is required", envDatabaseURL)
+	}
+
+	gdb, err := db.Open(dsn)
+	if err != nil {
+		log.Fatalf("database: %v", err)
+	}
+
+	if err := db.Migrate(gdb); err != nil {
+		log.Fatalf("migrate: %v", err)
+	}
+
+	log.Print("schema migrated")
+
 	cfg := server.Config{
 		Port:            env(envPort, defaultPort),
-		Mode:            env(envGinMode, defaultGinMode),
+		Mode:            ginMode(env(envGinMode, defaultGinMode)),
 		ReadTimeout:     readTimeout,
 		WriteTimeout:    writeTimeout,
 		IdleTimeout:     idleTimeout,
 		ShutdownTimeout: shutdownTimeout,
+		DB:              gdb,
 	}
 
 	srv := server.New(cfg)
@@ -30,4 +48,14 @@ func env(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func ginMode(mode string) string {
+	switch mode {
+	case "debug", "release", "test":
+		return mode
+	default:
+		log.Printf("unknown %s=%q, falling back to %q", envGinMode, mode, defaultGinMode)
+		return defaultGinMode
+	}
 }

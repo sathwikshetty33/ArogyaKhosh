@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type Config struct {
@@ -19,6 +20,7 @@ type Config struct {
 	WriteTimeout    time.Duration
 	IdleTimeout     time.Duration
 	ShutdownTimeout time.Duration
+	DB              *gorm.DB
 }
 
 type Server struct {
@@ -56,10 +58,29 @@ func (s *Server) registerRoutes() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
+	s.engine.GET("/readyz", s.ready)
+
 	v1 := s.engine.Group("/api/v1")
 	v1.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
+}
+
+func (s *Server) ready(c *gin.Context) {
+	sqlDB, err := s.cfg.DB.DB()
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "unavailable", "database": "down"})
+		return
+	}
+
+	if err := sqlDB.PingContext(c.Request.Context()); err != nil {
+		c.Error(err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "unavailable", "database": "down"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "ready", "database": "up"})
 }
 
 func (s *Server) Run() error {
