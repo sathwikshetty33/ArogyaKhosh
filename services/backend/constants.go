@@ -3,8 +3,9 @@ package main
 import "time"
 
 const (
-	envPort    = "PORT"
-	envGinMode = "GIN_MODE"
+	envPort        = "PORT"
+	envGinMode     = "GIN_MODE"
+	envDatabaseURL = "DATABASE_URL"
 
 	defaultPort    = "8080"
 	defaultGinMode = "debug"
