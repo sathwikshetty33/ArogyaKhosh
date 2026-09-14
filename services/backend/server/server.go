@@ -11,6 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 )
 
 type Config struct {
@@ -21,6 +23,7 @@ type Config struct {
 	IdleTimeout     time.Duration
 	ShutdownTimeout time.Duration
 	DB              *gorm.DB
+	JWT             *utils.JWTManager
 }
 
 type Server struct {
@@ -64,6 +67,10 @@ func (s *Server) registerRoutes() {
 	v1.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
+
+	auth := v1.Group("/auth")
+	auth.POST("/register/patient", s.registerPatient)
+	auth.POST("/register/doctor", s.registerDoctor)
 }
 
 func (s *Server) ready(c *gin.Context) {

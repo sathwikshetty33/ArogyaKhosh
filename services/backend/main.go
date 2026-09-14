@@ -6,6 +6,7 @@ import (
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/db"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/server"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 )
 
 func main() {
@@ -25,6 +26,15 @@ func main() {
 
 	log.Print("schema migrated")
 
+	jwtManager, err := utils.NewJWTManager(
+		os.Getenv(envJWTSecret),
+		env(envJWTIssuer, defaultJWTIssuer),
+		accessTokenTTL,
+	)
+	if err != nil {
+		log.Fatalf("jwt: %v", err)
+	}
+
 	cfg := server.Config{
 		Port:            env(envPort, defaultPort),
 		Mode:            ginMode(env(envGinMode, defaultGinMode)),
@@ -33,6 +43,7 @@ func main() {
 		IdleTimeout:     idleTimeout,
 		ShutdownTimeout: shutdownTimeout,
 		DB:              gdb,
+		JWT:             jwtManager,
 	}
 
 	srv := server.New(cfg)
