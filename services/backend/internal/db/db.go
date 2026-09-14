@@ -14,8 +14,7 @@ import (
 
 func Open(dsn string) (*gorm.DB, error) {
 	gdb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger:         logger.Default.LogMode(logger.Warn),
-		TranslateError: true,
+		Logger: logger.Default.LogMode(logger.Warn),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
