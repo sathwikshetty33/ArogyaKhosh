@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS document_requests;
+DROP TABLE IF EXISTS patient_documents;
+DROP TABLE IF EXISTS doctors;
+DROP TABLE IF EXISTS hospitals;
+DROP TABLE IF EXISTS patients;
+DROP TABLE IF EXISTS users;
+DROP FUNCTION IF EXISTS set_updated_at();
