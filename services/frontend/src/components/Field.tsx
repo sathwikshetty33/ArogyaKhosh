@@ -16,37 +16,34 @@ export function Field({ label, hint, suffix, error, className, ...input }: Field
 
   return (
     <div className={className}>
-      <label
-        htmlFor={id}
-        className="block text-[0.8125rem] font-500 text-ink-soft"
-      >
+      <label htmlFor={id} className="block text-[0.8125rem] font-500 text-ink-soft">
         {label}
       </label>
 
-      <div className="relative mt-1.5">
+      <div className="group relative mt-2">
         <input
           {...input}
           id={id}
           type={isPassword && revealed ? 'text' : input.type}
           aria-describedby={hint || error ? hintId : undefined}
           aria-invalid={error ? true : undefined}
-          className={`w-full border-0 border-b bg-transparent pb-2 text-[1.0625rem] text-ink transition-colors outline-none placeholder:text-ink-faint focus:border-leaf ${
+          className={`w-full rounded-[7px] border bg-paper/60 px-3.5 py-2.5 text-[1rem] text-ink shadow-[0_1px_2px_rgba(20,35,28,0.04)] transition-[border-color,box-shadow] duration-150 outline-none placeholder:text-ink-faint hover:border-ink-faint focus:bg-white focus:border-leaf focus:shadow-[0_0_0_3px_rgba(31,93,69,0.13)] ${
             error ? 'border-alert' : 'border-rule'
-          } ${isPassword ? 'pr-16' : suffix ? 'pr-10' : ''}`}
+          } ${isPassword ? 'pr-16' : suffix ? 'pr-12' : ''}`}
         />
 
         {isPassword ? (
           <button
             type="button"
             onClick={() => setRevealed((value) => !value)}
-            className="absolute right-0 bottom-2.5 cursor-pointer border-0 bg-transparent p-0 text-[0.8125rem] font-500 text-ink-soft underline decoration-rule underline-offset-4 transition-colors hover:text-leaf"
+            className="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer rounded-[3px] border-0 bg-transparent px-1.5 py-1 text-[0.8125rem] font-500 text-ink-soft transition-colors hover:text-leaf"
           >
             {revealed ? 'Hide' : 'Show'}
           </button>
         ) : null}
 
         {!isPassword && suffix ? (
-          <span className="pointer-events-none absolute right-0 bottom-2.5 text-[0.9375rem] text-ink-faint">
+          <span className="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-[0.9375rem] text-ink-faint">
             {suffix}
           </span>
         ) : null}
@@ -57,7 +54,7 @@ export function Field({ label, hint, suffix, error, className, ...input }: Field
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="mt-2 text-[0.8125rem] text-ink-faint">
+        <p id={hintId} className="mt-2 text-[0.8125rem] leading-relaxed text-ink-faint">
           {hint}
         </p>
       ) : null}

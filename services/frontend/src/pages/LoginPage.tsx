@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { Button } from '../components/Button'
+import { EmergencyCard } from '../components/EmergencyCard'
 import { Field } from '../components/Field'
 import { Notice } from '../components/Notice'
 import { Page } from '../components/Page'
@@ -35,7 +36,24 @@ export function LoginPage() {
   return (
     <Page
       title="Sign in"
+      width="narrow"
       intro="Your records follow you, whichever hospital treats you next."
+      aside={
+        <div>
+          <div className="card-lift rounded-[2cqw]">
+            <EmergencyCard
+              name="Sathwik Shetty"
+              bloodGroup="O+"
+              contact="amma@example.com"
+              serial="AK · 4471 0982"
+            />
+          </div>
+          <p className="mt-5 text-[0.8125rem] leading-relaxed text-ink-soft">
+            Signed in or not, your emergency card keeps working. It is the one way in
+            that never asks anybody for a password.
+          </p>
+        </div>
+      }
       footer={
         <>
           No account yet?{' '}
@@ -45,7 +63,7 @@ export function LoginPage() {
         </>
       }
     >
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-7">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
         {error ? <Notice message={error} /> : null}
 
         <Field

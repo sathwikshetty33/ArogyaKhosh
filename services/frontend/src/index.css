@@ -11,8 +11,11 @@
   --color-rule: #dad5c7;
   --color-brass: #a8762c;
   --color-alert: #8f3122;
+  --color-forest: #0b2a1f;
+  --color-forest-mid: #123f2e;
+  --color-brass-soft: #c9903a;
 
-  --font-display: "Mukta", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Anek Latin", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
@@ -41,6 +44,66 @@
     outline: 2px solid var(--color-brass);
     outline-offset: 3px;
   }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.22;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23g)'/></svg>");
+  }
+}
+
+.bg-forest {
+  background-color: var(--color-forest);
+  background-image:
+    radial-gradient(115% 85% at 12% -5%, rgba(58, 145, 110, 0.55) 0%, transparent 58%),
+    radial-gradient(85% 70% at 95% 8%, rgba(168, 118, 44, 0.22) 0%, transparent 60%),
+    linear-gradient(175deg, var(--color-forest-mid) 0%, var(--color-forest) 78%);
+}
+
+.bg-forest-alt {
+  background-color: var(--color-forest);
+  background-image:
+    radial-gradient(90% 75% at 88% 105%, rgba(58, 145, 110, 0.42) 0%, transparent 60%),
+    radial-gradient(70% 60% at 8% 90%, rgba(168, 118, 44, 0.2) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-forest) 0%, var(--color-forest-mid) 100%);
+}
+
+.bg-parchment {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(85% 65% at 100% 0%, rgba(168, 118, 44, 0.11) 0%, transparent 58%),
+    radial-gradient(70% 60% at 0% 100%, rgba(31, 93, 69, 0.09) 0%, transparent 62%);
+}
+
+.bg-parchment-deep {
+  background-color: var(--color-paper-deep);
+  background-image:
+    radial-gradient(80% 70% at 0% 0%, rgba(31, 93, 69, 0.1) 0%, transparent 58%),
+    radial-gradient(70% 60% at 100% 100%, rgba(168, 118, 44, 0.14) 0%, transparent 60%);
+}
+
+.card-lift {
+  box-shadow:
+    0 0 0 1px rgba(247, 245, 239, 0.14),
+    0 34px 70px -28px rgba(4, 20, 14, 0.85);
+}
+
+.sheet {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 1px 2px rgba(20, 35, 28, 0.05),
+    0 26px 56px -32px rgba(20, 35, 28, 0.38);
+}
+
+.tilt-card {
+  transform: perspective(1100px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 
 @keyframes rule-down {
@@ -60,6 +123,53 @@
 @media (prefers-reduced-motion: reduce) {
   .spine {
     animation: none;
+  }
+
+  .bg-forest {
+  background-color: var(--color-forest);
+  background-image:
+    radial-gradient(115% 85% at 12% -5%, rgba(58, 145, 110, 0.55) 0%, transparent 58%),
+    radial-gradient(85% 70% at 95% 8%, rgba(168, 118, 44, 0.22) 0%, transparent 60%),
+    linear-gradient(175deg, var(--color-forest-mid) 0%, var(--color-forest) 78%);
+}
+
+.bg-forest-alt {
+  background-color: var(--color-forest);
+  background-image:
+    radial-gradient(90% 75% at 88% 105%, rgba(58, 145, 110, 0.42) 0%, transparent 60%),
+    radial-gradient(70% 60% at 8% 90%, rgba(168, 118, 44, 0.2) 0%, transparent 62%),
+    linear-gradient(180deg, var(--color-forest) 0%, var(--color-forest-mid) 100%);
+}
+
+.bg-parchment {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(85% 65% at 100% 0%, rgba(168, 118, 44, 0.11) 0%, transparent 58%),
+    radial-gradient(70% 60% at 0% 100%, rgba(31, 93, 69, 0.09) 0%, transparent 62%);
+}
+
+.bg-parchment-deep {
+  background-color: var(--color-paper-deep);
+  background-image:
+    radial-gradient(80% 70% at 0% 0%, rgba(31, 93, 69, 0.1) 0%, transparent 58%),
+    radial-gradient(70% 60% at 100% 100%, rgba(168, 118, 44, 0.14) 0%, transparent 60%);
+}
+
+.card-lift {
+  box-shadow:
+    0 0 0 1px rgba(247, 245, 239, 0.14),
+    0 34px 70px -28px rgba(4, 20, 14, 0.85);
+}
+
+.sheet {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 1px 2px rgba(20, 35, 28, 0.05),
+    0 26px 56px -32px rgba(20, 35, 28, 0.38);
+}
+
+.tilt-card {
+    transform: none !important;
   }
 
   *,

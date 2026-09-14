@@ -25,7 +25,7 @@ export function BloodGroupPicker({ value, onChange }: BloodGroupPickerProps) {
               className={`cursor-pointer rounded-[3px] border py-2.5 text-[0.9375rem] font-600 transition-colors duration-150 ${
                 selected
                   ? 'border-leaf bg-leaf text-paper'
-                  : 'border-rule bg-transparent text-ink-soft hover:border-leaf hover:text-leaf'
+                  : 'border-rule bg-paper/60 text-ink-soft hover:border-leaf hover:bg-white hover:text-leaf'
               }`}
             >
               {group}

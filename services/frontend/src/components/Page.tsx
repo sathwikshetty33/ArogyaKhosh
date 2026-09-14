@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
 import type { ReactNode } from 'react'
-import { Mark } from './Mark'
+
+import { Masthead } from './Masthead'
 
 interface PageProps {
   title: string
@@ -8,51 +8,61 @@ interface PageProps {
   children: ReactNode
   aside?: ReactNode
   footer?: ReactNode
+  width?: 'narrow' | 'wide'
 }
 
-export function Page({ title, intro, children, aside, footer }: PageProps) {
+const SHELL = {
+  narrow: 'max-w-3xl',
+  wide: 'max-w-5xl',
+} as const
+
+const ASIDE = {
+  narrow: 'lg:w-[16.5rem]',
+  wide: 'lg:w-[20rem]',
+} as const
+
+export function Page({ title, intro, children, aside, footer, width = 'wide' }: PageProps) {
   return (
-    <div className="min-h-dvh px-5 py-10 sm:px-8 sm:py-16">
-      <div
-        className={`mx-auto flex w-full gap-12 ${aside ? 'max-w-5xl lg:items-start' : 'max-w-xl'} ${
-          aside ? 'flex-col lg:flex-row' : ''
-        }`}
-      >
-        <div className={aside ? 'flex-1' : 'w-full'}>
-          <div className="relative pl-6 sm:pl-8">
-            <div className="spine absolute top-0 bottom-0 left-0 w-[3px] rounded-full bg-leaf" />
+    <div className="bg-parchment flex min-h-dvh flex-col">
+      <Masthead />
 
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2.5 text-leaf no-underline"
-            >
-              <Mark />
-              <span className="font-display text-[1.0625rem] font-600 tracking-tight">
-                ArogyaKhosh
-              </span>
-            </Link>
+      <div className="flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-14">
+        <div
+          className={`flex w-full flex-col gap-10 ${
+            aside ? `${SHELL[width]} lg:flex-row lg:items-start lg:gap-12` : 'max-w-md'
+          }`}
+        >
+          <div className="sheet relative flex-1 overflow-hidden rounded-[14px] bg-white p-7 sm:p-8">
+            <span
+              aria-hidden="true"
+              className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-leaf via-leaf-bright to-brass"
+            />
 
-            <h1 className="mt-9 text-[2rem] leading-[1.15] font-600 text-ink sm:text-[2.375rem]">
+            <h1 className="font-display text-[1.75rem] leading-[1.08] font-700 tracking-tight text-ink sm:text-[2rem]">
               {title}
             </h1>
 
             {intro ? (
-              <p className="mt-3 max-w-[46ch] text-[0.9375rem] leading-relaxed text-ink-soft">
+              <p className="mt-3 max-w-[48ch] text-[0.9375rem] leading-relaxed text-ink-soft">
                 {intro}
               </p>
             ) : null}
 
-            <div className="mt-9">{children}</div>
+            <div className="mt-7">{children}</div>
 
             {footer ? (
-              <div className="mt-8 border-t border-rule pt-5 text-sm text-ink-soft">
+              <div className="mt-8 border-t border-rule pt-5 text-[0.9375rem] text-ink-soft">
                 {footer}
               </div>
             ) : null}
           </div>
-        </div>
 
-        {aside ? <div className="lg:w-[20rem] lg:pt-2">{aside}</div> : null}
+          {aside ? (
+            <aside className={`${ASIDE[width]} lg:shrink-0`}>
+              <div className="lg:sticky lg:top-10">{aside}</div>
+            </aside>
+          ) : null}
+        </div>
       </div>
     </div>
   )

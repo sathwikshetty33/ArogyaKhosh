@@ -31,7 +31,7 @@ export function RegisterPage() {
     >
       <ul className="m-0 flex list-none flex-col border-t border-rule p-0">
         {PATHS.map((path) => (
-          <li key={path.to} className="border-b border-rule">
+          <li key={path.to} className="border-b border-rule last:border-b-0">
             <Link
               to={path.to}
               className="group flex items-center justify-between gap-6 py-5 no-underline transition-[padding] duration-200 hover:pl-2"

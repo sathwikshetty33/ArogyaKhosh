@@ -6,6 +6,7 @@ import { BloodGroupPicker } from '../components/BloodGroupPicker'
 import { Button } from '../components/Button'
 import { EmergencyCard } from '../components/EmergencyCard'
 import { Field } from '../components/Field'
+import { Fieldset } from '../components/Fieldset'
 import { Notice } from '../components/Notice'
 import { Page } from '../components/Page'
 import { api, ApiError } from '../lib/api'
@@ -70,11 +71,32 @@ export function PatientRegisterPage() {
       title="Your health record"
       intro="One account holds every prescription, scan and discharge note — and issues the card below."
       aside={
-        <EmergencyCard
-          name={form.fullName}
-          bloodGroup={form.bloodGroup}
-          contact={form.emergencyContactEmail}
-        />
+        <div>
+          <div className="card-lift rounded-[2cqw]">
+            <EmergencyCard
+              name={form.fullName}
+              bloodGroup={form.bloodGroup}
+              contact={form.emergencyContactEmail}
+            />
+          </div>
+          <p className="mt-6 max-w-[34ch] text-[0.875rem] leading-relaxed text-ink-soft">
+            Carry this card. If you are in an accident, whoever finds you scans it —
+            and your emergency contact decides which doctor may open your records.
+          </p>
+
+          <ul className="m-0 mt-8 flex list-none flex-col gap-0 border-t border-rule p-0">
+            {[
+              ['Nothing is shared by default', 'Every record starts private to you.'],
+              ['One doctor at a time', 'Grants name a person, never a hospital.'],
+              ['Access lapses on its own', 'You never have to remember to revoke.'],
+            ].map(([title, detail]) => (
+              <li key={title} className="border-b border-rule py-4">
+                <p className="text-[0.875rem] font-600 text-ink">{title}</p>
+                <p className="mt-1 text-[0.8125rem] leading-relaxed text-ink-soft">{detail}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       }
       footer={
         <>
@@ -85,79 +107,92 @@ export function PatientRegisterPage() {
         </>
       }
     >
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-7">
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-12">
         {error ? <Notice message={error} /> : null}
 
-        <Field
-          label="Full name"
-          value={form.fullName}
-          onChange={(event) => update('fullName', event.target.value)}
-          autoComplete="name"
-          autoFocus
-          required
-        />
-
-        <Field
-          label="Username"
-          value={form.username}
-          onChange={(event) => update('username', event.target.value)}
-          hint="Letters and numbers only."
-          autoComplete="username"
-          required
-        />
-
-        <Field
-          label="Email"
-          type="email"
-          value={form.email}
-          onChange={(event) => update('email', event.target.value)}
-          autoComplete="email"
-          required
-        />
-
-        <Field
-          label="Password"
-          type="password"
-          value={form.password}
-          onChange={(event) => update('password', event.target.value)}
-          hint="At least 8 characters."
-          error={passwordTooShort ? 'Use at least 8 characters.' : undefined}
-          autoComplete="new-password"
-          required
-        />
-
-        <BloodGroupPicker
-          value={form.bloodGroup}
-          onChange={(value) => update('bloodGroup', value)}
-        />
-
-        <div className="grid grid-cols-2 gap-5">
+        <Fieldset step={1} title="Your account">
           <Field
-            label="Height"
-            type="number"
-            inputMode="decimal"
-            suffix="cm"
-            value={form.heightCm}
-            onChange={(event) => update('heightCm', event.target.value)}
+            label="Full name"
+            value={form.fullName}
+            onChange={(event) => update('fullName', event.target.value)}
+            autoComplete="name"
+            autoFocus
+            required
           />
-          <Field
-            label="Weight"
-            type="number"
-            inputMode="decimal"
-            suffix="kg"
-            value={form.weightKg}
-            onChange={(event) => update('weightKg', event.target.value)}
-          />
-        </div>
 
-        <Field
-          label="Emergency contact email"
-          type="email"
-          value={form.emergencyContactEmail}
-          onChange={(event) => update('emergencyContactEmail', event.target.value)}
-          hint="The person we reach if you are in an accident. They decide who may read your records."
-          autoComplete="email"
-        />
+          <Field
+            label="Username"
+            value={form.username}
+            onChange={(event) => update('username', event.target.value)}
+            hint="Letters and numbers only."
+            autoComplete="username"
+            required
+          />
+
+          <Field
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={(event) => update('email', event.target.value)}
+            autoComplete="email"
+            required
+          />
+
+          <Field
+            label="Password"
+            type="password"
+            value={form.password}
+            onChange={(event) => update('password', event.target.value)}
+            hint="At least 8 characters."
+            error={passwordTooShort ? 'Use at least 8 characters.' : undefined}
+            autoComplete="new-password"
+            required
+          />
+        </Fieldset>
+
+        <Fieldset
+          step={2}
+          title="What a paramedic needs"
+          detail="Printed on your card and readable without unlocking anything. All optional."
+        >
+          <BloodGroupPicker
+            value={form.bloodGroup}
+            onChange={(value) => update('bloodGroup', value)}
+          />
+
+          <div className="grid grid-cols-2 gap-5">
+            <Field
+              label="Height"
+              type="number"
+              inputMode="decimal"
+              suffix="cm"
+              value={form.heightCm}
+              onChange={(event) => update('heightCm', event.target.value)}
+            />
+            <Field
+              label="Weight"
+              type="number"
+              inputMode="decimal"
+              suffix="kg"
+              value={form.weightKg}
+              onChange={(event) => update('weightKg', event.target.value)}
+            />
+          </div>
+        </Fieldset>
+
+        <Fieldset
+          step={3}
+          title="Who we reach"
+          detail="If you cannot answer, this is the person who decides which doctor may read your file."
+        >
+          <Field
+            label="Emergency contact email"
+            type="email"
+            value={form.emergencyContactEmail}
+            onChange={(event) => update('emergencyContactEmail', event.target.value)}
+            autoComplete="email"
+          />
+        </Fieldset>
 
         <Button type="submit" pending={pending} pendingLabel="Creating record">
           Create my record

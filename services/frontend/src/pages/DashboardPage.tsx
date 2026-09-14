@@ -4,10 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { Page } from '../components/Page'
 import { clearSession, loadSession } from '../lib/session'
 
-function remaining(expiresAt: number): string {
-  const left = Math.max(0, expiresAt - Date.now())
-  const minutes = Math.floor(left / 60000)
-  const seconds = Math.floor((left % 60000) / 1000)
+function format(msLeft: number): string {
+  const minutes = Math.floor(msLeft / 60000)
+  const seconds = Math.floor((msLeft % 60000) / 1000)
 
   return `${minutes}:${String(seconds).padStart(2, '0')}`
 }
@@ -15,14 +14,16 @@ function remaining(expiresAt: number): string {
 export function DashboardPage() {
   const navigate = useNavigate()
   const [session] = useState(loadSession)
-  const [countdown, setCountdown] = useState(() =>
-    session ? remaining(session.expiresAt) : '0:00',
-  )
+  const [msLeft, setMsLeft] = useState(0)
 
   useEffect(() => {
     if (!session) return
 
-    const timer = setInterval(() => setCountdown(remaining(session.expiresAt)), 1000)
+    const tick = () => setMsLeft(Math.max(0, session.expiresAt - Date.now()))
+
+    tick()
+    const timer = setInterval(tick, 1000)
+
     return () => clearInterval(timer)
   }, [session])
 
@@ -42,7 +43,7 @@ export function DashboardPage() {
     )
   }
 
-  const expired = session.expiresAt <= Date.now()
+  const expired = msLeft <= 0
 
   return (
     <Page
@@ -54,7 +55,7 @@ export function DashboardPage() {
           ['Signed in as', session.user.username],
           ['Role', session.role],
           ['Email', session.user.email],
-          ['Session expires in', expired ? 'expired' : countdown],
+          ['Session expires in', expired ? 'expired' : format(msLeft)],
         ].map(([label, value]) => (
           <div key={label} className="col-span-2 grid grid-cols-subgrid border-b border-rule py-3.5">
             <dt className="text-[0.875rem] text-ink-soft">{label}</dt>
