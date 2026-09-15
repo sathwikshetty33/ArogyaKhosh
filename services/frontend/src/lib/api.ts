@@ -115,6 +115,45 @@ export interface PatientRecord {
   grants?: AccessGrant[]
 }
 
+export type RequestStatus = 'pending' | 'granted' | 'declined' | 'revoked'
+
+export interface AccessRequest {
+  id: string
+  status: RequestStatus
+  active: boolean
+  patient_id: string
+  patient_name: string
+  doctor_id: string
+  doctor_name: string
+  hospital: string
+  qualification: string
+  position: string | null
+  granted_by_email: string | null
+  granted_at: string | null
+  expires_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PatientUpdate {
+  blood_group?: string
+  height_cm?: number
+  weight_kg?: number
+  emergency_contact_email?: string
+}
+
+export interface DocumentUpdate {
+  name?: string
+  visibility?: 'public' | 'private'
+}
+
+export interface SignedDownload {
+  url: string
+  expires_in: number
+  expires_at: string
+  document: PatientDocument
+}
+
 export class ApiError extends Error {
   status: number
 
@@ -136,7 +175,8 @@ async function request<T>(path: string, init: RequestInit): Promise<T> {
     throw new ApiError(0, 'Cannot reach the server. Check your connection and try again.')
   }
 
-  const payload = await response.json().catch(() => null)
+  const payload =
+    response.status === 204 ? null : await response.json().catch(() => null)
 
   if (!response.ok) {
     const message =
@@ -154,6 +194,17 @@ function get<T>(token: string, path: string): Promise<T> {
   return request<T>(path, { headers: { Authorization: `Bearer ${token}` } })
 }
 
+function send<T>(method: string, token: string, path: string, body?: unknown): Promise<T> {
+  const headers: Record<string, string> = { Authorization: `Bearer ${token}` }
+  if (body !== undefined) headers['Content-Type'] = 'application/json'
+
+  return request<T>(path, {
+    method,
+    headers,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+}
+
 function post<T>(path: string, body: unknown): Promise<T> {
   return request<T>(path, {
     method: 'POST',
@@ -169,4 +220,54 @@ export const api = {
 
   me: (token: string) => get<Me>(token, '/me'),
   patient: (token: string, id: string) => get<PatientRecord>(token, `/patients/${id}`),
+
+  updatePatient: (token: string, id: string, input: PatientUpdate) =>
+    send<PatientRecord['patient']>('PATCH', token, `/patients/${id}`, input),
+
+  uploadDocument: async (
+    token: string,
+    patientId: string,
+    file: File,
+    name: string,
+    visibility: 'public' | 'private',
+  ) => {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('name', name)
+    form.append('visibility', visibility)
+
+    return request<PatientDocument>(`/patients/${patientId}/documents`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+    })
+  },
+
+  updateDocument: (token: string, id: string, input: DocumentUpdate) =>
+    send<PatientDocument>('PATCH', token, `/documents/${id}`, input),
+
+  deleteDocument: (token: string, id: string) =>
+    send<void>('DELETE', token, `/documents/${id}`),
+
+  documentURL: (token: string, id: string) => get<SignedDownload>(token, `/documents/${id}/url`),
+
+  listRequests: (token: string, patientId: string) =>
+    get<{ patient_id: string; requests: AccessRequest[] }>(token, `/patients/${patientId}/requests`),
+
+  requestAccess: (token: string, patientId: string) =>
+    send<AccessRequest>('POST', token, `/patients/${patientId}/requests`),
+
+  approveRequest: (token: string, id: string, expiresInHours?: number) =>
+    send<AccessRequest>(
+      'POST',
+      token,
+      `/requests/${id}/approve`,
+      expiresInHours ? { expires_in_hours: expiresInHours } : {},
+    ),
+
+  declineRequest: (token: string, id: string) =>
+    send<AccessRequest>('POST', token, `/requests/${id}/decline`),
+
+  revokeRequest: (token: string, id: string) =>
+    send<AccessRequest>('POST', token, `/requests/${id}/revoke`),
 }
