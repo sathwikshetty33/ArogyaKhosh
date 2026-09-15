@@ -41,6 +41,17 @@ services:
       postgres:
         condition: service_healthy
 
+  ai:
+    build:
+      context: ./services/ai
+    restart: unless-stopped
+    environment:
+      PORT: "50051"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      MAX_WORKERS: ${AI_MAX_WORKERS:-4}
+    ports:
+      - "${AI_PORT:-50051}:50051"
+
   frontend:
     build:
       context: ./services/frontend
