@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -200,4 +201,147 @@ func (s *Server) uploadDocument(c *gin.Context) {
 		SizeBytes:   document.SizeBytes,
 		CreatedAt:   document.CreatedAt,
 	})
+}
+
+type signedURLResponse struct {
+	URL       string       `json:"url"`
+	ExpiresIn int64        `json:"expires_in"`
+	ExpiresAt time.Time    `json:"expires_at"`
+	Document  documentView `json:"document"`
+}
+
+// documentForAccess loads a document together with the caller's access level for
+// the patient it belongs to. It writes a response and returns false when the
+// caller may not touch the document at all.
+func (s *Server) documentForAccess(c *gin.Context) (*models.PatientDocument, authz.Level, bool) {
+	claims := claimsFrom(c)
+	if claims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization required"})
+		return nil, authz.LevelDenied, false
+	}
+
+	documentID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "document id must be a uuid"})
+		return nil, authz.LevelDenied, false
+	}
+
+	var document models.PatientDocument
+	if err := s.cfg.DB.First(&document, "id = ?", documentID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "document not found"})
+			return nil, authz.LevelDenied, false
+		}
+
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load document"})
+
+		return nil, authz.LevelDenied, false
+	}
+
+	var patient models.Patient
+	if err := s.cfg.DB.First(&patient, "id = ?", document.PatientID).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load patient"})
+
+		return nil, authz.LevelDenied, false
+	}
+
+	level, err := authz.PatientAccess(s.cfg.DB, claims.UserID, claims.Role, &patient)
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not resolve access"})
+
+		return nil, authz.LevelDenied, false
+	}
+
+	if level == authz.LevelDenied {
+		c.JSON(http.StatusForbidden, gin.H{"error": "you do not have access to this document"})
+		return nil, authz.LevelDenied, false
+	}
+
+	return &document, level, true
+}
+
+func (s *Server) documentURL(c *gin.Context) {
+	if s.cfg.Storage == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "document storage is not configured"})
+		return
+	}
+
+	document, level, ok := s.documentForAccess(c)
+	if !ok {
+		return
+	}
+
+	// A patient-level grant covers every document; without one only the
+	// documents the patient marked public may be opened.
+	if !level.CanReadAll() && document.Visibility != models.VisibilityPublic {
+		c.JSON(http.StatusForbidden, gin.H{"error": "this document is private"})
+		return
+	}
+
+	ttl := s.cfg.SignedURLTTL
+	if ttl <= 0 {
+		ttl = time.Minute
+	}
+
+	url, err := s.cfg.Storage.SignedURL(c.Request.Context(), document.StorageKey, ttl)
+	if err != nil {
+		c.Error(err)
+
+		if errors.Is(err, storage.ErrNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "the stored file is missing"})
+			return
+		}
+
+		c.JSON(http.StatusBadGateway, gin.H{"error": "could not create a download link"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, signedURLResponse{
+		URL:       url,
+		ExpiresIn: int64(ttl.Seconds()),
+		ExpiresAt: time.Now().Add(ttl).UTC(),
+		Document: documentView{
+			ID:          document.ID,
+			Name:        document.Name,
+			Visibility:  document.Visibility,
+			ContentType: document.ContentType,
+			SizeBytes:   document.SizeBytes,
+			CreatedAt:   document.CreatedAt,
+		},
+	})
+}
+
+func (s *Server) deleteDocument(c *gin.Context) {
+	document, level, ok := s.documentForAccess(c)
+	if !ok {
+		return
+	}
+
+	if level != authz.LevelOwner {
+		c.JSON(http.StatusForbidden, gin.H{"error": "only the patient can delete records"})
+		return
+	}
+
+	if err := s.cfg.DB.Delete(&models.PatientDocument{}, "id = ?", document.ID).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not delete the record"})
+
+		return
+	}
+
+	// The row is gone, so the document has left the patient's view either way.
+	// A failure here leaves unreferenced bytes behind rather than a broken row.
+	if s.cfg.Storage != nil {
+		if err := s.cfg.Storage.Delete(c.Request.Context(), document.StorageKey); err != nil {
+			if !errors.Is(err, storage.ErrNotFound) {
+				c.Error(fmt.Errorf("orphaned object %s: %w", document.StorageKey, err))
+			}
+		}
+	}
+
+	c.Status(http.StatusNoContent)
 }

@@ -113,6 +113,10 @@ func (s *Server) registerRoutes() {
 	patients := v1.Group("/patients", s.requireAuth())
 	patients.GET("/:id", s.getPatient)
 	patients.POST("/:id/documents", s.uploadDocument)
+
+	documents := v1.Group("/documents", s.requireAuth())
+	documents.GET("/:id/url", s.documentURL)
+	documents.DELETE("/:id", s.deleteDocument)
 }
 
 func (s *Server) ready(c *gin.Context) {
