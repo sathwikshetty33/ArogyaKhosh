@@ -16,6 +16,11 @@ const SHELL = {
   wide: 'max-w-5xl',
 } as const
 
+const NO_ASIDE = {
+  narrow: 'max-w-md',
+  wide: 'max-w-2xl',
+} as const
+
 const ASIDE = {
   narrow: 'lg:w-[16.5rem]',
   wide: 'lg:w-[20rem]',
@@ -29,7 +34,7 @@ export function Page({ title, intro, children, aside, footer, width = 'wide' }: 
       <div className="flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-14">
         <div
           className={`flex w-full flex-col gap-10 ${
-            aside ? `${SHELL[width]} lg:flex-row lg:items-start lg:gap-12` : 'max-w-md'
+            aside ? `${SHELL[width]} lg:flex-row lg:items-start lg:gap-12` : NO_ASIDE[width]
           }`}
         >
           <div className="sheet relative flex-1 overflow-hidden rounded-[14px] bg-white p-7 sm:p-8">
