@@ -3,10 +3,10 @@ package server
 import (
 	"errors"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/authz"
@@ -14,7 +14,7 @@ import (
 )
 
 type documentView struct {
-	ID          int64             `json:"id"`
+	ID          uuid.UUID         `json:"id"`
 	Name        string            `json:"name"`
 	Visibility  models.Visibility `json:"visibility"`
 	ContentType *string           `json:"content_type"`
@@ -23,10 +23,10 @@ type documentView struct {
 }
 
 type patientView struct {
-	ID       int64  `json:"id"`
-	UserID   int64  `json:"user_id"`
-	Username string `json:"username"`
-	FullName string `json:"full_name"`
+	ID       uuid.UUID `json:"id"`
+	UserID   uuid.UUID `json:"user_id"`
+	Username string    `json:"username"`
+	FullName string    `json:"full_name"`
 
 	Email                 *string  `json:"email,omitempty"`
 	BloodGroup            *string  `json:"blood_group,omitempty"`
@@ -38,7 +38,7 @@ type patientView struct {
 }
 
 type grantView struct {
-	ID             int64      `json:"id"`
+	ID             uuid.UUID  `json:"id"`
 	DoctorName     string     `json:"doctor_name"`
 	Hospital       string     `json:"hospital"`
 	Qualification  string     `json:"qualification"`
@@ -48,7 +48,7 @@ type grantView struct {
 }
 
 type patientResponse struct {
-	CurrentUserID int64          `json:"current_user_id"`
+	CurrentUserID uuid.UUID      `json:"current_user_id"`
 	Access        authz.Level    `json:"access"`
 	Patient       patientView    `json:"patient"`
 	Documents     []documentView `json:"documents"`
@@ -62,9 +62,9 @@ func (s *Server) getPatient(c *gin.Context) {
 		return
 	}
 
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	if err != nil || id <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "patient id must be a positive integer"})
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil || id == uuid.Nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "patient id must be a uuid"})
 		return
 	}
 
@@ -124,7 +124,7 @@ func (s *Server) getPatient(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func (s *Server) patientGrants(patientID int64) ([]grantView, error) {
+func (s *Server) patientGrants(patientID uuid.UUID) ([]grantView, error) {
 	grants := make([]grantView, 0)
 
 	err := s.cfg.DB.
@@ -150,7 +150,7 @@ func (s *Server) patientGrants(patientID int64) ([]grantView, error) {
 	return grants, nil
 }
 
-func (s *Server) patientDocuments(patientID int64, level authz.Level) ([]documentView, error) {
+func (s *Server) patientDocuments(patientID uuid.UUID, level authz.Level) ([]documentView, error) {
 	query := s.cfg.DB.
 		Model(&models.PatientDocument{}).
 		Where("patient_id = ?", patientID).

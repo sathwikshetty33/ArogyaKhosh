@@ -14,6 +14,7 @@ var files embed.FS
 func All() []*gormigrate.Migration {
 	return []*gormigrate.Migration{
 		sqlMigration("0001_init"),
+		sqlMigration("0002_uuid_keys"),
 	}
 }
 

@@ -5,13 +5,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/models"
 )
 
 type meResponse struct {
-	CurrentUserID int64           `json:"current_user_id"`
+	CurrentUserID uuid.UUID       `json:"current_user_id"`
 	Role          models.Role     `json:"role"`
 	User          *models.User    `json:"user"`
 	Patient       *models.Patient `json:"patient,omitempty"`

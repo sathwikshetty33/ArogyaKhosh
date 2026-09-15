@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/models"
@@ -22,7 +23,7 @@ func (l Level) CanReadAll() bool {
 	return l == LevelOwner || l == LevelGranted
 }
 
-func PatientAccess(db *gorm.DB, userID int64, role models.Role, patient *models.Patient) (Level, error) {
+func PatientAccess(db *gorm.DB, userID uuid.UUID, role models.Role, patient *models.Patient) (Level, error) {
 	if patient.UserID == userID {
 		return LevelOwner, nil
 	}

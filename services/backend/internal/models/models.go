@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Role string
 
@@ -27,21 +31,21 @@ const (
 )
 
 type User struct {
-	ID           int64  `gorm:"primaryKey" json:"id"`
-	Username     string `gorm:"type:text;not null;uniqueIndex:users_username_key,expression:lower(username)" json:"username"`
-	FullName     string `gorm:"type:text;not null" json:"full_name"`
-	Email        string `gorm:"type:text;not null;uniqueIndex:users_email_key,expression:lower(email)" json:"email"`
-	PasswordHash string `gorm:"type:text;not null" json:"-"`
-	Role         Role   `gorm:"type:text;not null;check:users_role_valid,role IN ('patient','doctor','admin')" json:"role"`
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()" json:"id"`
+	Username     string    `gorm:"type:text;not null;uniqueIndex:users_username_key,expression:lower(username)" json:"username"`
+	FullName     string    `gorm:"type:text;not null" json:"full_name"`
+	Email        string    `gorm:"type:text;not null;uniqueIndex:users_email_key,expression:lower(email)" json:"email"`
+	PasswordHash string    `gorm:"type:text;not null" json:"-"`
+	Role         Role      `gorm:"type:text;not null;check:users_role_valid,role IN ('patient','doctor','admin')" json:"role"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Patient struct {
-	ID     int64 `gorm:"primaryKey" json:"id"`
-	UserID int64 `gorm:"not null;uniqueIndex:patients_user_key" json:"user_id"`
-	User   *User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user,omitempty"`
+	ID     uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()" json:"id"`
+	UserID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:patients_user_key" json:"user_id"`
+	User   *User     `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user,omitempty"`
 
 	BloodGroup            *string  `gorm:"type:text;check:patients_blood_group_valid,blood_group IN ('A+','A-','B+','B-','AB+','AB-','O+','O-')" json:"blood_group"`
 	HeightCm              *float64 `gorm:"type:numeric(5,2);check:patients_height_positive,height_cm > 0" json:"height_cm"`
@@ -53,24 +57,24 @@ type Patient struct {
 }
 
 type Hospital struct {
-	ID           int64   `gorm:"primaryKey" json:"id"`
-	Name         string  `gorm:"type:text;not null" json:"name"`
-	License      *string `gorm:"type:text" json:"license"`
-	Address      *string `gorm:"type:text" json:"address"`
-	City         *string `gorm:"type:text" json:"city"`
-	ContactEmail *string `gorm:"type:text" json:"contact_email"`
-	ContactPhone *string `gorm:"type:text" json:"contact_phone"`
+	ID           uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()" json:"id"`
+	Name         string    `gorm:"type:text;not null" json:"name"`
+	License      *string   `gorm:"type:text" json:"license"`
+	Address      *string   `gorm:"type:text" json:"address"`
+	City         *string   `gorm:"type:text" json:"city"`
+	ContactEmail *string   `gorm:"type:text" json:"contact_email"`
+	ContactPhone *string   `gorm:"type:text" json:"contact_phone"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type Doctor struct {
-	ID     int64 `gorm:"primaryKey" json:"id"`
-	UserID int64 `gorm:"not null;uniqueIndex:doctors_user_key" json:"user_id"`
-	User   *User `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user,omitempty"`
+	ID     uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()" json:"id"`
+	UserID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:doctors_user_key" json:"user_id"`
+	User   *User     `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user,omitempty"`
 
-	HospitalID int64     `gorm:"not null;index:doctors_hospital_idx" json:"hospital_id"`
+	HospitalID uuid.UUID `gorm:"type:uuid;not null;index:doctors_hospital_idx" json:"hospital_id"`
 	Hospital   *Hospital `gorm:"foreignKey:HospitalID;constraint:OnDelete:RESTRICT" json:"hospital,omitempty"`
 
 	Qualification string  `gorm:"type:text;not null" json:"qualification"`
@@ -81,9 +85,9 @@ type Doctor struct {
 }
 
 type PatientDocument struct {
-	ID        int64    `gorm:"primaryKey" json:"id"`
-	PatientID int64    `gorm:"not null;index:patient_documents_patient_idx,priority:1" json:"patient_id"`
-	Patient   *Patient `gorm:"foreignKey:PatientID;constraint:OnDelete:CASCADE" json:"patient,omitempty"`
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()" json:"id"`
+	PatientID uuid.UUID `gorm:"type:uuid;not null;index:patient_documents_patient_idx,priority:1" json:"patient_id"`
+	Patient   *Patient  `gorm:"foreignKey:PatientID;constraint:OnDelete:CASCADE" json:"patient,omitempty"`
 
 	Name        string     `gorm:"type:text;not null" json:"name"`
 	StorageKey  string     `gorm:"type:text;not null;uniqueIndex:patient_documents_storage_key" json:"storage_key"`
@@ -96,13 +100,13 @@ type PatientDocument struct {
 }
 
 type DocumentRequest struct {
-	ID int64 `gorm:"primaryKey" json:"id"`
+	ID uuid.UUID `gorm:"type:uuid;primaryKey;default:uuidv7()" json:"id"`
 
-	PatientID int64    `gorm:"not null;uniqueIndex:document_requests_single_pending_idx,priority:1,where:status = 'pending';index:document_requests_grantee_idx,priority:2,where:status = 'granted'" json:"patient_id"`
-	Patient   *Patient `gorm:"foreignKey:PatientID;constraint:OnDelete:CASCADE" json:"patient,omitempty"`
+	PatientID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:document_requests_single_pending_idx,priority:1,where:status = 'pending';index:document_requests_grantee_idx,priority:2,where:status = 'granted'" json:"patient_id"`
+	Patient   *Patient  `gorm:"foreignKey:PatientID;constraint:OnDelete:CASCADE" json:"patient,omitempty"`
 
-	DoctorID int64   `gorm:"not null;uniqueIndex:document_requests_single_pending_idx,priority:2;index:document_requests_grantee_idx,priority:1" json:"doctor_id"`
-	Doctor   *Doctor `gorm:"foreignKey:DoctorID;constraint:OnDelete:CASCADE" json:"doctor,omitempty"`
+	DoctorID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:document_requests_single_pending_idx,priority:2;index:document_requests_grantee_idx,priority:1" json:"doctor_id"`
+	Doctor   *Doctor   `gorm:"foreignKey:DoctorID;constraint:OnDelete:CASCADE" json:"doctor,omitempty"`
 
 	Status         RequestStatus `gorm:"type:text;not null;default:pending;check:document_requests_status_valid,status IN ('pending','granted','declined','revoked')" json:"status"`
 	GrantedByEmail *string       `gorm:"type:text;check:document_requests_grant_complete,status <> 'granted' OR (granted_by_email IS NOT NULL AND granted_at IS NOT NULL)" json:"granted_by_email"`

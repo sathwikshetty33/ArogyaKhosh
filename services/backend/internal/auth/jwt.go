@@ -5,10 +5,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/models"
 )
@@ -28,7 +28,7 @@ var (
 )
 
 type Claims struct {
-	UserID int64       `json:"uid"`
+	UserID uuid.UUID   `json:"uid"`
 	Role   models.Role `json:"role"`
 
 	jwt.RegisteredClaims
@@ -64,9 +64,9 @@ func (m *JWTManager) TTL() time.Duration {
 	return m.ttl
 }
 
-func (m *JWTManager) Encode(userID int64, role models.Role) (string, error) {
-	if userID <= 0 {
-		return "", fmt.Errorf("%w: user id must be positive", ErrInvalidToken)
+func (m *JWTManager) Encode(userID uuid.UUID, role models.Role) (string, error) {
+	if userID == uuid.Nil {
+		return "", fmt.Errorf("%w: user id must be set", ErrInvalidToken)
 	}
 
 	tokenID, err := newTokenID()
@@ -81,7 +81,7 @@ func (m *JWTManager) Encode(userID int64, role models.Role) (string, error) {
 		Role:   role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        tokenID,
-			Subject:   strconv.FormatInt(userID, 10),
+			Subject:   userID.String(),
 			Issuer:    m.issuer,
 			IssuedAt:  jwt.NewNumericDate(now),
 			NotBefore: jwt.NewNumericDate(now),
@@ -121,7 +121,7 @@ func (m *JWTManager) Decode(token string) (*Claims, error) {
 		return nil, ErrInvalidToken
 	}
 
-	if claims.UserID <= 0 {
+	if claims.UserID == uuid.Nil {
 		return nil, fmt.Errorf("%w: missing user id", ErrInvalidToken)
 	}
 

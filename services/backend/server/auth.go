@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 
@@ -33,7 +34,7 @@ type registerDoctorRequest struct {
 	Email    string `json:"email" binding:"required,email,max=254"`
 	Password string `json:"password" binding:"required,min=8,max=72"`
 
-	HospitalID    int64   `json:"hospital_id" binding:"required,gt=0"`
+	HospitalID    string  `json:"hospital_id" binding:"required,uuid"`
 	Qualification string  `json:"qualification" binding:"required,min=1,max=200"`
 	Position      *string `json:"position" binding:"omitempty,max=200"`
 }
@@ -95,15 +96,21 @@ func (s *Server) registerDoctor(c *gin.Context) {
 		return
 	}
 
+	hospitalID, err := uuid.Parse(req.HospitalID)
+	if err != nil {
+		badRequest(c, errors.New("hospital_id must be a uuid"))
+		return
+	}
+
 	doctor := models.Doctor{
-		HospitalID:    req.HospitalID,
+		HospitalID:    hospitalID,
 		Qualification: strings.TrimSpace(req.Qualification),
 		Position:      trimOptional(req.Position),
 	}
 
 	err = s.cfg.DB.Transaction(func(tx *gorm.DB) error {
 		var count int64
-		if err := tx.Model(&models.Hospital{}).Where("id = ?", req.HospitalID).Count(&count).Error; err != nil {
+		if err := tx.Model(&models.Hospital{}).Where("id = ?", hospitalID).Count(&count).Error; err != nil {
 			return err
 		}
 
