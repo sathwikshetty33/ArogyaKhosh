@@ -365,3 +365,31 @@ func (s *Server) declineAccessRequest(c *gin.Context) {
 
 	s.respondWithRequest(c, request.ID)
 }
+
+func (s *Server) revokeAccessRequest(c *gin.Context) {
+	request, _, ok := s.decideAccessRequest(c)
+	if !ok {
+		return
+	}
+
+	if request.Status != models.RequestGranted {
+		c.JSON(http.StatusConflict, gin.H{
+			"error": "only a granted request can be revoked, this one is " + string(request.Status),
+		})
+
+		return
+	}
+
+	// Access is resolved from this row on every read, so flipping the status is
+	// enough: the doctor loses the chart on their very next request.
+	if err := s.cfg.DB.Model(&models.DocumentRequest{}).
+		Where("id = ?", request.ID).
+		Update("status", models.RequestRevoked).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not revoke access"})
+
+		return
+	}
+
+	s.respondWithRequest(c, request.ID)
+}
