@@ -86,3 +86,60 @@ func (s *Server) searchPatients(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"results": results})
 }
+
+// doctorSelf loads the doctor profile the caller owns.
+func (s *Server) doctorSelf(c *gin.Context) (*models.Doctor, bool) {
+	claims := claimsFrom(c)
+	if claims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization required"})
+		return nil, false
+	}
+
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "doctor id must be a uuid"})
+		return nil, false
+	}
+
+	var doctor models.Doctor
+	if err := s.cfg.DB.First(&doctor, "id = ?", id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "doctor not found"})
+			return nil, false
+		}
+
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load doctor"})
+
+		return nil, false
+	}
+
+	if doctor.UserID != claims.UserID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "you can only manage your own profile"})
+		return nil, false
+	}
+
+	return &doctor, true
+}
+
+func (s *Server) listDoctorRequests(c *gin.Context) {
+	doctor, ok := s.doctorSelf(c)
+	if !ok {
+		return
+	}
+
+	requests := make([]requestView, 0)
+
+	err := s.requestQuery().
+		Where("r.doctor_id = ?", doctor.ID).
+		Order("r.created_at DESC").
+		Scan(&requests).Error
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load your requests"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"doctor_id": doctor.ID, "requests": requests})
+}
