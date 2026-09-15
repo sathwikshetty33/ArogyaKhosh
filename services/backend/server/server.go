@@ -110,6 +110,8 @@ func (s *Server) registerRoutes() {
 	})
 
 	v1.POST("/accidents/:id", s.reportAccident)
+	v1.GET("/accidents/:id/approval/:key", s.viewApproval)
+	v1.POST("/accidents/:id/approval/:key", s.decideApproval)
 
 	auth := v1.Group("/auth")
 	auth.POST("/register/patient", s.registerPatient)
