@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/db"
@@ -44,6 +45,7 @@ func main() {
 		ShutdownTimeout: shutdownTimeout,
 		DB:              gdb,
 		JWT:             jwtManager,
+		AllowedOrigins:  splitOrigins(env(envCORSOrigins, defaultCORSOrigins)),
 	}
 
 	srv := server.New(cfg)
@@ -52,6 +54,19 @@ func main() {
 	if err := srv.Run(); err != nil {
 		log.Fatalf("server error: %v", err)
 	}
+}
+
+func splitOrigins(raw string) []string {
+	parts := strings.Split(raw, ",")
+
+	origins := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if trimmed := strings.TrimSpace(part); trimmed != "" {
+			origins = append(origins, trimmed)
+		}
+	}
+
+	return origins
 }
 
 func env(key, fallback string) string {

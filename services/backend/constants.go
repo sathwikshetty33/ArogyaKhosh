@@ -8,6 +8,7 @@ const (
 	envDatabaseURL = "DATABASE_URL"
 	envJWTSecret   = "JWT_SECRET"
 	envJWTIssuer   = "JWT_ISSUER"
+	envCORSOrigins = "CORS_ALLOWED_ORIGINS"
 
 	defaultPort    = "8080"
 	defaultGinMode = "debug"
@@ -17,6 +18,7 @@ const (
 	idleTimeout     = 60 * time.Second
 	shutdownTimeout = 15 * time.Second
 
-	defaultJWTIssuer = "arogyakhosh"
-	accessTokenTTL   = 15 * time.Minute
+	defaultJWTIssuer   = "arogyakhosh"
+	defaultCORSOrigins = "http://localhost:3000,http://localhost:5173"
+	accessTokenTTL     = 15 * time.Minute
 )
