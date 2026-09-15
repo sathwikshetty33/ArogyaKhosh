@@ -109,6 +109,8 @@ func (s *Server) registerRoutes() {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
 
+	v1.POST("/accidents/:id", s.reportAccident)
+
 	auth := v1.Group("/auth")
 	auth.POST("/register/patient", s.registerPatient)
 	auth.POST("/register/doctor", s.registerDoctor)
