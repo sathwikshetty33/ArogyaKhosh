@@ -73,6 +73,8 @@ export function DocumentList({
                     className="flex flex-wrap items-center gap-2"
                   >
                     <input
+                      type="text"
+                      aria-label="Record name"
                       autoFocus
                       value={draft}
                       onChange={(event) => setDraft(event.target.value)}
