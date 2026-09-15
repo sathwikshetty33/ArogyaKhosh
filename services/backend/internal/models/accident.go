@@ -38,6 +38,13 @@ type Accident struct {
 	NotifiedAt    *time.Time `json:"notified_at,omitempty"`
 	NotifiedEmail *string    `gorm:"type:text" json:"notified_email,omitempty"`
 
+	// The emergency contact approves from an emailed link rather than an
+	// account. Only the hash is stored: a leaked table must not hand anyone a
+	// working key.
+	ApprovalKeyHash      *string    `gorm:"column:approval_key_hash;type:text" json:"-"`
+	ApprovalKeyExpiresAt *time.Time `json:"approval_key_expires_at,omitempty"`
+	ApprovalUsedAt       *time.Time `json:"approval_used_at,omitempty"`
+
 	DocumentRequestID *uuid.UUID       `gorm:"type:uuid" json:"document_request_id,omitempty"`
 	DocumentRequest   *DocumentRequest `gorm:"foreignKey:DocumentRequestID;constraint:OnDelete:SET NULL" json:"-"`
 

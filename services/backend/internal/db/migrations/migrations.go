@@ -16,6 +16,7 @@ func All() []*gormigrate.Migration {
 		sqlMigration("0001_init"),
 		sqlMigration("0002_uuid_keys"),
 		sqlMigration("0003_accidents"),
+		sqlMigration("0004_accident_approval_key"),
 	}
 }
 
