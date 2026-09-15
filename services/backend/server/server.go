@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -40,16 +41,25 @@ func New(cfg Config) *Server {
 	engine := gin.New()
 	engine.Use(gin.Logger(), gin.Recovery())
 
-	if len(cfg.AllowedOrigins) > 0 {
-		engine.Use(cors.New(cors.Config{
-			AllowOrigins:     cfg.AllowedOrigins,
-			AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
-			AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-			ExposeHeaders:    []string{"Content-Length"},
-			AllowCredentials: true,
-			MaxAge:           12 * time.Hour,
-		}))
+	allowed := make(map[string]struct{}, len(cfg.AllowedOrigins))
+	for _, origin := range cfg.AllowedOrigins {
+		allowed[origin] = struct{}{}
 	}
+
+	engine.Use(cors.New(cors.Config{
+		AllowOriginWithContextFunc: func(c *gin.Context, origin string) bool {
+			if _, ok := allowed[origin]; ok {
+				return true
+			}
+
+			return sameOrigin(c.Request, origin)
+		},
+		AllowMethods:     []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	s := &Server{cfg: cfg, engine: engine}
 	s.registerRoutes()
@@ -63,6 +73,15 @@ func New(cfg Config) *Server {
 	}
 
 	return s
+}
+
+func sameOrigin(request *http.Request, origin string) bool {
+	parsed, err := url.Parse(origin)
+	if err != nil {
+		return false
+	}
+
+	return parsed.Host != "" && parsed.Host == request.Host
 }
 
 func (s *Server) Engine() *gin.Engine {
@@ -85,6 +104,8 @@ func (s *Server) registerRoutes() {
 	auth.POST("/register/patient", s.registerPatient)
 	auth.POST("/register/doctor", s.registerDoctor)
 	auth.POST("/login", s.login)
+
+	v1.GET("/me", s.requireAuth(), s.getMe)
 
 	patients := v1.Group("/patients", s.requireAuth())
 	patients.GET("/:id", s.getPatient)
