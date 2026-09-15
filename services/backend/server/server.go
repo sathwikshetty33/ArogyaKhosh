@@ -124,6 +124,7 @@ func (s *Server) registerRoutes() {
 
 	documents := v1.Group("/documents", s.requireAuth())
 	documents.GET("/:id/url", s.documentURL)
+	documents.PATCH("/:id", s.updateDocument)
 	documents.DELETE("/:id", s.deleteDocument)
 }
 

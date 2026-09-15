@@ -345,3 +345,73 @@ func (s *Server) deleteDocument(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+type updateDocumentRequest struct {
+	Name       *string `json:"name" binding:"omitempty,min=1,max=200"`
+	Visibility *string `json:"visibility" binding:"omitempty,oneof=public private"`
+}
+
+func (s *Server) updateDocument(c *gin.Context) {
+	document, level, ok := s.documentForAccess(c)
+	if !ok {
+		return
+	}
+
+	if level != authz.LevelOwner {
+		c.JSON(http.StatusForbidden, gin.H{"error": "only the patient can change a record"})
+		return
+	}
+
+	var req updateDocumentRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequest(c, err)
+		return
+	}
+
+	updates := map[string]any{}
+
+	if req.Name != nil {
+		name := strings.TrimSpace(*req.Name)
+		if name == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "name must not be blank"})
+			return
+		}
+
+		updates["name"] = name
+	}
+
+	if req.Visibility != nil {
+		updates["visibility"] = models.Visibility(*req.Visibility)
+	}
+
+	if len(updates) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "nothing to update"})
+		return
+	}
+
+	if err := s.cfg.DB.Model(&models.PatientDocument{}).
+		Where("id = ?", document.ID).
+		Updates(updates).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save the changes"})
+
+		return
+	}
+
+	var updated models.PatientDocument
+	if err := s.cfg.DB.First(&updated, "id = ?", document.ID).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not reload the record"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, documentView{
+		ID:          updated.ID,
+		Name:        updated.Name,
+		Visibility:  updated.Visibility,
+		ContentType: updated.ContentType,
+		SizeBytes:   updated.SizeBytes,
+		CreatedAt:   updated.CreatedAt,
+	})
+}
