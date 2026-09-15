@@ -11,6 +11,7 @@ type AccidentStatus string
 const (
 	AccidentReported  AccidentStatus = "reported"
 	AccidentNotified  AccidentStatus = "notified"
+	AccidentConfirmed AccidentStatus = "confirmed"
 	AccidentDismissed AccidentStatus = "dismissed"
 	AccidentResolved  AccidentStatus = "resolved"
 )
@@ -37,6 +38,9 @@ type Accident struct {
 
 	NotifiedAt    *time.Time `json:"notified_at,omitempty"`
 	NotifiedEmail *string    `gorm:"type:text" json:"notified_email,omitempty"`
+
+	DecidedAt    *time.Time `json:"decided_at,omitempty"`
+	DecidedEmail *string    `gorm:"type:text" json:"-"`
 
 	// The emergency contact approves from an emailed link rather than an
 	// account. Only the hash is stored: a leaked table must not hand anyone a
