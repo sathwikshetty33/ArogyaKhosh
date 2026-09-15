@@ -6,3 +6,12 @@ bin/
 tmp/
 
 creds.txt
+
+node_modules/
+dist/
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
