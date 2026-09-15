@@ -43,16 +43,16 @@ type SMTP struct {
 
 func NewSMTP(cfg Config) (*SMTP, error) {
 	if strings.TrimSpace(cfg.Host) == "" {
-		return nil, errors.New("mail: smtp host is required")
+		return nil, errors.New("smtp host is required")
 	}
 
 	if cfg.Port <= 0 || cfg.Port > 65535 {
-		return nil, fmt.Errorf("mail: smtp port %d is out of range", cfg.Port)
+		return nil, fmt.Errorf("smtp port %d is out of range", cfg.Port)
 	}
 
 	from, err := mail.ParseAddress(cfg.From)
 	if err != nil {
-		return nil, fmt.Errorf("mail: from address is invalid: %w", err)
+		return nil, fmt.Errorf("from address is invalid: %w", err)
 	}
 
 	if cfg.Timeout <= 0 {

@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailer"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/storage"
 )
 
@@ -30,6 +31,7 @@ type Config struct {
 	AllowedOrigins  []string
 	Storage         storage.Provider
 	SignedURLTTL    time.Duration
+	Mailer          mailer.Mailer
 }
 
 type Server struct {
@@ -153,7 +155,14 @@ func (s *Server) ready(c *gin.Context) {
 		store = "configured"
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ready", "database": "up", "storage": store})
+	mail := "not configured"
+	if _, ok := s.cfg.Mailer.(*mailer.SMTP); ok {
+		mail = "configured"
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status": "ready", "database": "up", "storage": store, "mail": mail,
+	})
 }
 
 func (s *Server) Run() error {

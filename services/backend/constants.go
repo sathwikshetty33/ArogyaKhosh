@@ -14,6 +14,13 @@ const (
 	envSupabaseKey    = "SUPABASE_SERVICE_KEY"
 	envSupabaseBucket = "SUPABASE_BUCKET"
 
+	envSMTPHost          = "SMTP_HOST"
+	envSMTPPort          = "SMTP_PORT"
+	envSMTPUsername      = "SMTP_USERNAME"
+	envSMTPPassword      = "SMTP_PASSWORD"
+	envSMTPFrom          = "SMTP_FROM"
+	envSMTPAllowInsecure = "SMTP_ALLOW_INSECURE"
+
 	defaultPort    = "8080"
 	defaultGinMode = "debug"
 
@@ -28,4 +35,7 @@ const (
 
 	defaultSupabaseBucket = "records"
 	signedURLTTL          = 60 * time.Second
+
+	defaultSMTPPort = 587
+	smtpTimeout     = 20 * time.Second
 )
