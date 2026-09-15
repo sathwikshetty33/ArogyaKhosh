@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import { AccessList } from '../components/AccessList'
 import { DocumentList } from '../components/DocumentList'
+import { DocumentUpload } from '../components/DocumentUpload'
 import { EmergencyCard } from '../components/EmergencyCard'
 import { Notice } from '../components/Notice'
 import { Page } from '../components/Page'
 import { Vitals } from '../components/Vitals'
 import { api, ApiError } from '../lib/api'
-import type { Me, PatientRecord } from '../lib/api'
+import type { Me, PatientDocument, PatientRecord } from '../lib/api'
 import { clearSession, loadSession } from '../lib/session'
 
 function Section({
@@ -47,14 +48,12 @@ export function PatientPage() {
   const [error, setError] = useState('')
   const [denied, setDenied] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [refresh, setRefresh] = useState(0)
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
-    if (!session) {
-      navigate(`/login?next=/patients/${id ?? ''}`, { replace: true })
-      return
-    }
-
-    if (!id) return
+    if (!session || !id) return
 
     let cancelled = false
 
@@ -95,9 +94,10 @@ export function PatientPage() {
     return () => {
       cancelled = true
     }
-  }, [session, id, navigate])
+  }, [session, id, refresh, navigate])
 
-  if (!session) return null
+  if (!session) return <Navigate to="/login" replace />
+  if (!id) return <Navigate to="/dashboard" replace />
 
   if (denied) {
     return (
@@ -114,6 +114,94 @@ export function PatientPage() {
         </Link>
       </Page>
     )
+  }
+
+  async function withBusy(documentId: string, work: () => Promise<void>) {
+    if (!session) return
+
+    setBusyId(documentId)
+    setError('')
+
+    try {
+      await work()
+    } catch (cause) {
+      setError(cause instanceof ApiError ? cause.message : 'That did not work. Try again.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  function openDocument(document: PatientDocument) {
+    if (!session) return
+
+    // Opened up front so the tab is not treated as a pop-up once the
+    // signed link comes back.
+    const tab = window.open('', '_blank')
+
+    void withBusy(document.id, async () => {
+      try {
+        const link = await api.documentURL(session.token, document.id)
+
+        if (tab) {
+          tab.location.href = link.url
+        } else {
+          window.location.href = link.url
+        }
+      } catch (cause) {
+        tab?.close()
+        throw cause
+      }
+    })
+  }
+
+  function renameDocument(document: PatientDocument, name: string) {
+    if (!session || name.trim() === '' || name === document.name) return
+
+    void withBusy(document.id, async () => {
+      await api.updateDocument(session.token, document.id, { name: name.trim() })
+      setRefresh((value) => value + 1)
+    })
+  }
+
+  function toggleVisibility(document: PatientDocument) {
+    if (!session) return
+
+    void withBusy(document.id, async () => {
+      await api.updateDocument(session.token, document.id, {
+        visibility: document.visibility === 'public' ? 'private' : 'public',
+      })
+      setRefresh((value) => value + 1)
+    })
+  }
+
+  function deleteDocument(document: PatientDocument) {
+    if (!session) return
+    if (!window.confirm(`Delete "${document.name}"? This cannot be undone.`)) return
+
+    void withBusy(document.id, async () => {
+      await api.deleteDocument(session.token, document.id)
+      setRefresh((value) => value + 1)
+    })
+  }
+
+  async function uploadDocument(
+    file: File,
+    name: string,
+    visibility: 'public' | 'private',
+  ) {
+    if (!session || !id) return
+
+    setUploading(true)
+    setError('')
+
+    try {
+      await api.uploadDocument(session.token, id, file, name, visibility)
+      setRefresh((value) => value + 1)
+    } catch (cause) {
+      setError(cause instanceof ApiError ? cause.message : 'The upload failed. Try again.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   const access = record?.access
@@ -171,7 +259,21 @@ export function PatientPage() {
               record?.documents.length === 1 ? 'document' : 'documents'
             }`}
           >
-            <DocumentList documents={record?.documents ?? []} />
+            <div className="flex flex-col gap-4">
+              {isOwner ? (
+                <DocumentUpload pending={uploading} onUpload={uploadDocument} />
+              ) : null}
+
+              <DocumentList
+                documents={record?.documents ?? []}
+                canManage={isOwner}
+                busyId={busyId}
+                onOpen={openDocument}
+                onRename={renameDocument}
+                onToggleVisibility={toggleVisibility}
+                onDelete={deleteDocument}
+              />
+            </div>
           </Section>
 
           {access === 'public' ? (
@@ -192,7 +294,16 @@ export function PatientPage() {
               title="Who can see this"
               meta={record?.grants?.length ? `${record.grants.length} active` : undefined}
             >
-              <AccessList grants={record?.grants ?? []} />
+              <div className="flex flex-col gap-4">
+                <AccessList grants={record?.grants ?? []} />
+
+                <Link
+                  to={`/patients/${id}/access`}
+                  className="self-start text-[0.9375rem] font-500 text-leaf underline underline-offset-4"
+                >
+                  Manage requests and access
+                </Link>
+              </div>
             </Section>
           ) : null}
 
