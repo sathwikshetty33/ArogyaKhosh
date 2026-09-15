@@ -39,9 +39,12 @@ function StatusChip({ request }: { request: AccessRequest }) {
       ? 'Expired'
       : request.status
 
+  // Only the raw status words need casing; an expiry label is already written.
+  const casing = request.active ? '' : 'capitalize'
+
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-2 rounded-full py-1 pr-2.5 pl-2 text-[0.75rem] font-600 capitalize ${tone}`}
+      className={`inline-flex shrink-0 items-center gap-2 rounded-full py-1 pr-2.5 pl-2 text-[0.75rem] font-600 ${casing} ${tone}`}
     >
       {request.active ? <span className="size-1.5 rounded-full bg-leaf" /> : null}
       {label}
@@ -125,7 +128,8 @@ export function AccessPage() {
   return (
     <Page
       title="Who can see your records"
-      intro="Approve a request and it lasts only as long as you choose. Revoking takes effect on the doctor's next click."
+      width="wide"
+      intro="Approve a request and it lasts only as long as you choose. Revoking takes effect on the doctor’s next click."
       footer={
         <Link
           to={`/patients/${id}`}
@@ -264,7 +268,7 @@ export function AccessPage() {
                 {past.map((request) => (
                   <li
                     key={request.id}
-                    className="flex flex-wrap items-center justify-between gap-3 border-b border-rule py-3.5"
+                    className="flex flex-wrap items-center justify-between gap-3 border-b border-rule py-3.5 last:border-b-0"
                   >
                     <div className="min-w-0">
                       <p className="text-[0.9375rem] text-ink">{request.doctor_name}</p>
