@@ -1,0 +1,29 @@
+[project]
+name = "arogyakhosh-ai"
+version = "0.1.0"
+description = "gRPC service for the ArogyaKhosh models"
+requires-python = ">=3.12,<3.14"
+
+dependencies = [
+    "grpcio>=1.68",
+    "protobuf>=5.28",
+    "numpy>=2.1",
+    "pillow>=11.0",
+    "torch>=2.5",
+    "transformers>=4.46",
+]
+
+[dependency-groups]
+dev = [
+    "grpcio-tools>=1.68",
+]
+
+# CPU-only torch. The GPU build is ~2.5 GB and this service does one small
+# forward pass per request, so it would be weight with no benefit.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
