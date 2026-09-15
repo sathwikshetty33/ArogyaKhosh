@@ -162,3 +162,64 @@ func (s *Server) createAccessRequest(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, view)
 }
+
+type requestListResponse struct {
+	PatientID uuid.UUID     `json:"patient_id"`
+	Requests  []requestView `json:"requests"`
+}
+
+func (s *Server) listAccessRequests(c *gin.Context) {
+	claims := claimsFrom(c)
+	if claims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization required"})
+		return
+	}
+
+	patientID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "patient id must be a uuid"})
+		return
+	}
+
+	var patient models.Patient
+	if err := s.cfg.DB.First(&patient, "id = ?", patientID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "patient not found"})
+			return
+		}
+
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load patient"})
+
+		return
+	}
+
+	// Who has asked for a chart, and who was turned down, is the patient's own
+	// business. A doctor holding a grant does not get to see the others.
+	if patient.UserID != claims.UserID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "only the patient can see their access requests"})
+		return
+	}
+
+	query := s.requestQuery().Where("r.patient_id = ?", patient.ID)
+
+	if status := c.Query("status"); status != "" {
+		switch models.RequestStatus(status) {
+		case models.RequestPending, models.RequestGranted, models.RequestDeclined, models.RequestRevoked:
+			query = query.Where("r.status = ?", status)
+		default:
+			c.JSON(http.StatusBadRequest, gin.H{"error": "unknown status filter"})
+			return
+		}
+	}
+
+	requests := make([]requestView, 0)
+	if err := query.Order("r.created_at DESC").Scan(&requests).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load access requests"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, requestListResponse{PatientID: patient.ID, Requests: requests})
+}

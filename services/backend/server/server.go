@@ -114,6 +114,7 @@ func (s *Server) registerRoutes() {
 	patients.GET("/:id", s.getPatient)
 	patients.POST("/:id/documents", s.uploadDocument)
 	patients.POST("/:id/requests", s.createAccessRequest)
+	patients.GET("/:id/requests", s.listAccessRequests)
 
 	documents := v1.Group("/documents", s.requireAuth())
 	documents.GET("/:id/url", s.documentURL)
