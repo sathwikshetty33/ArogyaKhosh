@@ -3,6 +3,7 @@ package server
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -207,4 +208,90 @@ func buildPatientView(patient *models.Patient, level authz.Level) patientView {
 	view.EmergencyContactEmail = patient.EmergencyContactEmail
 
 	return view
+}
+
+type updatePatientRequest struct {
+	BloodGroup            *string  `json:"blood_group" binding:"omitempty,oneof=A+ A- B+ B- AB+ AB- O+ O-"`
+	HeightCm              *float64 `json:"height_cm" binding:"omitempty,gt=0,lte=300"`
+	WeightKg              *float64 `json:"weight_kg" binding:"omitempty,gt=0,lte=700"`
+	EmergencyContactEmail *string  `json:"emergency_contact_email" binding:"omitempty,email,max=254"`
+}
+
+func (s *Server) updatePatient(c *gin.Context) {
+	claims := claimsFrom(c)
+	if claims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization required"})
+		return
+	}
+
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "patient id must be a uuid"})
+		return
+	}
+
+	var patient models.Patient
+	if err := s.cfg.DB.Preload("User").First(&patient, "id = ?", id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "patient not found"})
+			return
+		}
+
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load patient"})
+
+		return
+	}
+
+	if patient.UserID != claims.UserID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "only the patient can change these details"})
+		return
+	}
+
+	var req updatePatientRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequest(c, err)
+		return
+	}
+
+	// Only the keys actually present are touched, so a partial update cannot
+	// silently blank a field the caller left out.
+	updates := map[string]any{}
+
+	if req.BloodGroup != nil {
+		updates["blood_group"] = strings.TrimSpace(*req.BloodGroup)
+	}
+
+	if req.HeightCm != nil {
+		updates["height_cm"] = *req.HeightCm
+	}
+
+	if req.WeightKg != nil {
+		updates["weight_kg"] = *req.WeightKg
+	}
+
+	if req.EmergencyContactEmail != nil {
+		updates["emergency_contact_email"] = normalizeOptionalEmail(req.EmergencyContactEmail)
+	}
+
+	if len(updates) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "nothing to update"})
+		return
+	}
+
+	if err := s.cfg.DB.Model(&models.Patient{}).Where("id = ?", patient.ID).Updates(updates).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save the changes"})
+
+		return
+	}
+
+	if err := s.cfg.DB.Preload("User").First(&patient, "id = ?", patient.ID).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not reload patient"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, buildPatientView(&patient, authz.LevelOwner))
 }

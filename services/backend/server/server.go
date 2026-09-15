@@ -112,6 +112,7 @@ func (s *Server) registerRoutes() {
 
 	patients := v1.Group("/patients", s.requireAuth())
 	patients.GET("/:id", s.getPatient)
+	patients.PATCH("/:id", s.updatePatient)
 	patients.POST("/:id/documents", s.uploadDocument)
 	patients.POST("/:id/requests", s.createAccessRequest)
 	patients.GET("/:id/requests", s.listAccessRequests)
