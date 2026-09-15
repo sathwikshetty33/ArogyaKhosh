@@ -112,6 +112,7 @@ func (s *Server) registerRoutes() {
 
 	patients := v1.Group("/patients", s.requireAuth())
 	patients.GET("/:id", s.getPatient)
+	patients.POST("/:id/documents", s.uploadDocument)
 }
 
 func (s *Server) ready(c *gin.Context) {

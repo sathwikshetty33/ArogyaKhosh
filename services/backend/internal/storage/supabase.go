@@ -9,9 +9,12 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
+
+var ErrAlreadyExists = errors.New("object already exists")
 
 const (
 	storagePrefix     = "/storage/v1"
@@ -203,18 +206,55 @@ func (s *Supabase) checkStatus(response *http.Response, action string) error {
 		return nil
 	}
 
-	if response.StatusCode == http.StatusNotFound {
+	body, _ := io.ReadAll(io.LimitReader(response.Body, maxErrorBodyBytes))
+
+	status, message := apiError(response, body)
+
+	if status == http.StatusNotFound {
 		return ErrNotFound
 	}
 
-	body, _ := io.ReadAll(io.LimitReader(response.Body, maxErrorBodyBytes))
+	if status == http.StatusConflict {
+		return fmt.Errorf("%s: %w: %s", action, ErrAlreadyExists, message)
+	}
+
+	return fmt.Errorf("%s: supabase returned %d: %s", action, status, message)
+}
+
+// Supabase answers with HTTP 400 and nests the meaningful status in the body,
+// so the transport status alone cannot distinguish "missing" from "duplicate".
+func apiError(response *http.Response, body []byte) (int, string) {
+	status := response.StatusCode
 
 	message := strings.TrimSpace(string(body))
 	if message == "" {
 		message = response.Status
 	}
 
-	return fmt.Errorf("%s: supabase returned %d: %s", action, response.StatusCode, message)
+	var parsed struct {
+		StatusCode json.RawMessage `json:"statusCode"`
+		Message    string          `json:"message"`
+		Error      string          `json:"error"`
+	}
+
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return status, message
+	}
+
+	if parsed.Message != "" {
+		message = parsed.Message
+	} else if parsed.Error != "" {
+		message = parsed.Error
+	}
+
+	if len(parsed.StatusCode) > 0 {
+		raw := strings.Trim(string(parsed.StatusCode), `"`)
+		if nested, err := strconv.Atoi(raw); err == nil && nested >= 100 && nested < 600 {
+			status = nested
+		}
+	}
+
+	return status, message
 }
 
 func drain(response *http.Response) {

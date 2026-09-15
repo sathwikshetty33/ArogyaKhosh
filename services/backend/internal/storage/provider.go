@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -39,6 +40,21 @@ var allowedExtensions = map[string]bool{
 	".doc":  true,
 	".docx": true,
 	".txt":  true,
+}
+
+func ExtensionAllowed(filename string) bool {
+	return allowedExtensions[strings.ToLower(path.Ext(filename))]
+}
+
+func AllowedExtensions() []string {
+	list := make([]string, 0, len(allowedExtensions))
+	for ext := range allowedExtensions {
+		list = append(list, ext)
+	}
+
+	sort.Strings(list)
+
+	return list
 }
 
 func NewKey(prefix, filename string) string {
