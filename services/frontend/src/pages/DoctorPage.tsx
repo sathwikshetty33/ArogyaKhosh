@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
+import { DoctorCard } from '../components/DoctorCard'
 import { DoctorProfileEditor } from '../components/DoctorProfileEditor'
 import { Notice } from '../components/Notice'
 import { Panel } from '../components/Panel'
@@ -48,7 +49,9 @@ function Chip({ request }: { request: AccessRequest }) {
         request.active ? '' : 'capitalize'
       } ${tone}`}
     >
-      {request.active ? <span className="size-1.5 rounded-full bg-leaf" /> : null}
+      {request.active ? (
+        <span className="size-1.5 rounded-full bg-leaf" />
+      ) : null}
       {label}
     </span>
   )
@@ -89,7 +92,11 @@ export function DoctorPage({ session, me }: { session: Session; me: Me }) {
       } catch (cause) {
         if (cancelled) return
 
-        setError(cause instanceof ApiError ? cause.message : 'Could not load your requests.')
+        setError(
+          cause instanceof ApiError
+            ? cause.message
+            : 'Could not load your requests.',
+        )
       }
     }
 
@@ -127,7 +134,11 @@ export function DoctorPage({ session, me }: { session: Session; me: Me }) {
       setTerm('')
       setRefresh((value) => value + 1)
     } catch (cause) {
-      setError(cause instanceof ApiError ? cause.message : 'Could not send the request.')
+      setError(
+        cause instanceof ApiError
+          ? cause.message
+          : 'Could not send the request.',
+      )
     } finally {
       setAsking(null)
     }
@@ -144,7 +155,11 @@ export function DoctorPage({ session, me }: { session: Session; me: Me }) {
       setEditing(false)
       window.location.reload()
     } catch (cause) {
-      setError(cause instanceof ApiError ? cause.message : 'Could not save your profile.')
+      setError(
+        cause instanceof ApiError
+          ? cause.message
+          : 'Could not save your profile.',
+      )
       setSaving(false)
     }
   }
@@ -155,13 +170,22 @@ export function DoctorPage({ session, me }: { session: Session; me: Me }) {
 
   return (
     <Shell>
-      <div className="mb-8">
-        <h1 className="font-display text-[1.875rem] leading-tight font-700 text-ink sm:text-[2.25rem]">
-          Hello, {me.user.full_name}
-        </h1>
-        <p className="mt-2 text-[0.9375rem] text-ink-soft">
-          {me.doctor?.hospital?.name ?? 'Your hospital'} · {me.doctor?.qualification}
-        </p>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-[1.875rem] leading-tight font-700 text-ink sm:text-[2.25rem]">
+            Hello, {me.user.full_name}
+          </h1>
+          <p className="mt-2 text-[0.9375rem] text-ink-soft">
+            {open.length > 0
+              ? `${open.length} patient ${open.length === 1 ? 'record' : 'records'} open to you right now.`
+              : 'No patient has granted you access yet.'}
+          </p>
+        </div>
+
+        <span className="inline-flex items-center gap-2 pb-1 text-[0.875rem] text-ink-soft">
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-leaf" />
+          {me.doctor?.hospital?.name ?? 'Your hospital'}
+        </span>
       </div>
 
       {error ? (
@@ -192,8 +216,8 @@ export function DoctorPage({ session, me }: { session: Session; me: Me }) {
             </form>
 
             <p className="mt-2 text-[0.8125rem] text-ink-faint">
-              Patients are found by their exact username or email, never by browsing.
-              Ask the patient for theirs.
+              Patients are found by their exact username or email, never by
+              browsing. Ask the patient for theirs.
             </p>
 
             {results !== null ? (
@@ -307,7 +331,8 @@ export function DoctorPage({ session, me }: { session: Session; me: Me }) {
                         {request.patient_name}
                       </p>
                       <p className="mt-0.5 text-[0.8125rem] text-ink-faint">
-                        Asked {new Date(request.created_at).toLocaleDateString()}
+                        Asked{' '}
+                        {new Date(request.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <Chip request={request} />
@@ -318,44 +343,69 @@ export function DoctorPage({ session, me }: { session: Session; me: Me }) {
           </Panel>
         </div>
 
-        <Panel
-          title="Your profile"
-          action={
-            editing || !me.doctor ? null : (
-              <button
-                onClick={() => setEditing(true)}
-                className="cursor-pointer border-0 bg-transparent p-0 text-[0.8125rem] font-500 text-leaf underline-offset-4 hover:underline"
-              >
-                Edit
-              </button>
-            )
-          }
-        >
-          {editing && me.doctor ? (
-            <DoctorProfileEditor
-              doctor={me.doctor}
-              hospitals={hospitals}
-              pending={saving}
-              onSave={saveProfile}
-              onCancel={() => setEditing(false)}
-            />
-          ) : (
-            <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2.5">
-              {[
-                ['Hospital', me.doctor?.hospital?.name ?? '—'],
-                ['Qualification', me.doctor?.qualification ?? '—'],
-                ['Position', me.doctor?.position ?? 'Not set'],
-                ['Username', me.user.username],
-                ['Email', me.user.email],
-              ].map(([label, value]) => (
-                <div key={label} className="col-span-2 grid grid-cols-subgrid">
-                  <dt className="text-[0.8125rem] text-ink-soft">{label}</dt>
-                  <dd className="m-0 truncate text-[0.8125rem] text-ink">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-        </Panel>
+        <div className="flex flex-col gap-6">
+          {me.doctor ? (
+            <div>
+              <div className="card-lift rounded-[2cqw]">
+                <DoctorCard
+                  name={me.user.full_name}
+                  hospital={me.doctor.hospital?.name ?? 'Unlinked hospital'}
+                  qualification={me.doctor.qualification}
+                  position={me.doctor.position}
+                  serial={`AK · ${me.doctor.id.slice(0, 4)} ${me.doctor.id.slice(-4)}`}
+                />
+              </div>
+              <p className="mt-3.5 text-[0.8125rem] leading-relaxed text-ink-soft">
+                Patients see this when deciding whether to let you open their
+                records.
+              </p>
+            </div>
+          ) : null}
+
+          <Panel
+            title="Your profile"
+            action={
+              editing || !me.doctor ? null : (
+                <button
+                  onClick={() => setEditing(true)}
+                  className="cursor-pointer border-0 bg-transparent p-0 text-[0.8125rem] font-500 text-leaf underline-offset-4 hover:underline"
+                >
+                  Edit
+                </button>
+              )
+            }
+          >
+            {editing && me.doctor ? (
+              <DoctorProfileEditor
+                doctor={me.doctor}
+                hospitals={hospitals}
+                pending={saving}
+                onSave={saveProfile}
+                onCancel={() => setEditing(false)}
+              />
+            ) : (
+              <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2.5">
+                {[
+                  ['Hospital', me.doctor?.hospital?.name ?? '—'],
+                  ['Qualification', me.doctor?.qualification ?? '—'],
+                  ['Position', me.doctor?.position ?? 'Not set'],
+                  ['Username', me.user.username],
+                  ['Email', me.user.email],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="col-span-2 grid grid-cols-subgrid"
+                  >
+                    <dt className="text-[0.8125rem] text-ink-soft">{label}</dt>
+                    <dd className="m-0 truncate text-[0.8125rem] text-ink">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </Panel>
+        </div>
       </div>
     </Shell>
   )
