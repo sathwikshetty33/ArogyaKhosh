@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"time"
 
@@ -222,4 +223,119 @@ func (s *Server) listAccessRequests(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, requestListResponse{PatientID: patient.ID, Requests: requests})
+}
+
+const defaultGrantHours = 48
+
+type approveRequestBody struct {
+	ExpiresInHours *int `json:"expires_in_hours" binding:"omitempty,gte=1,lte=8760"`
+}
+
+// decideAccessRequest loads a request the caller is allowed to decide on. Only
+// the patient the record belongs to may accept, decline or revoke.
+func (s *Server) decideAccessRequest(c *gin.Context) (*models.DocumentRequest, *models.User, bool) {
+	claims := claimsFrom(c)
+	if claims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization required"})
+		return nil, nil, false
+	}
+
+	requestID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "request id must be a uuid"})
+		return nil, nil, false
+	}
+
+	var request models.DocumentRequest
+	if err := s.cfg.DB.First(&request, "id = ?", requestID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "request not found"})
+			return nil, nil, false
+		}
+
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load the request"})
+
+		return nil, nil, false
+	}
+
+	var patient models.Patient
+	if err := s.cfg.DB.First(&patient, "id = ?", request.PatientID).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load patient"})
+
+		return nil, nil, false
+	}
+
+	if patient.UserID != claims.UserID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "only the patient can decide on this request"})
+		return nil, nil, false
+	}
+
+	var user models.User
+	if err := s.cfg.DB.First(&user, "id = ?", claims.UserID).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load your account"})
+
+		return nil, nil, false
+	}
+
+	return &request, &user, true
+}
+
+func (s *Server) respondWithRequest(c *gin.Context, id uuid.UUID) {
+	view, err := s.findRequestView(id)
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load the request"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, view)
+}
+
+func (s *Server) approveAccessRequest(c *gin.Context) {
+	request, user, ok := s.decideAccessRequest(c)
+	if !ok {
+		return
+	}
+
+	if request.Status != models.RequestPending {
+		c.JSON(http.StatusConflict, gin.H{
+			"error": "only a pending request can be approved, this one is " + string(request.Status),
+		})
+
+		return
+	}
+
+	var body approveRequestBody
+	if err := c.ShouldBindJSON(&body); err != nil && !errors.Is(err, io.EOF) {
+		badRequest(c, err)
+		return
+	}
+
+	hours := defaultGrantHours
+	if body.ExpiresInHours != nil {
+		hours = *body.ExpiresInHours
+	}
+
+	now := time.Now().UTC()
+	expires := now.Add(time.Duration(hours) * time.Hour)
+
+	updates := map[string]any{
+		"status":           models.RequestGranted,
+		"granted_by_email": user.Email,
+		"granted_at":       now,
+		"expires_at":       expires,
+	}
+
+	if err := s.cfg.DB.Model(&models.DocumentRequest{}).Where("id = ?", request.ID).Updates(updates).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not approve the request"})
+
+		return
+	}
+
+	s.respondWithRequest(c, request.ID)
 }
