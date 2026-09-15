@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/aiclient"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailer"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/storage"
@@ -32,6 +33,9 @@ type Config struct {
 	Storage         storage.Provider
 	SignedURLTTL    time.Duration
 	Mailer          mailer.Mailer
+	AI              aiclient.Verifier
+	GrantSigner     *utils.GrantSigner
+	AppBaseURL      string
 }
 
 type Server struct {
@@ -160,8 +164,14 @@ func (s *Server) ready(c *gin.Context) {
 		mail = "configured"
 	}
 
+	model := "not configured"
+	if s.cfg.AI != nil {
+		model = "configured"
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"status": "ready", "database": "up", "storage": store, "mail": mail,
+		"status": "ready", "database": "up",
+		"storage": store, "mail": mail, "model": model,
 	})
 }
 

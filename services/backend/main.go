@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/aiclient"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/db"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailer"
@@ -56,6 +57,27 @@ func main() {
 		log.Fatalf("mail: %v", err)
 	}
 
+	grantSigner, err := utils.NewGrantSigner(os.Getenv(envJWTSecret))
+	if err != nil {
+		log.Fatalf("grant signer: %v", err)
+	}
+
+	var verifier aiclient.Verifier
+	if addr := strings.TrimSpace(os.Getenv(envAIServiceAddr)); addr != "" {
+		client, err := aiclient.Dial(addr, aiCallTimeout)
+		if err != nil {
+			log.Fatalf("model service: %v", err)
+		}
+
+		defer client.Close()
+
+		verifier = client
+
+		log.Printf("model service at %s", addr)
+	} else {
+		log.Printf("model service is not configured; accident photos will not be scored")
+	}
+
 	cfg := server.Config{
 		Port:            env(envPort, defaultPort),
 		Mode:            ginMode(env(envGinMode, defaultGinMode)),
@@ -69,6 +91,9 @@ func main() {
 		Storage:         objectStore,
 		SignedURLTTL:    signedURLTTL,
 		Mailer:          postman,
+		AI:              verifier,
+		GrantSigner:     grantSigner,
+		AppBaseURL:      strings.TrimRight(env(envAppBaseURL, defaultAppBaseURL), "/"),
 	}
 
 	srv := server.New(cfg)

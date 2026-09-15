@@ -21,6 +21,9 @@ const (
 	envSMTPFrom          = "SMTP_FROM"
 	envSMTPAllowInsecure = "SMTP_ALLOW_INSECURE"
 
+	envAIServiceAddr = "AI_SERVICE_ADDR"
+	envAppBaseURL    = "APP_BASE_URL"
+
 	defaultPort    = "8080"
 	defaultGinMode = "debug"
 
@@ -38,4 +41,7 @@ const (
 
 	defaultSMTPPort = 587
 	smtpTimeout     = 20 * time.Second
+
+	defaultAppBaseURL = "http://localhost:3000"
+	aiCallTimeout     = 15 * time.Second
 )
