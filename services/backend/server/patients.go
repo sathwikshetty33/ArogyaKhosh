@@ -37,11 +37,22 @@ type patientView struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type grantView struct {
+	ID             int64      `json:"id"`
+	DoctorName     string     `json:"doctor_name"`
+	Hospital       string     `json:"hospital"`
+	Qualification  string     `json:"qualification"`
+	GrantedByEmail *string    `json:"granted_by_email"`
+	GrantedAt      *time.Time `json:"granted_at"`
+	ExpiresAt      *time.Time `json:"expires_at"`
+}
+
 type patientResponse struct {
 	CurrentUserID int64          `json:"current_user_id"`
 	Access        authz.Level    `json:"access"`
 	Patient       patientView    `json:"patient"`
 	Documents     []documentView `json:"documents"`
+	Grants        []grantView    `json:"grants,omitempty"`
 }
 
 func (s *Server) getPatient(c *gin.Context) {
@@ -91,12 +102,52 @@ func (s *Server) getPatient(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, patientResponse{
+	response := patientResponse{
 		CurrentUserID: claims.UserID,
 		Access:        level,
 		Patient:       buildPatientView(&patient, level),
 		Documents:     documents,
-	})
+	}
+
+	if level == authz.LevelOwner {
+		grants, err := s.patientGrants(patient.ID)
+		if err != nil {
+			c.Error(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load access grants"})
+
+			return
+		}
+
+		response.Grants = grants
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (s *Server) patientGrants(patientID int64) ([]grantView, error) {
+	grants := make([]grantView, 0)
+
+	err := s.cfg.DB.
+		Table("document_requests AS r").
+		Select(`r.id,
+		        u.full_name AS doctor_name,
+		        h.name AS hospital,
+		        d.qualification,
+		        r.granted_by_email,
+		        r.granted_at,
+		        r.expires_at`).
+		Joins("JOIN doctors d ON d.id = r.doctor_id").
+		Joins("JOIN users u ON u.id = d.user_id").
+		Joins("JOIN hospitals h ON h.id = d.hospital_id").
+		Where("r.patient_id = ? AND r.status = ?", patientID, models.RequestGranted).
+		Where("r.expires_at IS NULL OR r.expires_at > now()").
+		Order("r.granted_at DESC").
+		Scan(&grants).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return grants, nil
 }
 
 func (s *Server) patientDocuments(patientID int64, level authz.Level) ([]documentView, error) {
