@@ -41,7 +41,7 @@ export function DoctorRegisterPage() {
         full_name: form.fullName.trim(),
         email: form.email.trim(),
         password: form.password,
-        hospital_id: Number(form.hospitalId),
+        hospital_id: form.hospitalId.trim(),
         qualification: form.qualification.trim(),
         position: form.position.trim() || undefined,
       })
@@ -138,11 +138,10 @@ export function DoctorRegisterPage() {
         >
           <Field
             label="Hospital ID"
-            type="number"
-            inputMode="numeric"
             value={form.hospitalId}
             onChange={(event) => update('hospitalId', event.target.value)}
-            hint="Ask your hospital administrator for this number."
+            placeholder="0199c3a1-d510-758e-87da-53143b21fe4f"
+            hint="Ask your hospital administrator for this identifier."
             required
           />
 
