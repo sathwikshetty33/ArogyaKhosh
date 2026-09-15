@@ -1,103 +1,89 @@
-import { useEffect, useState } from 'react'
-import type { ReactNode } from 'react'
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useState } from "react";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 
-import { AccessList } from '../components/AccessList'
-import { DocumentList } from '../components/DocumentList'
-import { DocumentUpload } from '../components/DocumentUpload'
-import { EmergencyCard } from '../components/EmergencyCard'
-import { Notice } from '../components/Notice'
-import { Page } from '../components/Page'
-import { Vitals } from '../components/Vitals'
-import { api, ApiError } from '../lib/api'
-import type { Me, PatientDocument, PatientRecord } from '../lib/api'
-import { clearSession, loadSession } from '../lib/session'
-
-function Section({
-  title,
-  meta,
-  children,
-}: {
-  title: string
-  meta?: string
-  children: ReactNode
-}) {
-  return (
-    <section>
-      <div className="flex items-baseline justify-between gap-4">
-        <h2 className="font-display text-[1.0625rem] font-600 text-ink">{title}</h2>
-        {meta ? <span className="text-[0.8125rem] text-ink-faint">{meta}</span> : null}
-      </div>
-      <div className="mt-4">{children}</div>
-    </section>
-  )
-}
+import { AccessList } from "../components/AccessList";
+import { DocumentList } from "../components/DocumentList";
+import { DocumentUpload } from "../components/DocumentUpload";
+import { EmergencyCard } from "../components/EmergencyCard";
+import { Notice } from "../components/Notice";
+import { Page } from "../components/Page";
+import { Panel } from "../components/Panel";
+import { Shell } from "../components/Shell";
+import { Vitals } from "../components/Vitals";
+import { api, ApiError } from "../lib/api";
+import type { PatientDocument, PatientRecord } from "../lib/api";
+import { clearSession, loadSession } from "../lib/session";
 
 const INTRO: Record<string, string> = {
-  owner: 'Your records are private until you approve a request.',
-  granted: 'You have been granted access to this record. It expires on its own.',
-  public: 'You can see this patient’s public records. Anything else needs their consent.',
-}
+  owner: "Your records are private until you approve a request.",
+  granted:
+    "You have been granted access to this record. It expires on its own.",
+  public:
+    "You can see this patient’s public records. Anything else needs their consent.",
+};
 
 export function PatientPage() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const [session] = useState(loadSession)
-  const [me, setMe] = useState<Me | null>(null)
-  const [record, setRecord] = useState<PatientRecord | null>(null)
-  const [error, setError] = useState('')
-  const [denied, setDenied] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const [refresh, setRefresh] = useState(0)
-  const [busyId, setBusyId] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [session] = useState(loadSession);
+  const [record, setRecord] = useState<PatientRecord | null>(null);
+  const [error, setError] = useState("");
+  const [denied, setDenied] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [refresh, setRefresh] = useState(0);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
-    if (!session || !id) return
+    if (!session || !id) return;
 
-    let cancelled = false
+    let cancelled = false;
 
     async function load(token: string, patientId: string) {
       try {
-        const [profile, patientRecord] = await Promise.all([
-          api.me(token),
-          api.patient(token, patientId),
-        ])
+        const patientRecord = await api.patient(token, patientId);
 
-        if (cancelled) return
+        if (cancelled) return;
 
-        setMe(profile)
-        setRecord(patientRecord)
+        setRecord(patientRecord);
       } catch (cause) {
-        if (cancelled) return
+        if (cancelled) return;
 
         if (cause instanceof ApiError && cause.status === 401) {
-          clearSession()
-          navigate('/login', { replace: true })
+          clearSession();
+          navigate("/login", { replace: true });
 
-          return
+          return;
         }
 
-        if (cause instanceof ApiError && (cause.status === 403 || cause.status === 404)) {
-          setDenied(true)
-          return
+        if (
+          cause instanceof ApiError &&
+          (cause.status === 403 || cause.status === 404)
+        ) {
+          setDenied(true);
+          return;
         }
 
-        setError(cause instanceof ApiError ? cause.message : 'Could not load this record.')
+        setError(
+          cause instanceof ApiError
+            ? cause.message
+            : "Could not load this record.",
+        );
       } finally {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) setLoading(false);
       }
     }
 
-    load(session.token, id)
+    load(session.token, id);
 
     return () => {
-      cancelled = true
-    }
-  }, [session, id, refresh, navigate])
+      cancelled = true;
+    };
+  }, [session, id, refresh, navigate]);
 
-  if (!session) return <Navigate to="/login" replace />
-  if (!id) return <Navigate to="/dashboard" replace />
+  if (!session) return <Navigate to="/login" replace />;
+  if (!id) return <Navigate to="/dashboard" replace />;
 
   if (denied) {
     return (
@@ -113,138 +99,148 @@ export function PatientPage() {
           Back to your account
         </Link>
       </Page>
-    )
+    );
   }
 
   async function withBusy(documentId: string, work: () => Promise<void>) {
-    if (!session) return
+    if (!session) return;
 
-    setBusyId(documentId)
-    setError('')
+    setBusyId(documentId);
+    setError("");
 
     try {
-      await work()
+      await work();
     } catch (cause) {
-      setError(cause instanceof ApiError ? cause.message : 'That did not work. Try again.')
+      setError(
+        cause instanceof ApiError
+          ? cause.message
+          : "That did not work. Try again.",
+      );
     } finally {
-      setBusyId(null)
+      setBusyId(null);
     }
   }
 
   function openDocument(document: PatientDocument) {
-    if (!session) return
+    if (!session) return;
 
     // Opened up front so the tab is not treated as a pop-up once the
     // signed link comes back.
-    const tab = window.open('', '_blank')
+    const tab = window.open("", "_blank");
 
     void withBusy(document.id, async () => {
       try {
-        const link = await api.documentURL(session.token, document.id)
+        const link = await api.documentURL(session.token, document.id);
 
         if (tab) {
-          tab.location.href = link.url
+          tab.location.href = link.url;
         } else {
-          window.location.href = link.url
+          window.location.href = link.url;
         }
       } catch (cause) {
-        tab?.close()
-        throw cause
+        tab?.close();
+        throw cause;
       }
-    })
+    });
   }
 
   function renameDocument(document: PatientDocument, name: string) {
-    if (!session || name.trim() === '' || name === document.name) return
-
-    void withBusy(document.id, async () => {
-      await api.updateDocument(session.token, document.id, { name: name.trim() })
-      setRefresh((value) => value + 1)
-    })
-  }
-
-  function toggleVisibility(document: PatientDocument) {
-    if (!session) return
+    if (!session || name.trim() === "" || name === document.name) return;
 
     void withBusy(document.id, async () => {
       await api.updateDocument(session.token, document.id, {
-        visibility: document.visibility === 'public' ? 'private' : 'public',
-      })
-      setRefresh((value) => value + 1)
-    })
+        name: name.trim(),
+      });
+      setRefresh((value) => value + 1);
+    });
+  }
+
+  function toggleVisibility(document: PatientDocument) {
+    if (!session) return;
+
+    void withBusy(document.id, async () => {
+      await api.updateDocument(session.token, document.id, {
+        visibility: document.visibility === "public" ? "private" : "public",
+      });
+      setRefresh((value) => value + 1);
+    });
   }
 
   function deleteDocument(document: PatientDocument) {
-    if (!session) return
-    if (!window.confirm(`Delete "${document.name}"? This cannot be undone.`)) return
+    if (!session) return;
+    if (!window.confirm(`Delete "${document.name}"? This cannot be undone.`))
+      return;
 
     void withBusy(document.id, async () => {
-      await api.deleteDocument(session.token, document.id)
-      setRefresh((value) => value + 1)
-    })
+      await api.deleteDocument(session.token, document.id);
+      setRefresh((value) => value + 1);
+    });
   }
 
   async function uploadDocument(
     file: File,
     name: string,
-    visibility: 'public' | 'private',
+    visibility: "public" | "private",
   ) {
-    if (!session || !id) return
+    if (!session || !id) return;
 
-    setUploading(true)
-    setError('')
+    setUploading(true);
+    setError("");
 
     try {
-      await api.uploadDocument(session.token, id, file, name, visibility)
-      setRefresh((value) => value + 1)
+      await api.uploadDocument(session.token, id, file, name, visibility);
+      setAdding(false);
+      setRefresh((value) => value + 1);
     } catch (cause) {
-      setError(cause instanceof ApiError ? cause.message : 'The upload failed. Try again.')
+      setError(
+        cause instanceof ApiError
+          ? cause.message
+          : "The upload failed. Try again.",
+      );
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
   }
 
-  const access = record?.access
-  const isOwner = access === 'owner'
-  const patient = record?.patient
-  const showCard = isOwner || access === 'granted'
+  const access = record?.access;
+  const isOwner = access === "owner";
+  const patient = record?.patient;
+  const showCard = isOwner || access === "granted";
 
-  return (
-    <Page
-      title={
-        loading
-          ? 'Loading'
-          : isOwner
-            ? `Hello, ${patient?.full_name?.split(' ')[0] ?? ''}`
-            : (patient?.full_name ?? 'Patient')
-      }
-      intro={loading ? undefined : INTRO[access ?? 'public']}
-      aside={
-        showCard && patient ? (
-          <div>
-            <div className="card-lift rounded-[2cqw]">
-              <EmergencyCard
-                name={patient.full_name}
-                bloodGroup={patient.blood_group ?? ''}
-                contact={patient.emergency_contact_email ?? ''}
-                serial={`AK · ${patient.id.slice(0, 4)} ${patient.id.slice(-4)}`}
-              />
-            </div>
-            <p className="mt-5 text-[0.8125rem] leading-relaxed text-ink-soft">
-              {isOwner
-                ? 'Keep a printed copy in your wallet. Scanning it never reveals your records — it alerts your emergency contact.'
-                : 'Emergency details, readable without unlocking anything.'}
-            </p>
-          </div>
-        ) : undefined
-      }
-    >
-      {error ? <Notice message={error} /> : null}
-
-      {loading ? (
+  if (loading) {
+    return (
+      <Shell>
         <p className="text-[0.9375rem] text-ink-soft">Fetching the record…</p>
-      ) : (
-        <div className="flex flex-col gap-10">
+      </Shell>
+    );
+  }
+
+  if (!isOwner) {
+    return (
+      <Page
+        title={patient?.full_name ?? "Patient"}
+        intro={INTRO[access ?? "public"]}
+        aside={
+          showCard && patient ? (
+            <div>
+              <div className="card-lift rounded-[2cqw]">
+                <EmergencyCard
+                  name={patient.full_name}
+                  bloodGroup={patient.blood_group ?? ""}
+                  contact={patient.emergency_contact_email ?? ""}
+                  serial={`AK · ${patient.id.slice(0, 4)} ${patient.id.slice(-4)}`}
+                />
+              </div>
+              <p className="mt-5 text-[0.8125rem] leading-relaxed text-ink-soft">
+                Emergency details, readable without unlocking anything.
+              </p>
+            </div>
+          ) : undefined
+        }
+      >
+        {error ? <Notice message={error} /> : null}
+
+        <div className="flex flex-col gap-8">
           {showCard ? (
             <Vitals
               bloodGroup={patient?.blood_group ?? null}
@@ -253,89 +249,164 @@ export function PatientPage() {
             />
           ) : null}
 
-          <Section
-            title={isOwner ? 'Records' : 'Records you can open'}
-            meta={`${record?.documents.length ?? 0} ${
-              record?.documents.length === 1 ? 'document' : 'documents'
-            }`}
-          >
-            <div className="flex flex-col gap-4">
-              {isOwner ? (
-                <DocumentUpload pending={uploading} onUpload={uploadDocument} />
-              ) : null}
+          <div className="sheet overflow-hidden rounded-[10px] bg-white">
+            <DocumentList
+              documents={record?.documents ?? []}
+              onOpen={openDocument}
+              busyId={busyId}
+            />
+          </div>
 
-              <DocumentList
-                documents={record?.documents ?? []}
-                canManage={isOwner}
-                busyId={busyId}
-                onOpen={openDocument}
-                onRename={renameDocument}
-                onToggleVisibility={toggleVisibility}
-                onDelete={deleteDocument}
-              />
-            </div>
-          </Section>
-
-          {access === 'public' ? (
+          {access === "public" ? (
             <div className="rounded-[8px] bg-brass/8 px-5 py-5">
               <p className="text-[0.9375rem] font-600 text-ink">
                 Need the full history?
               </p>
               <p className="mt-1.5 max-w-[50ch] text-[0.875rem] leading-relaxed text-ink-soft">
-                Request access and {patient?.full_name?.split(' ')[0] ?? 'the patient'} — or
-                their emergency contact — decides. Grants name you specifically and expire
-                on their own.
+                Request access and{" "}
+                {patient?.full_name?.split(" ")[0] ?? "the patient"} — or their
+                emergency contact — decides. Grants name you specifically and
+                expire on their own.
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </Page>
+    );
+  }
+
+  const active = record?.grants ?? [];
+
+  return (
+    <Shell>
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-[1.875rem] leading-tight font-700 text-ink sm:text-[2.25rem]">
+            Hello, {patient?.full_name?.split(" ")[0] ?? ""}
+          </h1>
+          <p className="mt-2 text-[0.9375rem] text-ink-soft">
+            Your records are private until you approve a request.
+          </p>
+        </div>
+
+        <Link
+          to={`/patients/${id}/access`}
+          className="rounded-[6px] border border-rule bg-white px-4 py-2.5 text-[0.875rem] font-600 text-ink no-underline transition-colors hover:border-leaf hover:text-leaf"
+        >
+          Manage access
+        </Link>
+      </div>
+
+      {error ? (
+        <div className="mb-6">
+          <Notice message={error} />
+        </div>
+      ) : null}
+
+      <div className="grid gap-6 lg:grid-cols-[1.55fr_1fr] lg:items-start">
+        <div className="flex flex-col gap-6">
+          <Panel
+            title="Records"
+            meta={`${record?.documents.length ?? 0} ${
+              record?.documents.length === 1 ? "file" : "files"
+            }`}
+            tight
+            action={
+              adding ? null : (
+                <button
+                  onClick={() => setAdding(true)}
+                  className="cursor-pointer rounded-[6px] border-0 bg-leaf px-3.5 py-2 text-[0.8125rem] font-600 text-paper transition-colors hover:bg-leaf-bright"
+                >
+                  Add record
+                </button>
+              )
+            }
+          >
+            {adding ? (
+              <DocumentUpload
+                pending={uploading}
+                onUpload={uploadDocument}
+                onCancel={() => setAdding(false)}
+              />
+            ) : null}
+
+            <DocumentList
+              documents={record?.documents ?? []}
+              canManage
+              busyId={busyId}
+              onOpen={openDocument}
+              onRename={renameDocument}
+              onToggleVisibility={toggleVisibility}
+              onDelete={deleteDocument}
+            />
+          </Panel>
+
+          <Panel
+            title="Who can see this"
+            meta={active.length ? `${active.length} active` : undefined}
+            action={
+              <Link
+                to={`/patients/${id}/access`}
+                className="text-[0.8125rem] font-500 text-leaf no-underline underline-offset-4 hover:underline"
+              >
+                Manage
+              </Link>
+            }
+          >
+            <AccessList grants={active} />
+          </Panel>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          {patient ? (
+            <div>
+              <div className="card-lift rounded-[2cqw]">
+                <EmergencyCard
+                  name={patient.full_name}
+                  bloodGroup={patient.blood_group ?? ""}
+                  contact={patient.emergency_contact_email ?? ""}
+                  serial={`AK · ${patient.id.slice(0, 4)} ${patient.id.slice(-4)}`}
+                />
+              </div>
+              <p className="mt-3.5 text-[0.8125rem] leading-relaxed text-ink-soft">
+                Scanning this never reveals your records — it alerts{" "}
+                {patient.emergency_contact_email ?? "your emergency contact"}.
               </p>
             </div>
           ) : null}
 
-          {isOwner ? (
-            <Section
-              title="Who can see this"
-              meta={record?.grants?.length ? `${record.grants.length} active` : undefined}
-            >
-              <div className="flex flex-col gap-4">
-                <AccessList grants={record?.grants ?? []} />
+          <Panel title="Vitals" tight>
+            <Vitals
+              bloodGroup={patient?.blood_group ?? null}
+              heightCm={patient?.height_cm ?? null}
+              weightKg={patient?.weight_kg ?? null}
+            />
+          </Panel>
 
-                <Link
-                  to={`/patients/${id}/access`}
-                  className="self-start text-[0.9375rem] font-500 text-leaf underline underline-offset-4"
+          <Panel title="Account">
+            <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2.5">
+              {[
+                ["Username", patient?.username],
+                ["Email", patient?.email],
+                [
+                  "Emergency contact",
+                  patient?.emergency_contact_email ?? "Not set",
+                ],
+              ].map(([label, value]) => (
+                <div
+                  key={String(label)}
+                  className="col-span-2 grid grid-cols-subgrid"
                 >
-                  Manage requests and access
-                </Link>
-              </div>
-            </Section>
-          ) : null}
-
-          {isOwner ? (
-            <Section title="Account">
-              <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-8 gap-y-0 border-t border-rule">
-                {[
-                  ['Username', patient?.username],
-                  ['Email', patient?.email],
-                  ['Emergency contact', patient?.emergency_contact_email ?? 'Not set'],
-                  ['Record id', patient?.id],
-                ].map(([label, value]) => (
-                  <div
-                    key={String(label)}
-                    className="col-span-2 grid grid-cols-subgrid border-b border-rule py-3"
-                  >
-                    <dt className="text-[0.875rem] text-ink-soft">{label}</dt>
-                    <dd className="m-0 truncate text-[0.9375rem] text-ink">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </Section>
-          ) : null}
-
-          {me?.role === 'doctor' ? (
-            <p className="text-[0.8125rem] text-ink-faint">
-              Signed in as {me.user.full_name}
-              {me.doctor?.hospital ? ` · ${me.doctor.hospital.name}` : ''}
-            </p>
-          ) : null}
+                  <dt className="text-[0.8125rem] text-ink-soft">{label}</dt>
+                  <dd className="m-0 truncate text-[0.8125rem] text-ink">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Panel>
         </div>
-      )}
-    </Page>
-  )
+      </div>
+    </Shell>
+  );
 }
