@@ -111,6 +111,7 @@ func (s *Server) registerRoutes() {
 	v1.GET("/me", s.requireAuth(), s.getMe)
 
 	patients := v1.Group("/patients", s.requireAuth())
+	patients.GET("/search", s.searchPatients)
 	patients.GET("/:id", s.getPatient)
 	patients.PATCH("/:id", s.updatePatient)
 	patients.POST("/:id/documents", s.uploadDocument)

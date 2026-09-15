@@ -1,0 +1,88 @@
+package server
+
+import (
+	"errors"
+	"net/http"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/models"
+)
+
+const minSearchLength = 3
+
+type patientSearchResult struct {
+	ID       uuid.UUID `json:"id"`
+	FullName string    `json:"full_name"`
+	Username string    `json:"username"`
+
+	Status *models.RequestStatus `json:"request_status"`
+	Active bool                  `json:"active"`
+}
+
+// searchPatients resolves a patient from an identifier the doctor already
+// holds. It deliberately matches an exact username or email rather than a
+// partial name: a fuzzy search would let any doctor walk the patient directory.
+func (s *Server) searchPatients(c *gin.Context) {
+	claims := claimsFrom(c)
+	if claims == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization required"})
+		return
+	}
+
+	if claims.Role != models.RoleDoctor {
+		c.JSON(http.StatusForbidden, gin.H{"error": "only a doctor can look up patients"})
+		return
+	}
+
+	query := strings.ToLower(strings.TrimSpace(c.Query("q")))
+	if len(query) < minSearchLength {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "enter the patient's full username or email",
+		})
+
+		return
+	}
+
+	var doctor models.Doctor
+	if err := s.cfg.DB.First(&doctor, "user_id = ?", claims.UserID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "your doctor profile is missing"})
+			return
+		}
+
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load your profile"})
+
+		return
+	}
+
+	results := make([]patientSearchResult, 0, 1)
+
+	err := s.cfg.DB.
+		Table("patients AS p").
+		Select(`p.id,
+			u.full_name,
+			u.username,
+			r.status,
+			(r.status = 'granted' AND (r.expires_at IS NULL OR r.expires_at > now())) AS active`).
+		Joins("JOIN users u ON u.id = p.user_id").
+		Joins(`LEFT JOIN document_requests r
+			ON r.patient_id = p.id
+			AND r.doctor_id = ?
+			AND r.status IN ('pending', 'granted')`, doctor.ID).
+		Where("lower(u.username) = ? OR lower(u.email) = ?", query, query).
+		Limit(5).
+		Scan(&results).Error
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not search"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"results": results})
+}
