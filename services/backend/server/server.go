@@ -118,6 +118,7 @@ func (s *Server) registerRoutes() {
 
 	requests := v1.Group("/requests", s.requireAuth())
 	requests.POST("/:id/approve", s.approveAccessRequest)
+	requests.POST("/:id/decline", s.declineAccessRequest)
 
 	documents := v1.Group("/documents", s.requireAuth())
 	documents.GET("/:id/url", s.documentURL)

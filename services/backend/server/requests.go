@@ -339,3 +339,29 @@ func (s *Server) approveAccessRequest(c *gin.Context) {
 
 	s.respondWithRequest(c, request.ID)
 }
+
+func (s *Server) declineAccessRequest(c *gin.Context) {
+	request, _, ok := s.decideAccessRequest(c)
+	if !ok {
+		return
+	}
+
+	if request.Status != models.RequestPending {
+		c.JSON(http.StatusConflict, gin.H{
+			"error": "only a pending request can be declined, this one is " + string(request.Status),
+		})
+
+		return
+	}
+
+	if err := s.cfg.DB.Model(&models.DocumentRequest{}).
+		Where("id = ?", request.ID).
+		Update("status", models.RequestDeclined).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not decline the request"})
+
+		return
+	}
+
+	s.respondWithRequest(c, request.ID)
+}
