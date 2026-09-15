@@ -78,6 +78,7 @@ type VerifyAccidentResponse struct {
 	Confidence    float32                `protobuf:"fixed32,1,opt,name=confidence,proto3" json:"confidence,omitempty"`
 	Threshold     float32                `protobuf:"fixed32,2,opt,name=threshold,proto3" json:"threshold,omitempty"`
 	IsAccident    bool                   `protobuf:"varint,3,opt,name=is_accident,json=isAccident,proto3" json:"is_accident,omitempty"`
+	ModelName     string                 `protobuf:"bytes,4,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -133,6 +134,13 @@ func (x *VerifyAccidentResponse) GetIsAccident() bool {
 	return false
 }
 
+func (x *VerifyAccidentResponse) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
 var File_ai_service_proto protoreflect.FileDescriptor
 
 const file_ai_service_proto_rawDesc = "" +
@@ -140,14 +148,16 @@ const file_ai_service_proto_rawDesc = "" +
 	"\x10ai_service.proto\x12\x11arogyakhosh.ai.v1\"P\n" +
 	"\x15VerifyAccidentRequest\x12\x14\n" +
 	"\x05image\x18\x01 \x01(\fR\x05image\x12!\n" +
-	"\fcontent_type\x18\x02 \x01(\tR\vcontentType\"w\n" +
+	"\fcontent_type\x18\x02 \x01(\tR\vcontentType\"\x96\x01\n" +
 	"\x16VerifyAccidentResponse\x12\x1e\n" +
 	"\n" +
 	"confidence\x18\x01 \x01(\x02R\n" +
 	"confidence\x12\x1c\n" +
 	"\tthreshold\x18\x02 \x01(\x02R\tthreshold\x12\x1f\n" +
 	"\vis_accident\x18\x03 \x01(\bR\n" +
-	"isAccident2y\n" +
+	"isAccident\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\x04 \x01(\tR\tmodelName2y\n" +
 	"\x10AccidentVerifier\x12e\n" +
 	"\x0eVerifyAccident\x12(.arogyakhosh.ai.v1.VerifyAccidentRequest\x1a).arogyakhosh.ai.v1.VerifyAccidentResponseBPZNgithub.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/gen/aiv1;aiv1b\x06proto3"
 

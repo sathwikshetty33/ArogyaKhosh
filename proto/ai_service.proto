@@ -18,4 +18,5 @@ message VerifyAccidentResponse {
   float confidence = 1;
   float threshold = 2;
   bool is_accident = 3;
+  string model_name = 4;
 }

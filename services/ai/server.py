@@ -65,6 +65,7 @@ class AccidentVerifier(rpc.AccidentVerifierServicer):
             confidence=confidence,
             threshold=self._classifier.threshold,
             is_accident=is_accident,
+            model_name=self._classifier.name,
         )
 
 

@@ -13,11 +13,13 @@ class VerifyAccidentRequest(_message.Message):
     def __init__(self, image: _Optional[bytes] = ..., content_type: _Optional[str] = ...) -> None: ...
 
 class VerifyAccidentResponse(_message.Message):
-    __slots__ = ("confidence", "threshold", "is_accident")
+    __slots__ = ("confidence", "threshold", "is_accident", "model_name")
     CONFIDENCE_FIELD_NUMBER: _ClassVar[int]
     THRESHOLD_FIELD_NUMBER: _ClassVar[int]
     IS_ACCIDENT_FIELD_NUMBER: _ClassVar[int]
+    MODEL_NAME_FIELD_NUMBER: _ClassVar[int]
     confidence: float
     threshold: float
     is_accident: bool
-    def __init__(self, confidence: _Optional[float] = ..., threshold: _Optional[float] = ..., is_accident: _Optional[bool] = ...) -> None: ...
+    model_name: str
+    def __init__(self, confidence: _Optional[float] = ..., threshold: _Optional[float] = ..., is_accident: _Optional[bool] = ..., model_name: _Optional[str] = ...) -> None: ...

@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x61i_service.proto\x12\x11\x61rogyakhosh.ai.v1\"<\n\x15VerifyAccidentRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x14\n\x0c\x63ontent_type\x18\x02 \x01(\t\"T\n\x16VerifyAccidentResponse\x12\x12\n\nconfidence\x18\x01 \x01(\x02\x12\x11\n\tthreshold\x18\x02 \x01(\x02\x12\x13\n\x0bis_accident\x18\x03 \x01(\x08\x32y\n\x10\x41\x63\x63identVerifier\x12\x65\n\x0eVerifyAccident\x12(.arogyakhosh.ai.v1.VerifyAccidentRequest\x1a).arogyakhosh.ai.v1.VerifyAccidentResponseBPZNgithub.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/gen/aiv1;aiv1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x61i_service.proto\x12\x11\x61rogyakhosh.ai.v1\"<\n\x15VerifyAccidentRequest\x12\r\n\x05image\x18\x01 \x01(\x0c\x12\x14\n\x0c\x63ontent_type\x18\x02 \x01(\t\"h\n\x16VerifyAccidentResponse\x12\x12\n\nconfidence\x18\x01 \x01(\x02\x12\x11\n\tthreshold\x18\x02 \x01(\x02\x12\x13\n\x0bis_accident\x18\x03 \x01(\x08\x12\x12\n\nmodel_name\x18\x04 \x01(\t2y\n\x10\x41\x63\x63identVerifier\x12\x65\n\x0eVerifyAccident\x12(.arogyakhosh.ai.v1.VerifyAccidentRequest\x1a).arogyakhosh.ai.v1.VerifyAccidentResponseBPZNgithub.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/gen/aiv1;aiv1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,7 +35,7 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_VERIFYACCIDENTREQUEST']._serialized_start=39
   _globals['_VERIFYACCIDENTREQUEST']._serialized_end=99
   _globals['_VERIFYACCIDENTRESPONSE']._serialized_start=101
-  _globals['_VERIFYACCIDENTRESPONSE']._serialized_end=185
-  _globals['_ACCIDENTVERIFIER']._serialized_start=187
-  _globals['_ACCIDENTVERIFIER']._serialized_end=308
+  _globals['_VERIFYACCIDENTRESPONSE']._serialized_end=205
+  _globals['_ACCIDENTVERIFIER']._serialized_start=207
+  _globals['_ACCIDENTVERIFIER']._serialized_end=328
 # @@protoc_insertion_point(module_scope)
