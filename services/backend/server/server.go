@@ -109,6 +109,7 @@ func (s *Server) registerRoutes() {
 	auth.POST("/login", s.login)
 
 	v1.GET("/me", s.requireAuth(), s.getMe)
+	v1.GET("/hospitals", s.listHospitals)
 
 	patients := v1.Group("/patients", s.requireAuth())
 	patients.GET("/search", s.searchPatients)
@@ -120,6 +121,7 @@ func (s *Server) registerRoutes() {
 
 	doctors := v1.Group("/doctors", s.requireAuth())
 	doctors.GET("/:id/requests", s.listDoctorRequests)
+	doctors.PATCH("/:id", s.updateDoctor)
 
 	requests := v1.Group("/requests", s.requireAuth())
 	requests.POST("/:id/approve", s.approveAccessRequest)

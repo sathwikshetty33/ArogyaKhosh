@@ -143,3 +143,97 @@ func (s *Server) listDoctorRequests(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"doctor_id": doctor.ID, "requests": requests})
 }
+
+type updateDoctorRequest struct {
+	Qualification *string `json:"qualification" binding:"omitempty,min=1,max=200"`
+	Position      *string `json:"position" binding:"omitempty,max=200"`
+	HospitalID    *string `json:"hospital_id" binding:"omitempty,uuid"`
+}
+
+func (s *Server) updateDoctor(c *gin.Context) {
+	doctor, ok := s.doctorSelf(c)
+	if !ok {
+		return
+	}
+
+	var req updateDoctorRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequest(c, err)
+		return
+	}
+
+	updates := map[string]any{}
+
+	if req.Qualification != nil {
+		qualification := strings.TrimSpace(*req.Qualification)
+		if qualification == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "qualification must not be blank"})
+			return
+		}
+
+		updates["qualification"] = qualification
+	}
+
+	if req.Position != nil {
+		updates["position"] = trimOptional(req.Position)
+	}
+
+	if req.HospitalID != nil {
+		hospitalID, err := uuid.Parse(*req.HospitalID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "hospital_id must be a uuid"})
+			return
+		}
+
+		var count int64
+		if err := s.cfg.DB.Model(&models.Hospital{}).Where("id = ?", hospitalID).Count(&count).Error; err != nil {
+			c.Error(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not check the hospital"})
+
+			return
+		}
+
+		if count == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "hospital not found"})
+			return
+		}
+
+		updates["hospital_id"] = hospitalID
+	}
+
+	if len(updates) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "nothing to update"})
+		return
+	}
+
+	if err := s.cfg.DB.Model(&models.Doctor{}).Where("id = ?", doctor.ID).Updates(updates).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not save the changes"})
+
+		return
+	}
+
+	var updated models.Doctor
+	if err := s.cfg.DB.Preload("Hospital").First(&updated, "id = ?", doctor.ID).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not reload your profile"})
+
+		return
+	}
+
+	updated.User = nil
+
+	c.JSON(http.StatusOK, updated)
+}
+
+func (s *Server) listHospitals(c *gin.Context) {
+	var hospitals []models.Hospital
+	if err := s.cfg.DB.Order("name").Limit(200).Find(&hospitals).Error; err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not load hospitals"})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"hospitals": hospitals})
+}
