@@ -135,6 +135,20 @@ export interface AccessRequest {
   updated_at: string
 }
 
+export interface PatientSearchResult {
+  id: string
+  full_name: string
+  username: string
+  request_status: RequestStatus | null
+  active: boolean
+}
+
+export interface DoctorUpdate {
+  qualification?: string
+  position?: string
+  hospital_id?: string
+}
+
 export interface PatientUpdate {
   blood_group?: string
   height_cm?: number
@@ -250,6 +264,24 @@ export const api = {
     send<void>('DELETE', token, `/documents/${id}`),
 
   documentURL: (token: string, id: string) => get<SignedDownload>(token, `/documents/${id}/url`),
+
+  hospitals: (token: string) =>
+    get<{ hospitals: Hospital[] }>(token, '/hospitals'),
+
+  searchPatients: (token: string, query: string) =>
+    get<{ results: PatientSearchResult[] }>(
+      token,
+      `/patients/search?q=${encodeURIComponent(query)}`,
+    ),
+
+  doctorRequests: (token: string, doctorId: string) =>
+    get<{ doctor_id: string; requests: AccessRequest[] }>(
+      token,
+      `/doctors/${doctorId}/requests`,
+    ),
+
+  updateDoctor: (token: string, id: string, input: DoctorUpdate) =>
+    send<DoctorProfile>('PATCH', token, `/doctors/${id}`, input),
 
   listRequests: (token: string, patientId: string) =>
     get<{ patient_id: string; requests: AccessRequest[] }>(token, `/patients/${patientId}/requests`),
