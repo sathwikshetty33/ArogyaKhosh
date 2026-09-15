@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/storage"
 )
 
 type Config struct {
@@ -27,6 +28,8 @@ type Config struct {
 	DB              *gorm.DB
 	JWT             *utils.JWTManager
 	AllowedOrigins  []string
+	Storage         storage.Provider
+	SignedURLTTL    time.Duration
 }
 
 type Server struct {
@@ -125,7 +128,12 @@ func (s *Server) ready(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "ready", "database": "up"})
+	store := "not configured"
+	if s.cfg.Storage != nil {
+		store = "configured"
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "ready", "database": "up", "storage": store})
 }
 
 func (s *Server) Run() error {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/db"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/storage"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/server"
 )
 
@@ -36,6 +37,17 @@ func main() {
 		log.Fatalf("jwt: %v", err)
 	}
 
+	objectStore, err := newObjectStore()
+	if err != nil {
+		log.Fatalf("storage: %v", err)
+	}
+
+	if objectStore == nil {
+		log.Printf("object storage is not configured; set %s to enable document uploads", envSupabaseURL)
+	} else {
+		log.Print("object storage ready")
+	}
+
 	cfg := server.Config{
 		Port:            env(envPort, defaultPort),
 		Mode:            ginMode(env(envGinMode, defaultGinMode)),
@@ -46,6 +58,8 @@ func main() {
 		DB:              gdb,
 		JWT:             jwtManager,
 		AllowedOrigins:  splitOrigins(env(envCORSOrigins, defaultCORSOrigins)),
+		Storage:         objectStore,
+		SignedURLTTL:    signedURLTTL,
 	}
 
 	srv := server.New(cfg)
@@ -54,6 +68,26 @@ func main() {
 	if err := srv.Run(); err != nil {
 		log.Fatalf("server error: %v", err)
 	}
+}
+
+func newObjectStore() (storage.Provider, error) {
+	url := strings.TrimSpace(os.Getenv(envSupabaseURL))
+	key := strings.TrimSpace(os.Getenv(envSupabaseKey))
+
+	if url == "" && key == "" {
+		return nil, nil
+	}
+
+	provider, err := storage.NewSupabase(storage.SupabaseConfig{
+		URL:        url,
+		ServiceKey: key,
+		Bucket:     env(envSupabaseBucket, defaultSupabaseBucket),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return provider, nil
 }
 
 func splitOrigins(raw string) []string {
