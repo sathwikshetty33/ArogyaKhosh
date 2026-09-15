@@ -15,6 +15,7 @@ func All() []*gormigrate.Migration {
 	return []*gormigrate.Migration{
 		sqlMigration("0001_init"),
 		sqlMigration("0002_uuid_keys"),
+		sqlMigration("0003_accidents"),
 	}
 }
 
