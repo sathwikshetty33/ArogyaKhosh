@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package arogyakhosh.ai.v1;
+
+option go_package = "github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/gen/aiv1;aiv1";
+
+
+service AccidentVerifier {
+  rpc VerifyAccident(VerifyAccidentRequest) returns (VerifyAccidentResponse);
+}
+
+message VerifyAccidentRequest {
+  bytes image = 1;
+  string content_type = 2;
+}
+
+message VerifyAccidentResponse {
+  float confidence = 1;
+  float threshold = 2;
+  bool is_accident = 3;
+}
