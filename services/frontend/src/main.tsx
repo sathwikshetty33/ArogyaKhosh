@@ -6,6 +6,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { LandingPage } from './pages/LandingPage'
 import { DoctorRegisterPage } from './pages/DoctorRegisterPage'
 import { LoginPage } from './pages/LoginPage'
+import { PatientPage } from './pages/PatientPage'
 import { PatientRegisterPage } from './pages/PatientRegisterPage'
 import { RegisterPage } from './pages/RegisterPage'
 import './index.css'
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/register/patient" element={<PatientRegisterPage />} />
         <Route path="/register/doctor" element={<DoctorRegisterPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/patients/:id" element={<PatientPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

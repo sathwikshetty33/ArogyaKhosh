@@ -1,84 +1,109 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
+import { Notice } from '../components/Notice'
 import { Page } from '../components/Page'
+import { api, ApiError } from '../lib/api'
+import type { Me } from '../lib/api'
 import { clearSession, loadSession } from '../lib/session'
-
-function format(msLeft: number): string {
-  const minutes = Math.floor(msLeft / 60000)
-  const seconds = Math.floor((msLeft % 60000) / 1000)
-
-  return `${minutes}:${String(seconds).padStart(2, '0')}`
-}
 
 export function DashboardPage() {
   const navigate = useNavigate()
   const [session] = useState(loadSession)
-  const [msLeft, setMsLeft] = useState(0)
+  const [me, setMe] = useState<Me | null>(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!session) return
+    if (!session) {
+      navigate('/login', { replace: true })
+      return
+    }
 
-    const tick = () => setMsLeft(Math.max(0, session.expiresAt - Date.now()))
+    let cancelled = false
 
-    tick()
-    const timer = setInterval(tick, 1000)
+    async function load(token: string) {
+      try {
+        const profile = await api.me(token)
+        if (cancelled) return
 
-    return () => clearInterval(timer)
-  }, [session])
+        if (profile.patient) {
+          navigate(`/patients/${profile.patient.id}`, { replace: true })
+          return
+        }
 
-  if (!session) {
-    return (
-      <Page
-        title="You are signed out"
-        intro="Sign in to open your records."
-      >
-        <button
-          onClick={() => navigate('/login')}
-          className="cursor-pointer border-0 bg-transparent p-0 font-500 text-leaf underline underline-offset-4"
-        >
-          Go to sign in
-        </button>
-      </Page>
-    )
-  }
+        setMe(profile)
+      } catch (cause) {
+        if (cancelled) return
 
-  const expired = msLeft <= 0
+        if (cause instanceof ApiError && cause.status === 401) {
+          clearSession()
+          navigate('/login', { replace: true })
+
+          return
+        }
+
+        setError(cause instanceof ApiError ? cause.message : 'Could not load your account.')
+      }
+    }
+
+    load(session.token)
+
+    return () => {
+      cancelled = true
+    }
+  }, [session, navigate])
+
+  if (!session) return null
 
   return (
     <Page
-      title={`Welcome, ${session.user.full_name}`}
-      intro="Nothing lives here yet. Records, access requests and your emergency card arrive next."
+      width="narrow"
+      title={me ? `Hello, ${me.user.full_name.split(' ')[0]}` : 'Loading'}
+      intro={
+        me?.role === 'doctor'
+          ? 'Open a patient record by its link, or request access to one.'
+          : undefined
+      }
     >
-      <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-8 gap-y-0 border-t border-rule">
-        {[
-          ['Signed in as', session.user.username],
-          ['Role', session.role],
-          ['Email', session.user.email],
-          ['Session expires in', expired ? 'expired' : format(msLeft)],
-        ].map(([label, value]) => (
-          <div key={label} className="col-span-2 grid grid-cols-subgrid border-b border-rule py-3.5">
-            <dt className="text-[0.875rem] text-ink-soft">{label}</dt>
-            <dd
-              className={`m-0 text-[0.9375rem] font-500 ${
-                label === 'Session expires in' && expired ? 'text-alert' : 'text-ink'
-              }`}
-            >
-              {value}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      {error ? <Notice message={error} /> : null}
 
-      <button
-        onClick={() => {
-          clearSession()
-          navigate('/login')
-        }}
-        className="mt-8 cursor-pointer border-0 bg-transparent p-0 text-[0.9375rem] font-500 text-ink-soft underline decoration-rule underline-offset-4 transition-colors hover:text-alert"
-      >
-        Sign out
-      </button>
+      {me?.doctor ? (
+        <div className="flex flex-col gap-8">
+          <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-8 gap-y-0 border-t border-rule">
+            {[
+              ['Hospital', me.doctor.hospital?.name ?? '—'],
+              ['Qualification', me.doctor.qualification],
+              ['Position', me.doctor.position ?? '—'],
+              ['Email', me.user.email],
+            ].map(([label, value]) => (
+              <div
+                key={label}
+                className="col-span-2 grid grid-cols-subgrid border-b border-rule py-3"
+              >
+                <dt className="text-[0.875rem] text-ink-soft">{label}</dt>
+                <dd className="m-0 text-[0.9375rem] text-ink">{value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className="rounded-[8px] bg-brass/8 px-5 py-5">
+            <p className="text-[0.9375rem] font-600 text-ink">Opening a patient record</p>
+            <p className="mt-1.5 max-w-[50ch] text-[0.875rem] leading-relaxed text-ink-soft">
+              Patient records live at a shareable link. Without a grant you will see their
+              public records only — everything else needs their consent.
+            </p>
+          </div>
+
+          <Link
+            to="/"
+            className="text-[0.9375rem] font-500 text-leaf underline underline-offset-4"
+          >
+            How access works
+          </Link>
+        </div>
+      ) : (
+        <p className="text-[0.9375rem] text-ink-soft">Taking you to your record…</p>
+      )}
     </Page>
   )
 }
