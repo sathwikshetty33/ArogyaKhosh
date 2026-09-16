@@ -107,7 +107,7 @@ func (s *Server) createAccessRequest(c *gin.Context) {
 	}
 
 	var doctor models.Doctor
-	if err := s.cfg.DB.First(&doctor, "user_id = ?", claims.UserID).Error; err != nil {
+	if err := s.cfg.DB.Preload("User").Preload("Hospital").First(&doctor, "user_id = ?", claims.UserID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "your doctor profile is missing"})
 			return
@@ -135,10 +135,24 @@ func (s *Server) createAccessRequest(c *gin.Context) {
 		return
 	}
 
+	accident, err := s.openAccident(patient.ID)
+	if err != nil {
+		c.Error(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not check for an open accident"})
+
+		return
+	}
+
 	request := models.DocumentRequest{
 		PatientID: patient.ID,
 		DoctorID:  doctor.ID,
 		Status:    models.RequestPending,
+	}
+
+	// A request made while an accident is open records which one, so that
+	// dismissing the accident later takes back exactly the access it opened.
+	if accident != nil {
+		request.AccidentID = &accident.ID
 	}
 
 	if err := s.cfg.DB.Create(&request).Error; err != nil {
@@ -151,6 +165,13 @@ func (s *Server) createAccessRequest(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create the request"})
 
 		return
+	}
+
+	// The patient may be unconscious, so a confirmed accident diverts the
+	// decision to the emergency contact. Failing to reach them must not fail
+	// the request: the patient can still answer it from their own dashboard.
+	if accident != nil {
+		s.sendGrantRequest(c, &patient, &doctor, &request, accident)
 	}
 
 	view, err := s.findRequestView(request.ID)
