@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react'
+
 import { Mark } from './Mark'
+import { qrDataURL } from '../lib/qr'
 
 interface EmergencyCardProps {
   name: string
@@ -6,6 +9,7 @@ interface EmergencyCardProps {
   contact: string
   serial?: string
   placeholderName?: string
+  url?: string
 }
 
 export function EmergencyCard({
@@ -14,8 +18,27 @@ export function EmergencyCard({
   contact,
   serial = 'AK · 0000 0000',
   placeholderName = 'Your name',
+  url,
 }: EmergencyCardProps) {
   const filled = Boolean(name.trim())
+  const [code, setCode] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!url) return
+
+    let live = true
+    qrDataURL(url, 360)
+      .then((data) => {
+        if (live) setCode(data)
+      })
+      .catch(() => {
+        if (live) setCode(null)
+      })
+
+    return () => {
+      live = false
+    }
+  }, [url])
 
   return (
     <div className="@container w-full">
@@ -68,21 +91,29 @@ export function EmergencyCard({
               <span className="pb-[0.6cqw] text-[2.6cqw] leading-none text-paper/40">
                 {serial}
               </span>
-              <span
-                aria-hidden="true"
-                className="grid size-[17cqw] shrink-0 grid-cols-5 gap-[0.7cqw] rounded-[1cqw] bg-paper p-[1.4cqw]"
-              >
-                {Array.from({ length: 25 }).map((_, index) => (
-                  <span
-                    key={index}
-                    className={`rounded-[0.3cqw] ${
-                      [0, 1, 2, 5, 7, 10, 12, 13, 16, 18, 20, 21, 22, 24, 9, 14].includes(index)
-                        ? 'bg-leaf'
-                        : 'bg-transparent'
-                    }`}
-                  />
-                ))}
-              </span>
+              {url && code ? (
+                <img
+                  src={code}
+                  alt="Scan to report an accident"
+                  className="size-[17cqw] shrink-0 rounded-[1cqw] bg-paper p-[1cqw]"
+                />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="grid size-[17cqw] shrink-0 grid-cols-5 gap-[0.7cqw] rounded-[1cqw] bg-paper p-[1.4cqw]"
+                >
+                  {Array.from({ length: 25 }).map((_, index) => (
+                    <span
+                      key={index}
+                      className={`rounded-[0.3cqw] ${
+                        [0, 1, 2, 5, 7, 10, 12, 13, 16, 18, 20, 21, 22, 24, 9, 14].includes(index)
+                          ? 'bg-leaf'
+                          : 'bg-transparent'
+                      }`}
+                    />
+                  ))}
+                </span>
+              )}
             </div>
           </div>
         </div>
