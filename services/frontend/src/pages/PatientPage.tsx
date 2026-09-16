@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 
 import { AccessList } from '../components/AccessList'
+import { AccidentList } from '../components/AccidentList'
 import { DocumentList } from '../components/DocumentList'
 import { DocumentUpload } from '../components/DocumentUpload'
 import { ContactEditor } from '../components/ContactEditor'
@@ -13,7 +14,8 @@ import { Shell } from '../components/Shell'
 import { Vitals } from '../components/Vitals'
 import { VitalsEditor } from '../components/VitalsEditor'
 import { api, ApiError } from '../lib/api'
-import type { PatientDocument, PatientRecord, PatientUpdate } from '../lib/api'
+import type { PatientAccident, PatientDocument, PatientRecord, PatientUpdate } from '../lib/api'
+import { download, drawCard, reportURL } from '../lib/qr'
 import { clearSession, loadSession } from '../lib/session'
 
 const INTRO: Record<string, string> = {
@@ -37,6 +39,9 @@ export function PatientPage() {
   const [uploading, setUploading] = useState(false)
   const [adding, setAdding] = useState(false)
   const [editingVitals, setEditingVitals] = useState(false)
+  const [accidents, setAccidents] = useState<PatientAccident[]>([])
+  const [closingId, setClosingId] = useState<string | null>(null)
+  const [savingCard, setSavingCard] = useState(false)
   const [editingContact, setEditingContact] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
 
@@ -52,6 +57,13 @@ export function PatientPage() {
         if (cancelled) return
 
         setRecord(patientRecord)
+
+        // Only the owner can read these, so asking as anyone else is a
+        // guaranteed 403 and the panel is not rendered for them anyway.
+        if (patientRecord.access === 'owner') {
+          const reported = await api.accidents(token, patientId)
+          if (!cancelled) setAccidents(reported.accidents)
+        }
       } catch (cause) {
         if (cancelled) return
 
@@ -86,6 +98,49 @@ export function PatientPage() {
       cancelled = true
     }
   }, [session, id, refresh, navigate])
+
+  async function closeAccident(accidentId: string) {
+    if (!session) return
+
+    setClosingId(accidentId)
+    setError('')
+
+    try {
+      const closed = await api.closeAccident(session.token, accidentId)
+      setAccidents((current) =>
+        current.map((item) => (item.id === closed.id ? closed : item)),
+      )
+    } catch (cause) {
+      setError(
+        cause instanceof ApiError ? cause.message : 'Could not close that report.',
+      )
+    } finally {
+      setClosingId(null)
+    }
+  }
+
+  async function saveCard() {
+    if (!patient) return
+
+    setSavingCard(true)
+    setError('')
+
+    try {
+      const png = await drawCard({
+        name: patient.full_name,
+        bloodGroup: patient.blood_group ?? '',
+        contact: patient.emergency_contact_email ?? '',
+        serial: `AK · ${patient.id.slice(0, 4)} ${patient.id.slice(-4)}`,
+        url: reportURL(patient.id),
+      })
+
+      download(png, `arogyakhosh-card-${patient.username}.png`)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not save the card.')
+    } finally {
+      setSavingCard(false)
+    }
+  }
 
   if (!session) return <Navigate to="/login" replace />
   if (!id) return <Navigate to="/dashboard" replace />
@@ -256,6 +311,7 @@ export function PatientPage() {
                   bloodGroup={patient.blood_group ?? ''}
                   contact={patient.emergency_contact_email ?? ''}
                   serial={`AK · ${patient.id.slice(0, 4)} ${patient.id.slice(-4)}`}
+                  url={reportURL(patient.id)}
                 />
               </div>
               <p className="mt-5 text-[0.8125rem] leading-relaxed text-ink-soft">
@@ -382,6 +438,23 @@ export function PatientPage() {
           >
             <AccessList grants={active} />
           </Panel>
+
+          <Panel
+            title="Accident reports"
+            meta={
+              accidents.some((item) => item.open)
+                ? 'One open'
+                : accidents.length
+                  ? `${accidents.length} on record`
+                  : undefined
+            }
+          >
+            <AccidentList
+              accidents={accidents}
+              onClose={closeAccident}
+              busyId={closingId}
+            />
+          </Panel>
         </div>
 
         <div className="flex flex-col gap-6">
@@ -393,12 +466,22 @@ export function PatientPage() {
                   bloodGroup={patient.blood_group ?? ''}
                   contact={patient.emergency_contact_email ?? ''}
                   serial={`AK · ${patient.id.slice(0, 4)} ${patient.id.slice(-4)}`}
+                  url={reportURL(patient.id)}
                 />
               </div>
               <p className="mt-3.5 text-[0.8125rem] leading-relaxed text-ink-soft">
                 Scanning this never reveals your records — it alerts{' '}
                 {patient.emergency_contact_email ?? 'your emergency contact'}.
               </p>
+
+              <button
+                type="button"
+                onClick={saveCard}
+                disabled={savingCard}
+                className="mt-3 w-full cursor-pointer rounded-[3px] border border-rule bg-white px-4 py-2.5 text-[0.8125rem] font-600 text-ink transition-colors hover:border-leaf hover:text-leaf disabled:cursor-progress disabled:text-ink-faint"
+              >
+                {savingCard ? 'Preparing…' : 'Download card for printing'}
+              </button>
             </div>
           ) : null}
 
