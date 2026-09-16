@@ -113,6 +113,8 @@ func (s *Server) registerRoutes() {
 	v1.GET("/accidents/:id/approval/:key", s.viewApproval)
 	v1.POST("/accidents/:id/approval/:key", s.decideApproval)
 
+	v1.POST("/accidents/:id/close", s.requireAuth(), s.closeAccident)
+
 	v1.GET("/grants/:token", s.viewGrant)
 	v1.POST("/grants/:token", s.decideGrant)
 
@@ -131,6 +133,7 @@ func (s *Server) registerRoutes() {
 	patients.POST("/:id/documents", s.uploadDocument)
 	patients.POST("/:id/requests", s.createAccessRequest)
 	patients.GET("/:id/requests", s.listAccessRequests)
+	patients.GET("/:id/accidents", s.listPatientAccidents)
 
 	doctors := v1.Group("/doctors", s.requireAuth())
 	doctors.GET("/:id/requests", s.listDoctorRequests)
