@@ -15,15 +15,16 @@ import (
 )
 
 type grantLinkView struct {
-	RequestID        uuid.UUID            `json:"request_id"`
-	Status           models.RequestStatus `json:"status"`
-	PatientFirstName string               `json:"patient_first_name"`
-	DoctorName       string               `json:"doctor_name"`
-	Hospital         string               `json:"hospital"`
-	Qualification    string               `json:"qualification"`
-	Position         *string              `json:"position"`
-	RequestedAt      time.Time            `json:"requested_at"`
-	AccessUntil      *time.Time           `json:"access_until,omitempty"`
+	RequestID         uuid.UUID            `json:"request_id"`
+	Status            models.RequestStatus `json:"status"`
+	PatientFirstName  string               `json:"patient_first_name"`
+	DoctorName        string               `json:"doctor_name"`
+	Hospital          string               `json:"hospital"`
+	Qualification     string               `json:"qualification"`
+	Position          *string              `json:"position"`
+	RequestedAt       time.Time            `json:"requested_at"`
+	AccessUntil       *time.Time           `json:"access_until,omitempty"`
+	AccidentConfirmed bool                 `json:"accident_confirmed"`
 }
 
 type grantDecision struct {
@@ -165,14 +166,15 @@ func (s *Server) buildGrantLink(request *models.DocumentRequest, accident *model
 	}
 
 	return grantLinkView{
-		RequestID:        request.ID,
-		Status:           request.Status,
-		PatientFirstName: firstName(*request.Patient),
-		DoctorName:       request.Doctor.User.FullName,
-		Hospital:         request.Doctor.Hospital.Name,
-		Qualification:    request.Doctor.Qualification,
-		Position:         request.Doctor.Position,
-		RequestedAt:      request.CreatedAt,
-		AccessUntil:      accident.ExpiresAt,
+		RequestID:         request.ID,
+		Status:            request.Status,
+		PatientFirstName:  firstName(*request.Patient),
+		DoctorName:        request.Doctor.User.FullName,
+		Hospital:          request.Doctor.Hospital.Name,
+		Qualification:     request.Doctor.Qualification,
+		Position:          request.Doctor.Position,
+		RequestedAt:       request.CreatedAt,
+		AccessUntil:       accident.ExpiresAt,
+		AccidentConfirmed: accident.Status == models.AccidentConfirmed,
 	}, nil
 }

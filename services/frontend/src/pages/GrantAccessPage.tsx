@@ -100,7 +100,11 @@ export function GrantAccessPage() {
       bare
       width="narrow"
       title={`${view.doctor_name} wants to read ${view.patient_first_name}'s records`}
-      intro={`Asked ${when(view.requested_at)}. You confirmed their accident, so this is your call for now.`}
+      intro={
+        view.accident_confirmed
+          ? `Asked ${when(view.requested_at)}. You confirmed their accident, so this is your call for now.`
+          : `Asked ${when(view.requested_at)}. An accident involving them was reported and you are their emergency contact, so this is your call for now.`
+      }
     >
       <div className="flex flex-col gap-6">
         {error ? <Notice message={error} /> : null}

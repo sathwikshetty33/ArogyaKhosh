@@ -227,6 +227,7 @@ export interface GrantLinkView {
   position: string | null
   requested_at: string
   access_until?: string
+  accident_confirmed: boolean
 }
 
 export class ApiError extends Error {

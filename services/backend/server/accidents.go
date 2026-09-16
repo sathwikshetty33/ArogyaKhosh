@@ -30,6 +30,11 @@ const (
 	// admission outlasts a shift, so this is days; it is not indefinite,
 	// because nobody remembers to close these.
 	accidentWindow = 7 * 24 * time.Hour
+
+	// An unconfirmed report authorises too, but on a stranger's word alone,
+	// so it gets the shorter leash. It is the same day the approval link
+	// lives: past that, a report nobody vouched for stops carrying weight.
+	accidentReportWindow = 24 * time.Hour
 )
 
 var photoTypeAllowed = map[string]bool{
@@ -81,9 +86,12 @@ func (s *Server) reportAccident(c *gin.Context) {
 		return
 	}
 
+	reportWindow := time.Now().Add(accidentReportWindow)
+
 	accident := models.Accident{
 		PatientID:  patient.ID,
 		Status:     models.AccidentReported,
+		ExpiresAt:  &reportWindow,
 		ReporterIP: optional(c.ClientIP()),
 		Latitude:   optionalFloat(c.PostForm("latitude")),
 		Longitude:  optionalFloat(c.PostForm("longitude")),
