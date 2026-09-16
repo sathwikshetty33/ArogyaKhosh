@@ -23,11 +23,12 @@ type approvalView struct {
 	Latitude         *float64              `json:"latitude,omitempty"`
 	Longitude        *float64              `json:"longitude,omitempty"`
 	DecidedAt        *time.Time            `json:"decided_at,omitempty"`
-	ExpiresAt        *time.Time            `json:"expires_at,omitempty"`
+	LinkExpiresAt    *time.Time            `json:"link_expires_at,omitempty"`
+	WindowExpiresAt  *time.Time            `json:"window_expires_at,omitempty"`
 }
 
 type approvalDecision struct {
-	Decision string `json:"decision" binding:"required,oneof=confirm dismiss"`
+	Decision string `json:"decision" binding:"required,oneof=confirm dismiss resolve"`
 }
 
 // viewApproval is what the emergency contact opens from the alert mail. The
@@ -48,7 +49,7 @@ func (s *Server) viewApproval(c *gin.Context) {
 func (s *Server) decideApproval(c *gin.Context) {
 	var body approvalDecision
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "decision must be confirm or dismiss"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "decision must be confirm, dismiss or resolve"})
 		return
 	}
 
@@ -57,21 +58,19 @@ func (s *Server) decideApproval(c *gin.Context) {
 		return
 	}
 
-	if accident.Status == models.AccidentResolved {
-		c.JSON(http.StatusConflict, gin.H{"error": "this report has already been closed"})
-		return
-	}
-
-	status := models.AccidentConfirmed
-	if body.Decision == "dismiss" {
-		status = models.AccidentDismissed
-	}
-
 	now := time.Now()
-	updates := map[string]any{
-		"status":        status,
-		"decided_at":    now,
-		"decided_email": accidentContact(accident),
+
+	updates := map[string]any{"decided_at": now}
+
+	switch body.Decision {
+	case "confirm":
+		window := now.Add(accidentWindow)
+		updates["status"] = models.AccidentConfirmed
+		updates["expires_at"] = window
+	case "dismiss":
+		updates["status"] = models.AccidentDismissed
+	default:
+		updates["status"] = models.AccidentResolved
 	}
 
 	// The first decision is recorded, but the link keeps working until it
@@ -88,10 +87,17 @@ func (s *Server) decideApproval(c *gin.Context) {
 		return
 	}
 
-	accident.Status = status
+	accident.Status = updates["status"].(models.AccidentStatus)
 	accident.DecidedAt = &now
 
-	if status == models.AccidentDismissed {
+	if window, ok := updates["expires_at"].(time.Time); ok {
+		accident.ExpiresAt = &window
+	}
+
+	// Dismissing says the report was wrong, so the access it opened was never
+	// warranted. Resolving says the episode is over: those doctors did treat
+	// the patient, so their grants stand as history for the patient to revoke.
+	if accident.Status == models.AccidentDismissed {
 		s.revokeAccidentGrants(c, accident)
 	}
 
@@ -140,14 +146,15 @@ func (s *Server) accidentByKey(c *gin.Context) (*models.Accident, bool) {
 
 func (s *Server) approvalView(c *gin.Context, accident *models.Accident) approvalView {
 	view := approvalView{
-		ID:           accident.ID,
-		Status:       accident.Status,
-		ReportedAt:   accident.CreatedAt,
-		ModelVerdict: accident.ModelVerdict,
-		Latitude:     accident.Latitude,
-		Longitude:    accident.Longitude,
-		DecidedAt:    accident.DecidedAt,
-		ExpiresAt:    accident.ApprovalKeyExpiresAt,
+		ID:              accident.ID,
+		Status:          accident.Status,
+		ReportedAt:      accident.CreatedAt,
+		ModelVerdict:    accident.ModelVerdict,
+		Latitude:        accident.Latitude,
+		Longitude:       accident.Longitude,
+		DecidedAt:       accident.DecidedAt,
+		LinkExpiresAt:   accident.ApprovalKeyExpiresAt,
+		WindowExpiresAt: accident.ExpiresAt,
 	}
 
 	if accident.Patient != nil {
@@ -169,27 +176,15 @@ func (s *Server) approvalView(c *gin.Context, accident *models.Accident) approva
 	return view
 }
 
-// revokeAccidentGrants withdraws everything this accident opened up. A contact
-// who says it was a false alarm expects the doctors to lose the chart, not
-// just to stop receiving mail.
+// revokeAccidentGrants withdraws what this accident opened, and only that.
+// Grants the patient made themselves are none of the accident's business, so
+// the requests carry the accident they came in under rather than being matched
+// on when they happened.
 func (s *Server) revokeAccidentGrants(c *gin.Context, accident *models.Accident) {
 	err := s.cfg.DB.Model(&models.DocumentRequest{}).
-		Where("patient_id = ? AND status = ? AND granted_at >= ?",
-			accident.PatientID, models.RequestGranted, accident.CreatedAt).
+		Where("accident_id = ? AND status = ?", accident.ID, models.RequestGranted).
 		Update("status", models.RequestRevoked).Error
 	if err != nil {
 		c.Error(err)
 	}
-}
-
-func accidentContact(accident *models.Accident) string {
-	if accident.NotifiedEmail != nil {
-		return *accident.NotifiedEmail
-	}
-
-	if accident.Patient != nil && accident.Patient.EmergencyContactEmail != nil {
-		return *accident.Patient.EmergencyContactEmail
-	}
-
-	return "unknown"
 }

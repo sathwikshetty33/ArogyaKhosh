@@ -108,6 +108,8 @@ type DocumentRequest struct {
 	DoctorID uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:document_requests_single_pending_idx,priority:2;index:document_requests_grantee_idx,priority:1" json:"doctor_id"`
 	Doctor   *Doctor   `gorm:"foreignKey:DoctorID;constraint:OnDelete:CASCADE" json:"doctor,omitempty"`
 
+	AccidentID *uuid.UUID `gorm:"type:uuid;index:document_requests_accident_idx,where:accident_id IS NOT NULL" json:"accident_id,omitempty"`
+
 	Status         RequestStatus `gorm:"type:text;not null;default:pending;check:document_requests_status_valid,status IN ('pending','granted','declined','revoked')" json:"status"`
 	GrantedByEmail *string       `gorm:"type:text;check:document_requests_grant_complete,status <> 'granted' OR (granted_by_email IS NOT NULL AND granted_at IS NOT NULL)" json:"granted_by_email"`
 	GrantedAt      *time.Time    `json:"granted_at"`

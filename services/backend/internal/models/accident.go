@@ -39,8 +39,12 @@ type Accident struct {
 	NotifiedAt    *time.Time `json:"notified_at,omitempty"`
 	NotifiedEmail *string    `gorm:"type:text" json:"notified_email,omitempty"`
 
-	DecidedAt    *time.Time `json:"decided_at,omitempty"`
-	DecidedEmail *string    `gorm:"type:text" json:"-"`
+	DecidedAt *time.Time `json:"decided_at,omitempty"`
+
+	// An accident authorises grants for a fixed window rather than forever.
+	// The expiry is checked when a request is read, never swept by a job, so
+	// a window that has run out cannot be used while a sweeper is behind.
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 
 	// The emergency contact approves from an emailed link rather than an
 	// account. Only the hash is stored: a leaked table must not hand anyone a
@@ -48,9 +52,6 @@ type Accident struct {
 	ApprovalKeyHash      *string    `gorm:"column:approval_key_hash;type:text" json:"-"`
 	ApprovalKeyExpiresAt *time.Time `json:"approval_key_expires_at,omitempty"`
 	ApprovalUsedAt       *time.Time `json:"approval_used_at,omitempty"`
-
-	DocumentRequestID *uuid.UUID       `gorm:"type:uuid" json:"document_request_id,omitempty"`
-	DocumentRequest   *DocumentRequest `gorm:"foreignKey:DocumentRequestID;constraint:OnDelete:SET NULL" json:"-"`
 
 	CreatedAt time.Time `gorm:"index:accidents_patient_idx,priority:2,sort:desc" json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

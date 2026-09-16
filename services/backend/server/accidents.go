@@ -25,6 +25,11 @@ const (
 	// becomes a way to flood somebody's inbox.
 	accidentRateLimit  = 3
 	accidentRateWindow = time.Hour
+
+	// How long a confirmed accident keeps authorising grants. A trauma
+	// admission outlasts a shift, so this is days; it is not indefinite,
+	// because nobody remembers to close these.
+	accidentWindow = 7 * 24 * time.Hour
 )
 
 var photoTypeAllowed = map[string]bool{
