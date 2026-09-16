@@ -94,7 +94,7 @@ func (s *Server) createAccessRequest(c *gin.Context) {
 	}
 
 	var patient models.Patient
-	if err := s.cfg.DB.First(&patient, "id = ?", patientID).Error; err != nil {
+	if err := s.cfg.DB.Preload("User").First(&patient, "id = ?", patientID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "patient not found"})
 			return

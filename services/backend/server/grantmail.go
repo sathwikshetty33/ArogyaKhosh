@@ -54,6 +54,14 @@ func (s *Server) sendGrantRequest(c *gin.Context, patient *models.Patient, docto
 	}
 
 	to := accidentContact(accident)
+
+	// A report whose first mail never sent has no address on it. Falling back
+	// to the patient's current contact is also what picks up a contact they
+	// changed after the report went out.
+	if to == "" && patient.EmergencyContactEmail != nil {
+		to = *patient.EmergencyContactEmail
+	}
+
 	if to == "" {
 		return
 	}
@@ -63,6 +71,10 @@ func (s *Server) sendGrantRequest(c *gin.Context, patient *models.Patient, docto
 	expires := time.Now().Add(utils.GrantTokenTTL)
 	if accident.ExpiresAt != nil && accident.ExpiresAt.Before(expires) {
 		expires = *accident.ExpiresAt
+	}
+
+	if patient.User == nil {
+		c.Error(fmt.Errorf("patient %s has no user loaded; the alert would name nobody", patient.ID))
 	}
 
 	token, err := s.cfg.GrantSigner.Sign(utils.GrantClaims{
