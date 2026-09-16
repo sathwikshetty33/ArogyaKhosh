@@ -168,6 +168,67 @@ export interface SignedDownload {
   document: PatientDocument
 }
 
+export type AccidentStatus = 'reported' | 'notified' | 'confirmed' | 'dismissed' | 'resolved'
+
+export interface AccidentGrant {
+  request_id: string
+  doctor_name: string
+  hospital: string
+  status: RequestStatus
+  granted_at: string | null
+}
+
+export interface PatientAccident {
+  id: string
+  status: AccidentStatus
+  open: boolean
+  reported_at: string
+  notified_email: string | null
+  notified_at: string | null
+  decided_at: string | null
+  window_expires_at: string | null
+  model_verdict: boolean | null
+  confidence: number | null
+  latitude: number | null
+  longitude: number | null
+  photo_url?: string
+  grants: AccidentGrant[]
+}
+
+export interface AccidentReport {
+  id: string
+  status: AccidentStatus
+  patient_first_name: string
+  photo_scored: boolean
+  contact_notified: boolean
+}
+
+export interface ApprovalView {
+  id: string
+  status: AccidentStatus
+  patient_first_name: string
+  reported_at: string
+  photo_url?: string
+  model_verdict?: boolean
+  latitude?: number
+  longitude?: number
+  decided_at?: string
+  link_expires_at?: string
+  window_expires_at?: string
+}
+
+export interface GrantLinkView {
+  request_id: string
+  status: RequestStatus
+  patient_first_name: string
+  doctor_name: string
+  hospital: string
+  qualification: string
+  position: string | null
+  requested_at: string
+  access_until?: string
+}
+
 export class ApiError extends Error {
   status: number
 
@@ -302,4 +363,35 @@ export const api = {
 
   revokeRequest: (token: string, id: string) =>
     send<AccessRequest>('POST', token, `/requests/${id}/revoke`),
+
+  accidents: (token: string, patientId: string) =>
+    get<{ patient_id: string; accidents: PatientAccident[] }>(
+      token,
+      `/patients/${patientId}/accidents`,
+    ),
+
+  closeAccident: (token: string, id: string) =>
+    send<PatientAccident>('POST', token, `/accidents/${id}/close`),
+
+  reportAccident: (patientId: string, photo: File | null, position: GeolocationCoordinates | null) => {
+    const form = new FormData()
+    if (photo) form.append('photo', photo)
+    if (position) {
+      form.append('latitude', String(position.latitude))
+      form.append('longitude', String(position.longitude))
+    }
+
+    return request<AccidentReport>(`/accidents/${patientId}`, { method: 'POST', body: form })
+  },
+
+  approval: (accidentId: string, key: string) =>
+    request<ApprovalView>(`/accidents/${accidentId}/approval/${key}`, {}),
+
+  decideApproval: (accidentId: string, key: string, decision: 'confirm' | 'dismiss' | 'resolve') =>
+    post<ApprovalView>(`/accidents/${accidentId}/approval/${key}`, { decision }),
+
+  grantLink: (token: string) => request<GrantLinkView>(`/grants/${token}`, {}),
+
+  decideGrant: (token: string, decision: 'grant' | 'deny') =>
+    post<GrantLinkView>(`/grants/${token}`, { decision }),
 }

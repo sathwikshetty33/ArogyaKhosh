@@ -3,7 +3,12 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { clearSession, loadSession } from '../lib/session'
 import { Mark } from './Mark'
 
-export function Masthead({ tone = 'paper' }: { tone?: 'paper' | 'leaf' }) {
+interface MastheadProps {
+  tone?: 'paper' | 'leaf'
+  bare?: boolean
+}
+
+export function Masthead({ tone = 'paper', bare = false }: MastheadProps) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const session = loadSession()
@@ -29,6 +34,7 @@ export function Masthead({ tone = 'paper' }: { tone?: 'paper' | 'leaf' }) {
           </span>
         </Link>
 
+        {bare ? null : (
         <nav className="flex items-center gap-1 sm:gap-3">
           {session ? (
             <>
@@ -68,6 +74,7 @@ export function Masthead({ tone = 'paper' }: { tone?: 'paper' | 'leaf' }) {
             </>
           )}
         </nav>
+        )}
       </div>
     </header>
   )

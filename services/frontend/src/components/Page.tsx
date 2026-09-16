@@ -9,6 +9,7 @@ interface PageProps {
   aside?: ReactNode
   footer?: ReactNode
   width?: 'narrow' | 'wide'
+  bare?: boolean
 }
 
 const SHELL = {
@@ -26,10 +27,18 @@ const ASIDE = {
   wide: 'lg:w-[20rem]',
 } as const
 
-export function Page({ title, intro, children, aside, footer, width = 'wide' }: PageProps) {
+export function Page({
+  title,
+  intro,
+  children,
+  aside,
+  footer,
+  width = 'wide',
+  bare = false,
+}: PageProps) {
   return (
     <div className="bg-parchment flex min-h-dvh flex-col">
-      <Masthead />
+      <Masthead bare={bare} />
 
       <div className="flex flex-1 items-center justify-center px-5 py-10 sm:px-8 sm:py-14">
         <div
