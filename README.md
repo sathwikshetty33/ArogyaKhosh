@@ -8,338 +8,51 @@
   Medical records with a consent model built for the moment the patient cannot speak.
 </p>
 
-A medical records system built around one uncomfortable question: if you are
-unconscious at the side of a road, who is allowed to open your file?
+ArogyaKhosh is an electronic health record system with two ways to authorise
+access to a patient's documents. The ordinary one is familiar: a doctor asks,
+the patient approves or refuses. The second exists for the case most systems
+have no answer to, when the patient is unconscious and cannot approve anything.
 
-Most health record systems answer that by never asking it. They assume the
-patient is awake, at a keyboard, able to tick a box. ArogyaKhosh assumes the
-opposite case is the one that matters, and builds the consent machinery around
-a person who cannot speak for themselves.
-
-You carry a card with a QR code. A stranger scans it. They cannot see a single
-thing about you. What they can do is send a photo of what they are looking at,
-which alerts whoever you listed as your emergency contact. From that point,
-until the window closes, that contact can answer for you when a doctor asks to
-read your chart.
-
-That is the whole idea. Everything below is what it took to make it not leak.
+Every patient carries a card with a QR code. Someone who finds them can scan it
+and send a photograph of the scene. That alerts the contact the patient
+nominated in advance, and from then on, for a bounded window, that contact can
+approve a named doctor's request on the patient's behalf. The person who
+scanned the code never sees a single medical record.
 
 ## Table of contents
 
-- [What it does](#what-it-does)
-- [How the accident flow actually works](#how-the-accident-flow-actually-works)
+- [Features](#features)
+- [Quick start](#quick-start)
 - [Architecture](#architecture)
-- [The data model](#the-data-model)
-- [Choosing the model](#choosing-the-model)
-- [What the model is worth right now](#what-the-model-is-worth-right-now)
-- [Security decisions](#security-decisions)
-- [Running it](#running-it)
-- [API](#api)
+- [The emergency flow](#the-emergency-flow)
+- [Data model](#data-model)
+- [Asynchronous mail delivery](#asynchronous-mail-delivery)
+- [The accident classifier](#the-accident-classifier)
+- [Classifier status](#classifier-status)
+- [Security](#security)
+- [API reference](#api-reference)
+- [Development](#development)
 - [Project layout](#project-layout)
 - [License](#license)
 
-## What it does
+## Features
 
-For a patient:
+**Patients** store medical documents, each marked public or private, and
+approve, decline or revoke a named doctor's access at any time. They get a
+printable emergency card with a working QR code, and a record of every accident
+reported against them showing who was contacted and which doctors were admitted
+as a result.
 
-- Keep medical documents in one place, each marked public or private
-- Approve, decline and revoke a named doctor's access, any time
-- Carry a printable emergency card with a QR code on it
-- See every accident reported against them, who was told, and every doctor who
-  got in because of it
+**Doctors** look up a patient by exact username or email, request access, and
+track the status of every request they have made. They see only what they have
+been granted.
 
-For a doctor:
+**Whoever finds a patient** scans, photographs and sends. No account, no login,
+and no visibility of the patient's records.
 
-- Search for a patient by exact username or email
-- Request access, and see where every request of theirs stands
-- Read what they have been granted, and only that
+## Quick start
 
-For whoever finds you:
-
-- Scan, photograph, send. No account, no login, no sight of your records.
-
-## How the accident flow actually works
-
-The QR is static. It never changes and it encodes nothing secret, just
-`/report/<patient-id>`. That is deliberate. The person scanning it is not you,
-so anything requiring your phone, your key or your session is useless in the
-only situation the card exists for.
-
-```
-  stranger scans the card
-           |
-           v
-  POST /accidents/:id  ........  photo optional, location optional
-           |
-           |-- photo goes to object storage
-           |-- photo goes to the model, which returns a score
-           |-- a random key is generated, only its hash is stored
-           v
-  email to the emergency contact  ......  /accept/<accident-id>/<key>
-           |
-           v
-  contact opens it, sees the photo, decides
-           |
-           |-- "false alarm"     -> report dismissed, any access it opened is pulled
-           |-- "this is real"    -> report confirmed, window extended to 7 days
-           |
-           v
-  a doctor asks for the records
-           |
-           v
-  email to the contact  ......  /grant-access/<signed-token>
-           |
-           v
-  contact says yes -> the doctor is in, until the report closes
-```
-
-A few things in there are load bearing.
-
-**A photo is optional.** Someone struck by a car that drove off leaves nothing
-to photograph. The alert still goes out, marked unscored.
-
-**The model never gates anything.** If it is down, refuses the image, or is not
-configured at all, the report is still saved and the contact is still told. It
-sorts, it does not decide. A model that can block an ambulance call is a worse
-system than no model.
-
-**A report authorises before it is confirmed.** A doctor standing over an
-unconscious patient cannot wait for someone to check their inbox. So an
-unconfirmed report already diverts requests to the contact. Because that runs
-on a stranger's word alone, it gets a shorter leash: one day, the same span as
-the approval link. Confirming extends it to a week.
-
-**Every window closes.** A report carries an expiry. Access granted through it
-expires with it. The contact can dismiss or close early, and the patient has a
-"stop asking my contact" button that shuts it immediately. Expiry is evaluated
-when a request is read, never by a background sweeper, so a lapsed window can
-never be used because a job was running late.
-
-**Dismiss and close are different things.** Dismiss means the report was wrong,
-so the access it opened was never warranted and gets revoked. Close means the
-episode is over, and those doctors really did treat the patient, so their
-grants stand as history for the patient to withdraw on their own terms.
-
-## Architecture
-
-Three services, and a hard line between them.
-
-```
-  React (Vite, Tailwind)
-        |
-        |  HTTP, proxied in dev so there is no CORS to configure
-        v
-  Go + Gin  ..............  owns all state
-        |                   auth, RBAC, CRUD, object storage, mail
-        |
-        +--> PostgreSQL 18        the only source of truth
-        +--> Supabase Storage     document and photo bytes, private bucket
-        +--> SMTP                 the two emails the flow depends on
-        |
-        |  gRPC
-        v
-  Python  ................  owns no state
-                            CLIP + a linear head, and nothing else
-```
-
-The Python service has no database connection, no credentials, and no route to
-the internet. It takes image bytes and returns three numbers. That is the whole
-contract, and it is the reason a model with a dependency tree the size of
-PyTorch is not also a path into the records.
-
-Go owns everything that persists. That keeps authorisation in one language, in
-one process, behind one function.
-
-## The data model
-
-Eight tables. The interesting parts are the constraints, not the columns.
-
-| Table | What it holds |
-|---|---|
-| `users` | account, name, email, password hash, role |
-| `patients` | blood group, height, weight, emergency contact email |
-| `doctors` | hospital, qualification, position |
-| `hospitals` | name, city |
-| `patient_documents` | storage key, display name, public or private |
-| `document_requests` | a doctor asking for a patient's records |
-| `accidents` | a report, its photo, its score, its window |
-| `migrations` | applied migration ids |
-
-Every primary key is a `uuid` defaulting to Postgres 18's native `uuidv7()`.
-Version 7 keeps them time ordered, so they behave like sequential ids in an
-index while still being safe to put in a URL.
-
-Consent lives in `document_requests` and is expressed as something a database
-can check:
-
-```sql
-status = 'granted' AND (expires_at IS NULL OR expires_at > now())
-```
-
-That predicate is the whole authorisation rule. It is deliberately shaped like
-a `WHERE` clause so it can become a row level security policy later without
-rewriting the application.
-
-`document_requests.accident_id` records which report a request came in under,
-if any. That column exists because of a bug. Revocation used to match on
-timestamps, "anything granted after the accident started", which also caught
-grants the patient made themselves, from their own dashboard, for unrelated
-follow-ups. Linking the request to the accident turned a heuristic into a fact.
-
-Schema changes are versioned SQL files run by gormigrate. GORM's `AutoMigrate`
-is never used. It cannot express a partial unique index or a check constraint,
-and this schema leans on both.
-
-## Choosing the model
-
-### What the job actually is
-
-One bit: does this photograph show a road accident. Not where the cars are, not
-how many, not how badly hurt anyone is. A bystander is holding a phone in one
-hand and possibly holding someone's head still with the other. The output is a
-single number that decides whether an email sounds urgent, and a human reads
-that email either way.
-
-Getting the question that small is most of the decision. It rules out anything
-that localises, counts or describes, because none of that is asked for.
-
-### What I chose: CLIP features with a linear head
-
-Take OpenAI's CLIP vision encoder, freeze it completely, and use it only to turn
-a picture into 512 numbers. Then fit plain logistic regression on top of those
-numbers. That is it. Inference is one forward pass through CLIP, one dot
-product, one sigmoid.
-
-CLIP earns its place because of what it was trained on: hundreds of millions of
-image and text pairs scraped from the open web. Somewhere in that haul are a
-great many photographs of crashes, crumpled bonnets, emergency vehicles and
-debris on tarmac, each sitting next to a caption describing it. So the encoder
-already separates those scenes from ordinary traffic before this project starts.
-Nobody has to teach it what a wreck looks like. It only has to be asked.
-
-That leaves a genuinely easy remaining problem. Drawing one boundary through a
-512 dimensional space where the hard visual work is already done needs very
-little data and no gradient ever flowing back into CLIP itself. A few thousand
-labelled images is plenty, which matters enormously here, because a few thousand
-was realistically all I was going to get.
-
-The trained model is 513 numbers, and they are the whole thing:
-
-```json
-{
-  "clip_model": "openai/clip-vit-base-patch32",
-  "embedding_dim": 512,
-  "weights": [ ...512 floats... ],
-  "bias": 0.7905284925508785,
-  "threshold": 0.6466099724683639
-}
-```
-
-Four things that buys, in rough order of how much they mattered:
-
-- **It trains on a laptop in minutes.** No GPU, no fine tuning run, no
-  augmentation pipeline. Retraining after a data fix costs a coffee, not an
-  afternoon, and the model is going to need retraining.
-- **It cannot hide a bad dataset.** A linear head on frozen features has
-  nowhere near the capacity to memorise its way to a good score. So when the
-  metrics came back perfect, that was information rather than success. A
-  fine tuned network would have absorbed the same flaw and looked merely very
-  good, which is far harder to catch.
-- **The artifact is readable.** It is JSON. Two versions of the model diff in a
-  text editor, and the threshold is a number sitting in the file rather than
-  something baked into a binary blob.
-- **It runs on CPU and never phones home.** The container installs a CPU only
-  build of PyTorch and bakes the CLIP weights in with `HF_HUB_OFFLINE=1` set.
-  It is still a large image, around 3.7 GB, and almost all of that is PyTorch
-  rather than anything this project trained.
-
-The threshold is tuned for 95 percent recall, not best accuracy. A false
-positive here sends an email that a person then looks at and dismisses. A false
-negative means nobody is told at all. Those two costs are nowhere near equal, so
-the operating point leans hard towards catching things.
-
-### Why not the alternatives
-
-- **YOLOv8, or object detection generally.** It answers "there is a car, here",
-  and a car being present is not an accident. Bridging boxes to "this is a
-  crash" needs bounding box labels on thousands of images plus handwritten rules
-  over the boxes that are guesswork anyway.
-- **Fine tuning a ResNet or EfficientNet.** It would probably work, and it costs
-  a GPU, thousands of well balanced images and a repeatable training run, all to
-  buy a decision boundary in a feature space CLIP already hands over for free.
-- **CLIP zero shot, with text prompts and no head at all.** Tempting, since it
-  needs no training data, but the score then swings on prompt wording and there
-  is no honest way to tune an operating point for recall.
-- **A hosted vision model behind an API.** Per call cost, a third party seeing
-  photographs of injured people, and a network dependency on the one code path
-  that has to work when everything else is going wrong.
-
-## What the model is worth right now
-
-```
-true positives  740      false positives    0
-true negatives  399      false negatives    2
-ROC AUC         1.0      PR AUC           1.0
-```
-
-## Security decisions
-
-**One authorisation choke point.** Every read of a patient goes through
-`authz.PatientAccess`, which returns one of `owner`, `granted`, `public` or
-`denied`. There is no second place where this is decided, which is what makes
-it possible to reason about at all.
-
-**Login does not leak which accounts exist.** An unknown username used to
-return in nanoseconds while a real one took the full bcrypt comparison, around
-50 milliseconds. That difference is trivially measurable over a network and
-turns login into an account enumeration oracle. A dummy hash is now verified on
-the miss path so both take the same time.
-
-**Grant links are signed, not stored, and not guessable.** The first design
-under discussion was a link containing `hash(patient_id + doctor_id)`. Neither
-of those is a secret: the patient id is in the QR and in the dashboard URL, and
-a doctor obviously knows their own. Any doctor could have computed the hash and
-let themselves in without the contact ever seeing an email.
-
-What replaced it is an HMAC signed token:
-
-```
-payload = accident_uuid || request_uuid || expiry     (40 bytes, base64url)
-token   = payload + "." + HMAC-SHA256(server_key, payload)
-```
-
-The ids are carried in the clear, so the server reads exactly which request to
-act on with no lookup table and no scan. The signature is what makes it
-trustworthy, and it cannot be produced without the server key. The expiry sits
-inside the signed bytes, so editing the URL to extend it breaks the signature.
-The signing key is domain separated from the one signing sessions, so a grant
-token can never be replayed as a login.
-
-A stateless token cannot burn itself after one use, so finality lives in the
-database instead: only a `pending` request can be answered. That is what stops
-an old email from quietly undoing a patient's revocation.
-
-**The approval key is the one thing that is stored,** because there is no prior
-row to point at. Only its SHA-256 hash is kept, and the row is looked up by
-that hash rather than by the id in the URL, so a wrong key cannot be used to
-probe which accident ids exist.
-
-**Storage keys never leave the server.** Documents are addressed by a generated
-key, and the client only ever receives short lived signed URLs. The uploader's
-filename is discarded.
-
-**The bucket is private and the service key is server side only.** The Supabase
-`service_role` key bypasses that project's own row level security. It lives in
-`.env` and must never reach a browser.
-
-**Row level security is not enabled yet,** and the design is shaped so it can be
-added without a rewrite. That means: one choke point, consent expressed as a
-predicate, expiry evaluated at read time, and separate migrator and application
-database roles. The last of those is still outstanding.
-
-## Running it
-
-You need Docker and Docker Compose. Nothing else.
+Requires Docker and Docker Compose. Nothing else.
 
 ```bash
 git clone https://github.com/sathwikshetty33/ArogyaKhosh.git
@@ -347,15 +60,11 @@ cd ArogyaKhosh
 cp .env.example .env
 ```
 
-Open `.env` and set at minimum:
+Set at minimum `JWT_SECRET` in `.env`:
 
-| Variable | Why |
-|---|---|
-| `JWT_SECRET` | Required. 32 bytes or more. `openssl rand -base64 48` |
-| `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` | Document storage. Without these, uploads are disabled but everything else runs |
-| `SMTP_*` | The accident flow is email. Without these, mail is discarded silently |
-| `APP_BASE_URL` | What emailed links point at. Must be reachable by the recipient |
-| `AI_SERVICE_ADDR` | Read inside the backend container, so it is `ai:50051`, not localhost. Leave empty to run without scoring |
+```bash
+openssl rand -base64 48
+```
 
 Then:
 
@@ -363,25 +72,373 @@ Then:
 docker compose up --build
 ```
 
-| Service | Where |
+| Service | Address |
 |---|---|
 | Frontend | http://localhost:3000 |
 | API | http://localhost:8080 |
-| Model service | localhost:50051 (gRPC) |
+| RabbitMQ management UI | http://localhost:15673 |
 | Postgres | localhost:5433 |
+| Model service | localhost:50051 (gRPC) |
 
-Postgres is published on 5433 rather than 5432 so it does not collide with a
-Postgres already running on the host.
+Postgres and RabbitMQ are published on 5433 and 5673 rather than their usual
+ports, so they do not collide with instances already running on the host.
 
-`GET /readyz` reports what actually came up:
+Migrations run automatically at startup. `GET /readyz` reports which
+dependencies came up:
 
 ```json
-{"status":"ready","database":"up","storage":"configured","mail":"configured","model":"configured"}
+{
+  "status": "ready",
+  "database": "up",
+  "storage": "configured",
+  "mail": "configured",
+  "model": "configured",
+  "queue": "up"
+}
 ```
 
-Migrations run automatically at startup.
+### Optional configuration
 
-### Working on it without Docker
+Each of these degrades gracefully rather than preventing startup.
+
+| Variable | Effect when unset |
+|---|---|
+| `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` | Document upload is disabled; everything else runs |
+| `SMTP_HOST`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM` | Mail is discarded instead of sent |
+| `RABBITMQ_URL` | Mail is sent inline on the request, slower and with no retries |
+| `AI_SERVICE_ADDR` | Accident photos are stored but not scored |
+| `APP_BASE_URL` | Emailed links default to `http://localhost:3000` |
+
+`AI_SERVICE_ADDR` and `RABBITMQ_URL` are read from inside the backend
+container, so they use compose service names such as `ai:50051` and
+`rabbitmq:5672`, not localhost.
+
+## Architecture
+
+<p align="center">
+  <img src="assets/architecture.png" alt="System architecture" width="860">
+</p>
+
+The Go API owns all state and every authorisation decision. It is the only
+service that talks to Postgres, to object storage, or to the mail queue.
+
+The Python service owns no state. It has no database connection, no
+credentials, and no route to the internet. It receives image bytes over gRPC
+and returns three numbers. Machine learning brings a large dependency tree, and
+isolating it this way means a flaw anywhere in that tree still cannot reach a
+medical record.
+
+Outbound mail goes through RabbitMQ to a pool of Go workers, so no user request
+ever waits on an SMTP handshake.
+
+| Component | Technology |
+|---|---|
+| API | Go 1.26, Gin, GORM with versioned SQL migrations |
+| Database | PostgreSQL 18, native `uuidv7()` primary keys |
+| Object storage | Supabase Storage, private bucket, signed URLs only |
+| Queue | RabbitMQ with a dead letter queue and tiered retries |
+| Model service | Python, gRPC, CLIP with a linear probe |
+| Frontend | React 19, Vite, Tailwind, React Router |
+
+## The emergency flow
+
+The QR code is static and encodes nothing secret, only `/report/<patient-id>`.
+It has to be static, because the person scanning it is not the patient, so
+anything requiring the patient's phone or password is useless in the only
+situation the card exists for.
+
+```
+1.  A stranger scans the card and lands on a public page.
+    They see no name, no records, nothing about the patient.
+
+2.  They send a photo.
+    The photo is stored and scored, an accident record is created, and an
+    alert is queued for the patient's emergency contact.
+
+3.  The contact opens the emailed link: /accept/<accident-id>/<key>
+    They see the photo and what the classifier made of it, and choose.
+
+      False alarm  ->  report dismissed, any access it opened is revoked
+      Confirmed    ->  window extended to seven days
+
+4.  A doctor requests the patient's records.
+    Because a live report exists, the request is routed to the contact:
+    /grant-access/<signed-token>
+
+5.  The contact approves, and that one named doctor gains access until the
+    report closes.
+
+6.  The patient recovers and sees every report on their dashboard, including
+    who was contacted and which doctors were admitted. One button closes the
+    window.
+```
+
+Three rules keep this bounded:
+
+**The classifier never gates anything.** If it is unavailable, rejects the
+image, or is not configured, the report is still recorded and the contact is
+still alerted, marked unscored. A model able to block an emergency alert would
+be worse than no model.
+
+**Every window closes.** An unconfirmed report authorises for 24 hours, because
+it rests on a stranger's word alone. Confirming extends it to seven days.
+Dismissal, closure, or the patient's own button ends it immediately.
+
+**Dismissal and closure differ.** Dismissal means the report was mistaken, so
+access it opened is revoked. Closure means the episode is over, and those
+doctors did treat the patient, so their grants remain as history for the
+patient to withdraw individually.
+
+## Data model
+
+```
+users ──┬── patients ──┬── patient_documents
+        │              ├── document_requests
+        │              └── accidents
+        └── doctors ───── hospitals
+```
+
+Primary keys are UUIDv7, which is time ordered, so identifiers behave like
+sequential integers in an index while remaining safe to expose in a URL.
+
+Access is resolved by a single function, `authz.PatientAccess`, which returns
+one of four levels:
+
+| Level | Who | Sees |
+|---|---|---|
+| `owner` | the patient | everything, plus who holds access |
+| `granted` | a doctor with live consent | everything |
+| `public` | any authenticated doctor | documents marked public only |
+| `denied` | everyone else | 403 |
+
+Consent reduces to one predicate:
+
+```sql
+status = 'granted' AND (expires_at IS NULL OR expires_at > now())
+```
+
+Two properties follow. Revocation takes effect on the doctor's next request,
+because access is recomputed per request rather than cached in a session. And
+expiry needs no background job, so there is no window in which a lapsed grant
+still works because a sweeper is behind.
+
+`document_requests.accident_id` records which report a request arrived under.
+Dismissing a report revokes exactly the grants it opened, and leaves alone any
+the patient made themselves.
+
+Schema changes are versioned SQL files applied by gormigrate. `AutoMigrate` is
+not used, as it cannot express the partial unique indexes and check constraints
+this schema relies on.
+
+## Asynchronous mail delivery
+
+The emergency flow depends on two emails, and an SMTP handshake takes roughly
+four seconds. Sending inline meant a bystander on mobile data waited five to
+seven seconds for a response, and a failed send was logged and then forgotten,
+so the contact was never alerted and nobody found out.
+
+Mail is now published to RabbitMQ and delivered by a pool of Go workers.
+
+```
+arogya.mail ──"send"──► mail.outbound        priority queue, 4 workers
+                          │
+                          │ rejected
+                          ▼
+arogya.mail.dlx ──► mail.retry.1m   ttl 60s     ─┐
+                    mail.retry.5m   ttl 300s    ─┼─► dead letters back
+                    mail.retry.25m  ttl 1500s   ─┘   to arogya.mail
+                    mail.dead       terminal
+```
+
+The retry queues have no consumers. A message waits out its TTL and is dead
+lettered back onto the main exchange, which is how AMQP performs delayed
+redelivery without the delayed message plugin. After the ladder is exhausted a
+message is parked in `mail.dead` for inspection.
+
+Each worker holds its own AMQP channel, since `amqp.Channel` is not safe for
+concurrent use, with a prefetch of one so the broker hands work to whichever
+worker is free. Publishing waits for a broker confirmation.
+
+| | Inline | Queued |
+|---|---|---|
+| Accident report | 5.1 to 7.7 s | 1.0 s |
+| Doctor request during an open accident | 3.93 s | ~40 ms |
+| Retry on failure | none | 1m, 5m, 25m, then DLQ |
+
+Because a publish happens after the database commit, a process that dies in
+between would leave an accident nobody was alerted about. `alert_queued_at`
+distinguishes "the broker has it" from "it was delivered", and a periodic sweep
+republishes any report that never reached the queue. It mints a fresh approval
+key when it does, since only the hash of the original is stored.
+
+## The accident classifier
+
+The task is a single bit: does this photograph show a road accident. Not where
+the vehicles are, not how many, not how badly anyone is hurt. The output is one
+number that decides how urgent an email sounds, and a person reads that email
+regardless.
+
+### The approach
+
+CLIP's vision encoder is frozen and used only to turn an image into 512
+numbers. Logistic regression sits on top. Inference is one forward pass, one
+dot product, one sigmoid.
+
+CLIP was trained on hundreds of millions of image and caption pairs from the
+open web, which include a great many photographs of crashes, crumpled bodywork,
+emergency vehicles and debris. The encoder therefore separates those scenes
+from ordinary traffic before this project begins, and nothing has to teach it
+what a wreck looks like.
+
+What remains is drawing one boundary through a space where the visual work is
+already done. That needs very little training data, which mattered, because
+only a few thousand labelled images were available.
+
+The trained model is 513 numbers:
+
+```json
+{
+  "clip_model": "openai/clip-vit-base-patch32",
+  "embedding_dim": 512,
+  "weights": [ "...512 floats..." ],
+  "bias": 0.7905284925508785,
+  "threshold": 0.6466099724683639
+}
+```
+
+This buys four things:
+
+- **Training takes minutes on a laptop.** No GPU, no fine tuning, no
+  augmentation pipeline.
+- **It cannot disguise a bad dataset.** A linear head on frozen features lacks
+  the capacity to memorise its way to a good score, so implausible metrics are
+  information rather than success.
+- **The artifact is readable.** Two versions of the model can be compared in a
+  text editor, and the threshold is a value in a file.
+- **It runs on CPU with no network access.** The container installs a CPU only
+  build of PyTorch and bakes the CLIP weights in with `HF_HUB_OFFLINE=1`. The
+  image is large, around 3.7 GB, almost all of which is PyTorch.
+
+The threshold targets 95 percent recall rather than best accuracy. A false
+positive sends an email that a person dismisses; a false negative means nobody
+is alerted. Those costs are not equal.
+
+### Alternatives considered
+
+- **YOLOv8, or object detection generally.** Reports that a car is present and
+  where it is, which is not the same as an accident. Bridging boxes to a crash
+  verdict needs bounding box annotations and handwritten rules over the output.
+- **Fine tuning a ResNet or EfficientNet.** Workable, but requires a GPU,
+  thousands of balanced images and a repeatable training run, to obtain a
+  decision boundary in a feature space CLIP already provides.
+- **CLIP zero shot with text prompts.** Needs no training data, but the score
+  varies with prompt wording and there is no principled way to tune an
+  operating point for recall.
+- **A hosted vision API.** Per call cost, a third party receiving photographs
+  of injured people, and a network dependency on the one path that must work
+  when everything else is failing.
+
+## Classifier status
+
+```
+true positives  740      false positives    0
+true negatives  399      false negatives    2
+ROC AUC         1.0      PR AUC           1.0
+```
+
+## Security
+
+**A single authorisation choke point.** Every read of a patient resolves
+through `authz.PatientAccess`. There is no second place where this is decided.
+
+**Login does not reveal which accounts exist.** An unknown username would
+otherwise return in nanoseconds while a real one took a full bcrypt comparison,
+around 50 milliseconds, which is measurable over a network. A dummy hash is
+verified on the miss path so both take the same time.
+
+**Grant links are signed rather than stored or guessed.** A link containing
+`hash(patient_id + doctor_id)` would be forgeable, because neither value is
+secret: the patient id appears in the QR code and in dashboard URLs, and a
+doctor knows their own. Any doctor could compute it and admit themselves
+without the contact ever seeing an email. Instead:
+
+```
+payload = accident_id || request_id || expiry        40 bytes
+token   = payload + "." + HMAC-SHA256(server_key, payload)
+```
+
+The identifiers travel in the clear, so the server knows exactly which request
+to act on without a lookup table. The signature cannot be produced without the
+server key, and the expiry is inside the signed bytes, so editing the URL
+invalidates it. The signing key is domain separated from the session key, so a
+grant token cannot be replayed as a login. Finality lives in the database:
+only a pending request can be answered, which prevents an old email from
+undoing a revocation.
+
+**The approval key is stored only as a SHA-256 hash,** and the accident row is
+looked up by that hash rather than by the identifier in the URL, so an invalid
+key cannot be used to discover which accident identifiers exist.
+
+**Storage keys never leave the server.** Documents are addressed by a generated
+key and delivered as short lived signed URLs. Uploaded filenames are discarded.
+
+**The storage bucket is private and its service key is server side only.** That
+key bypasses Supabase's own row level security and must never reach a browser.
+
+## API reference
+
+All routes are under `/api/v1`.
+
+Public, reached from a QR code or an email link:
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/accidents/:id` | Report an accident; photo and location optional |
+| `GET` | `/accidents/:id/approval/:key` | The report an emergency contact is deciding on |
+| `POST` | `/accidents/:id/approval/:key` | `confirm`, `dismiss` or `resolve` |
+| `GET` | `/grants/:token` | Which doctor is requesting access |
+| `POST` | `/grants/:token` | `grant` or `deny` |
+
+Authentication:
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/auth/register/patient` | Role is fixed by the endpoint, never read from the body |
+| `POST` | `/auth/register/doctor` | As above |
+| `POST` | `/auth/login` | Username or email, plus password |
+| `GET` | `/me` | The current session's user and profile |
+
+Patients:
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/patients/:id` | The record, filtered by access level |
+| `PATCH` | `/patients/:id` | Update vitals and emergency contact |
+| `GET` | `/patients/:id/requests` | Access requests received; owner only |
+| `GET` | `/patients/:id/accidents` | Reports and resulting access; owner only |
+| `POST` | `/patients/:id/documents` | Upload a document |
+| `POST` | `/patients/:id/requests` | A doctor requesting access |
+| `GET` | `/patients/search` | Exact username or email |
+| `POST` | `/accidents/:id/close` | Close an open report; owner only |
+
+Documents and requests:
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/documents/:id/url` | A short lived signed download URL |
+| `PATCH` | `/documents/:id` | Rename, or change visibility |
+| `DELETE` | `/documents/:id` | Delete |
+| `POST` | `/requests/:id/approve` | Optional `expires_in_hours` |
+| `POST` | `/requests/:id/decline` | Decline |
+| `POST` | `/requests/:id/revoke` | Effective on the doctor's next request |
+
+Patient search matches an exact username or email only. It is deliberately not
+fuzzy: a doctor able to search on fragments would effectively hold a patient
+directory.
+
+## Development
+
+Running the services individually:
 
 ```bash
 # API
@@ -394,96 +451,42 @@ cd services/ai && uv sync && uv run python server.py
 cd services/frontend && npm install && npm run dev
 ```
 
-The Vite dev server proxies `/api` to the backend, which is why there is no
-CORS configuration to get wrong in development.
+The Vite dev server proxies `/api` to the backend, so there is no CORS
+configuration in development.
 
-### Regenerating the gRPC stubs
+Regenerating the gRPC stubs for both languages from
+`proto/ai_service.proto`:
 
 ```bash
 make proto
 ```
 
-This generates both the Go client and the Python server from
-`proto/ai_service.proto`. `grpc_tools` bundles its own protoc, so no system
-protoc is needed.
-
-## API
-
-Everything is under `/api/v1`.
-
-Public, no authentication, reached from a QR code or an email link:
-
-| Method | Path | Purpose |
-|---|---|---|
-| `POST` | `/accidents/:id` | Report an accident. Photo and location optional |
-| `GET` | `/accidents/:id/approval/:key` | What the emergency contact is deciding about |
-| `POST` | `/accidents/:id/approval/:key` | `confirm`, `dismiss` or `resolve` |
-| `GET` | `/grants/:token` | Which doctor is asking |
-| `POST` | `/grants/:token` | `grant` or `deny` |
-
-Authentication:
-
-| Method | Path | Purpose |
-|---|---|---|
-| `POST` | `/auth/register/patient` | Role is fixed by the endpoint, never read from the body |
-| `POST` | `/auth/register/doctor` | Same |
-| `POST` | `/auth/login` | Username or email, plus password |
-| `GET` | `/me` | The current session's user and profile |
-
-Patients:
-
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/patients/:id` | The record, filtered by access level |
-| `PATCH` | `/patients/:id` | Update vitals and emergency contact |
-| `GET` | `/patients/:id/requests` | Who has asked. Owner only |
-| `GET` | `/patients/:id/accidents` | Reports, and who got in. Owner only |
-| `POST` | `/patients/:id/documents` | Upload |
-| `POST` | `/patients/:id/requests` | A doctor asking for access |
-| `GET` | `/patients/search` | Exact username or email |
-| `POST` | `/accidents/:id/close` | Stop diverting to the contact. Owner only |
-
-Documents and requests:
-
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/documents/:id/url` | A short lived signed download URL |
-| `PATCH` | `/documents/:id` | Rename, or flip public and private |
-| `DELETE` | `/documents/:id` | Delete |
-| `POST` | `/requests/:id/approve` | Optional `expires_in_hours` |
-| `POST` | `/requests/:id/decline` | Decline |
-| `POST` | `/requests/:id/revoke` | Takes effect on the doctor's next read |
-
-Patient search matches an exact username or email and nothing else. It is not
-fuzzy, and that is the point. A doctor who can type a fragment and browse
-results has a patient directory, which is not a thing this system hands out.
+`grpc_tools` bundles its own protoc, so no system protoc is required.
 
 ## Project layout
 
 ```
-proto/                     the gRPC contract, one service, two messages
+proto/                     the gRPC contract
+assets/                    logo and architecture diagram
 services/
   backend/                 Go, Gin, GORM
     internal/
       authz/               the single authorisation choke point
       auth/                JWT, bcrypt, approval keys, grant tokens
-      mailer/              SMTP with header injection guards, STARTTLS required
+      mailer/              SMTP with header injection guards
+      mailq/               RabbitMQ publisher, consumer and topology
       storage/             object storage behind an interface
       aiclient/            gRPC client for the model service
       models/              GORM models
-      db/migrations/       versioned SQL, run by gormigrate
+      db/migrations/       versioned SQL applied by gormigrate
     server/                HTTP handlers, one file per area
-  ai/                      Python, gRPC, stateless
-    models/                the classifier ABC and the CLIP probe
-    artifacts/             the trained head, 513 numbers of JSON
+  ai/                      Python gRPC service, stateless
+    models/                classifier interface and the CLIP probe
+    artifacts/             the trained head
   ml/notebooks/            the training notebook
-  frontend/                React, Vite, Tailwind, React Router
+  frontend/                React, Vite, Tailwind
 ```
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-MIT rather than a copyleft licence because this is a project meant to be read,
-copied from and argued with. Anything that makes a reader check with a lawyer
-before borrowing an idea defeats that.
