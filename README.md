@@ -301,8 +301,7 @@ this schema relies on.
 
 The emergency flow depends on two emails, and an SMTP handshake takes roughly
 four seconds. Sending inline meant a bystander on mobile data waited five to
-seven seconds for a response, and a failed send was logged and then forgotten,
-so the contact was never alerted and nobody found out.
+seven seconds for a response, and a send that failed had no second attempt.
 
 Mail is now published to RabbitMQ and delivered by a pool of Go workers.
 
@@ -407,11 +406,28 @@ is alerted. Those costs are not equal.
 
 ## Classifier status
 
-```
-true positives  740      false positives    0
-true negatives  399      false negatives    2
-ROC AUC         1.0      PR AUC           1.0
-```
+Performance on the held out split of the training dataset.
+
+| Metric | Value |
+|---|---|
+| Test images | 1,141 |
+| True positives | 740 |
+| False positives | 0 |
+| True negatives | 399 |
+| False negatives | 2 |
+| Precision | 1.0000 |
+| Recall | 0.9973 |
+| Specificity | 1.0000 |
+| Accuracy | 0.9982 |
+| F1 | 0.9987 |
+| ROC AUC | 1.0000 |
+| PR AUC | 1.0000 |
+| Operating threshold | 0.6466 |
+| Target recall | 0.95 |
+| Training images | 11,182 |
+
+These figures describe the classifier against that dataset. Performance on
+photographs from other sources has not been measured.
 
 ## Security
 
@@ -451,6 +467,11 @@ key and delivered as short lived signed URLs. Uploaded filenames are discarded.
 
 **The storage bucket is private and its service key is server side only.** That
 key bypasses Supabase's own row level security and must never reach a browser.
+
+**Row level security is designed for rather than assumed.** The pieces it needs
+are already in place: one choke point, consent expressed as a predicate, and
+expiry evaluated at read time, so it can be adopted without reworking the
+application.
 
 ## API reference
 
