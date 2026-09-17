@@ -56,5 +56,4 @@ provision:
 	@bash tools/provision.sh
 
 creds:
-	@test -f tools/creds.json || { echo "no tools/creds.json yet; run 'make provision'" >&2; exit 1; }
-	@jq -r '"app       \(.urls.app)\npassword  \(.password)\n\npatient   \(.patient.username)  \(.patient.email)\nrecord    \(.urls.record)\n", (.doctors[] | "doctor    \(.username)  \(.access)  \(.note)")' tools/creds.json
+	@bash tools/provision.sh --show

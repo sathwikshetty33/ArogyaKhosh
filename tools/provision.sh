@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT="$ROOT/tools/creds.json"
+SPEC="$ROOT/tools/creds.json"
 cd "$ROOT"
 
 from_env() {
@@ -24,7 +24,7 @@ RABBITMQ_PASSWORD=$(from_env RABBITMQ_PASSWORD arogya)
 
 API="${API:-http://localhost:$BACKEND_PORT}"
 APP="${APP:-http://localhost:$FRONTEND_PORT}"
-PASSWORD="${DEMO_PASSWORD:-arogya-demo-2026}"
+PASSWORD="${DEMO_PASSWORD:-$(jq -r .password "$ROOT/tools/creds.json")}"
 
 COMPOSE="docker compose"
 PSQL="$COMPOSE exec -T postgres psql -U $POSTGRES_USER -d $POSTGRES_DB"
@@ -69,9 +69,13 @@ wait_for_api() {
   exit 1
 }
 
+spec() { jq -r "$1" "$SPEC"; }
+
 reset_demo_accounts() {
   say "removing any previous demo accounts"
-  $PSQL -qc "DELETE FROM users WHERE username IN ('sathwik','anitarao','vikrammenon','drtest');" >/dev/null
+  local names
+  names=$(spec '[.patient.username] + [.doctors[].username] | map("'"'"'" + . + "'"'"'") | join(",")')
+  $PSQL -qc "DELETE FROM users WHERE username IN ($names);" >/dev/null
 }
 
 ensure_hospital() {
@@ -83,40 +87,30 @@ ensure_hospital() {
 }
 
 register_patient() {
-  api POST /api/v1/auth/register/patient "$(jq -nc \
-    --arg p "$PASSWORD" '{
-      username: "sathwik",
-      full_name: "Sathwik Shetty",
-      email: "sathwik@example.com",
-      password: $p,
-      blood_group: "O+",
-      height_cm: 175.5,
-      weight_kg: 70.2,
-      emergency_contact_email: "amma@example.com"
-    }')"
+  api POST /api/v1/auth/register/patient \
+    "$(jq -c --arg p "$PASSWORD" '.patient + {password: $p}' "$SPEC")"
 }
 
 upload_documents() {
-  local patient_id=$1 token=$2 tmp results
+  local patient_id=$1 token=$2 tmp count
   tmp=$(mktemp -d)
-  results="[]"
+  count=$(spec '.documents | length')
 
-  upload_one() {
-    local name=$1 visibility=$2 body=$3 file="$tmp/$1.txt"
+  for i in $(seq 0 $((count - 1))); do
+    local name visibility body file
+    name=$(spec ".documents[$i].name")
+    visibility=$(spec ".documents[$i].visibility")
+    body=$(spec ".documents[$i].body")
+    file="$tmp/doc$i.txt"
     printf '%s\n' "$body" > "$file"
+
     curl -s -X POST "$API/api/v1/patients/$patient_id/documents" \
       -H "Authorization: Bearer $token" \
-      -F "file=@$file" -F "name=$name" -F "visibility=$visibility"
-  }
-
-  results=$(jq -nc \
-    --argjson a "$(upload_one 'Vaccination card' public 'ArogyaKhosh demo. Immunisation history. Not a real medical record.')" \
-    --argjson b "$(upload_one 'Cardiology report 2026' private 'ArogyaKhosh demo. ECG and echo summary. Not a real medical record.')" \
-    --argjson c "$(upload_one 'Discharge summary' private 'ArogyaKhosh demo. Admission and discharge notes. Not a real medical record.')" \
-    '[$a, $b, $c] | map(select(type == "object"))')
+      -F "file=@$file" -F "name=$name" -F "visibility=$visibility" >/dev/null
+  done
 
   rm -rf "$tmp"
-  printf '%s' "$results"
+  say "uploaded $count documents"
 }
 
 register_doctor() {
@@ -158,27 +152,46 @@ $bar
     emergency page   $APP/report/$patient_id
 
   DOCTORS
-    anitarao         granted     sees every document, expires in 48 hours
-    vikrammenon      pending     waiting on the patient to approve
-    drtest           declined    sees public documents only
+$(jq -r '.doctors[] | "    \(.username | . + (" " * (17 - length)))\(.access | . + (" " * (12 - length)))\(.note)"' "$SPEC")
 
 $bar
   Sign in at $APP as sathwik / $PASSWORD
-  Full details in tools/creds.json
+  Accounts are defined in tools/creds.json
 $bar
 
 BANNER
 }
 
+show_only() {
+  local token patient_id
+  token=$(api POST /api/v1/auth/login \
+    "$(jq -c --arg p "$PASSWORD" '{identifier: .patient.username, password: $p}' "$SPEC")" | jq -r '.token')
+
+  if [ "$token" = "null" ] || [ -z "$token" ]; then
+    echo "cannot reach $API or the demo accounts do not exist yet; run 'make provision'" >&2
+    exit 1
+  fi
+
+  patient_id=$(api GET /api/v1/me "" "$token" | jq -r '.patient.id')
+  summary "$patient_id"
+}
+
 main() {
+  if [ "${1:-}" = "--show" ]; then
+    show_only
+    return
+  fi
+
   start_services
   wait_for_api
   reset_demo_accounts
 
   say "creating hospitals"
-  local apollo manipal
-  apollo=$(ensure_hospital "Apollo Bengaluru" "Bengaluru")
-  manipal=$(ensure_hospital "Manipal Hospital" "Bengaluru")
+  local hospital_count
+  hospital_count=$(spec '.hospitals | length')
+  for i in $(seq 0 $((hospital_count - 1))); do
+    ensure_hospital "$(spec ".hospitals[$i].name")" "$(spec ".hospitals[$i].city")" >/dev/null
+  done
 
   say "creating the patient"
   local patient_json patient_token patient_id
@@ -188,61 +201,41 @@ main() {
   [ "$patient_token" != "null" ] || { echo "patient registration failed: $patient_json" >&2; exit 1; }
 
   say "creating doctors"
-  local anita_json vikram_json drtest_json
-  anita_json=$(register_doctor anitarao "Dr Anita Rao" anita.rao@example.com "$apollo" "MBBS, MD (Cardiology)" "Consultant")
-  vikram_json=$(register_doctor vikrammenon "Dr Vikram Menon" vikram.menon@example.com "$apollo" "MBBS, MS (Ortho)" "Registrar")
-  drtest_json=$(register_doctor drtest "Dr Test Decline" dtest@example.com "$apollo" "MBBS" "")
+  local doctor_count
+  doctor_count=$(spec '.doctors | length')
 
-  local anita_token vikram_token drtest_token
-  anita_token=$(jq -r '.token' <<<"$anita_json")
-  vikram_token=$(jq -r '.token' <<<"$vikram_json")
-  drtest_token=$(jq -r '.token' <<<"$drtest_json")
+  for i in $(seq 0 $((doctor_count - 1))); do
+    local username hospital_name hospital_id doctor_json token access request_id
+    username=$(spec ".doctors[$i].username")
+    hospital_name=$(spec ".doctors[$i].hospital")
+    hospital_id=$(ensure_hospital "$hospital_name" "$(spec ".hospitals[] | select(.name == \"$hospital_name\") | .city")")
 
-  say "putting each doctor at a different point of the access flow"
-  local anita_request drtest_request
-  anita_request=$(api POST "/api/v1/patients/$patient_id/requests" "" "$anita_token" | jq -r '.id')
-  api POST "/api/v1/patients/$patient_id/requests" "" "$vikram_token" >/dev/null
-  drtest_request=$(api POST "/api/v1/patients/$patient_id/requests" "" "$drtest_token" | jq -r '.id')
+    doctor_json=$(api POST /api/v1/auth/register/doctor \
+      "$(jq -c --arg p "$PASSWORD" --arg h "$hospital_id" --argjson i "$i" \
+         '.doctors[$i] | {username, full_name, email, qualification, position} + {password: $p, hospital_id: $h}' "$SPEC")")
 
-  api POST "/api/v1/requests/$anita_request/approve" '{"expires_in_hours":48}' "$patient_token" >/dev/null
-  api POST "/api/v1/requests/$drtest_request/decline" "" "$patient_token" >/dev/null
+    token=$(jq -r '.token' <<<"$doctor_json")
+    [ "$token" != "null" ] || { echo "registering $username failed: $doctor_json" >&2; exit 1; }
+
+    access=$(spec ".doctors[$i].access")
+    request_id=$(api POST "/api/v1/patients/$patient_id/requests" "" "$token" | jq -r '.id')
+
+    case "$access" in
+      granted)
+        local hours
+        hours=$(spec ".doctors[$i].expires_in_hours // 48")
+        api POST "/api/v1/requests/$request_id/approve" "{\"expires_in_hours\":$hours}" "$patient_token" >/dev/null
+        ;;
+      declined)
+        api POST "/api/v1/requests/$request_id/decline" "" "$patient_token" >/dev/null
+        ;;
+    esac
+
+    say "  $username -> $access"
+  done
 
   say "uploading documents"
-  local docs
-  docs=$(upload_documents "$patient_id" "$patient_token")
-
-  jq -n \
-    --arg password "$PASSWORD" --arg app "$APP" --arg api "$API" \
-    --arg patient_id "$patient_id" \
-    --arg apollo "$apollo" --arg manipal "$manipal" \
-    --argjson docs "${docs:-[]}" '
-    {
-      note: "Local demo accounts created by tools/provision.sh. Regenerate with: make provision",
-      password: $password,
-      urls: {
-        app: $app,
-        api: $api,
-        record: "\($app)/patients/\($patient_id)",
-        access: "\($app)/patients/\($patient_id)/access",
-        emergency_report: "\($app)/report/\($patient_id)"
-      },
-      patient: {
-        username: "sathwik",
-        email: "sathwik@example.com",
-        id: $patient_id,
-        blood_group: "O+",
-        height_cm: 175.5,
-        weight_kg: 70.2,
-        emergency_contact: "amma@example.com"
-      },
-      doctors: [
-        { username: "anitarao",    email: "anita.rao@example.com",    hospital: "Apollo Bengaluru", access: "granted",  note: "sees every document, expires in 48 hours" },
-        { username: "vikrammenon", email: "vikram.menon@example.com", hospital: "Apollo Bengaluru", access: "pending",  note: "waiting on the patient to approve" },
-        { username: "drtest",      email: "dtest@example.com",        hospital: "Apollo Bengaluru", access: "declined", note: "sees public documents only" }
-      ],
-      hospitals: { "Apollo Bengaluru": $apollo, "Manipal Hospital": $manipal },
-      documents: $docs
-    }' > "$OUT"
+  upload_documents "$patient_id" "$patient_token"
 
   summary "$patient_id"
 }

@@ -1,73 +1,55 @@
 {
-  "note": "Local demo accounts created by tools/provision.sh. Regenerate with: make provision",
+  "note": "Definition of the local demo. tools/provision.sh reads this file and builds exactly what it describes. Identifiers are assigned by the database and are printed at the end of a provision run, not stored here.",
   "password": "arogya-demo-2026",
-  "urls": {
-    "app": "http://localhost:3000",
-    "api": "http://localhost:8080",
-    "record": "http://localhost:3000/patients/01a0ae39-85a6-7319-97cc-8835f1a8ab8a",
-    "access": "http://localhost:3000/patients/01a0ae39-85a6-7319-97cc-8835f1a8ab8a/access",
-    "emergency_report": "http://localhost:3000/report/01a0ae39-85a6-7319-97cc-8835f1a8ab8a"
-  },
+  "hospitals": [
+    { "name": "Apollo Bengaluru", "city": "Bengaluru" },
+    { "name": "Manipal Hospital", "city": "Bengaluru" }
+  ],
   "patient": {
     "username": "sathwik",
+    "full_name": "Sathwik Shetty",
     "email": "sathwik@example.com",
-    "id": "01a0ae39-85a6-7319-97cc-8835f1a8ab8a",
     "blood_group": "O+",
     "height_cm": 175.5,
     "weight_kg": 70.2,
-    "emergency_contact": "amma@example.com"
+    "emergency_contact_email": "amma@example.com"
   },
   "doctors": [
     {
       "username": "anitarao",
+      "full_name": "Dr Anita Rao",
       "email": "anita.rao@example.com",
       "hospital": "Apollo Bengaluru",
+      "qualification": "MBBS, MD (Cardiology)",
+      "position": "Consultant",
       "access": "granted",
-      "note": "sees every document, expires in 48 hours"
+      "expires_in_hours": 48,
+      "note": "sees every document"
     },
     {
       "username": "vikrammenon",
+      "full_name": "Dr Vikram Menon",
       "email": "vikram.menon@example.com",
       "hospital": "Apollo Bengaluru",
+      "qualification": "MBBS, MS (Ortho)",
+      "position": "Registrar",
       "access": "pending",
       "note": "waiting on the patient to approve"
     },
     {
       "username": "drtest",
+      "full_name": "Dr Test Decline",
       "email": "dtest@example.com",
       "hospital": "Apollo Bengaluru",
+      "qualification": "MBBS",
+      "position": "",
       "access": "declined",
       "note": "sees public documents only"
     }
   ],
-  "hospitals": {
-    "Apollo Bengaluru": "01a0a3a5-8cc0-71f9-9e10-d299c309d894",
-    "Manipal Hospital": "01a0a3e3-82f9-735b-bfea-223c13dfd301"
-  },
   "documents": [
-    {
-      "id": "01a0ae39-88d8-776a-94a8-415717ad85da",
-      "name": "Vaccination card",
-      "visibility": "public",
-      "content_type": "text/plain",
-      "size_bytes": 67,
-      "created_at": "2026-09-17T07:16:41.303242913Z"
-    },
-    {
-      "id": "01a0ae39-899d-7c19-a4f9-34e1babd8a73",
-      "name": "Cardiology report 2026",
-      "visibility": "private",
-      "content_type": "text/plain",
-      "size_bytes": 67,
-      "created_at": "2026-09-17T07:16:41.500897563Z"
-    },
-    {
-      "id": "01a0ae39-8a51-7974-9182-d670d078c6f7",
-      "name": "Discharge summary",
-      "visibility": "private",
-      "content_type": "text/plain",
-      "size_bytes": 76,
-      "created_at": "2026-09-17T07:16:41.681375448Z"
-    }
+    { "name": "Vaccination card", "visibility": "public", "body": "ArogyaKhosh demo. Immunisation history. Not a real medical record." },
+    { "name": "Cardiology report 2026", "visibility": "private", "body": "ArogyaKhosh demo. ECG and echo summary. Not a real medical record." },
+    { "name": "Discharge summary", "visibility": "private", "body": "ArogyaKhosh demo. Admission and discharge notes. Not a real medical record." }
   ]
 }

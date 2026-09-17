@@ -125,12 +125,15 @@ they carry real password hashes and have passed the same validation as any
 signup. The script is re-runnable: it removes the four demo usernames first, so
 a second run replaces the previous state instead of colliding with it.
 
-Details are written to `tools/creds.json`, including the generated identifiers,
-which change on every run.
+`tools/creds.json` defines the demo rather than recording it. The script reads
+that file and builds exactly what it describes, so editing it changes what gets
+provisioned. Identifiers are assigned by the database and printed at the end of
+a run, which is why they are not stored in the file and why running the script
+never leaves the repository dirty.
 
 ```bash
 make provision              # start everything and seed the demo
-make creds                  # print the accounts again
+make creds                  # print the accounts and URLs again
 SKIP_COMPOSE=1 make provision   # reseed without touching compose
 ```
 
