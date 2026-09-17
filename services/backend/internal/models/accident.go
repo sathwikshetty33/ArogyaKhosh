@@ -36,6 +36,7 @@ type Accident struct {
 	Latitude   *float64 `gorm:"type:numeric(9,6)" json:"latitude,omitempty"`
 	Longitude  *float64 `gorm:"type:numeric(9,6)" json:"longitude,omitempty"`
 
+	AlertQueuedAt *time.Time `json:"-"`
 	NotifiedAt    *time.Time `json:"notified_at,omitempty"`
 	NotifiedEmail *string    `gorm:"type:text" json:"notified_email,omitempty"`
 

@@ -19,6 +19,7 @@ func All() []*gormigrate.Migration {
 		sqlMigration("0004_accident_approval_key"),
 		sqlMigration("0005_accident_confirmed"),
 		sqlMigration("0006_accident_window"),
+		sqlMigration("0007_accident_alert_queue"),
 	}
 }
 
