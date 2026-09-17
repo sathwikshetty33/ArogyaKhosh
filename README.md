@@ -66,7 +66,17 @@ Set at minimum `JWT_SECRET` in `.env`:
 openssl rand -base64 48
 ```
 
-Then:
+Then bring everything up and seed a working demo in one command:
+
+```bash
+make provision
+```
+
+That starts every service, waits for the API to report ready, creates the
+demo accounts, and prints the credentials along with every URL worth opening.
+It takes about thirty seconds from a stopped machine.
+
+If you would rather start the stack without demo data:
 
 ```bash
 docker compose up --build
@@ -96,6 +106,47 @@ dependencies came up:
   "queue": "up"
 }
 ```
+
+### Demo accounts
+
+`make provision` creates one patient and three doctors, each doctor at a
+different point of the access flow, so the consent behaviour has something to
+show. All of them share the password `arogya-demo-2026`.
+
+| Account | Role | State |
+|---|---|---|
+| `sathwik` | patient | owns three documents, one public |
+| `anitarao` | doctor | access granted, expires in 48 hours |
+| `vikrammenon` | doctor | request pending the patient's decision |
+| `drtest` | doctor | request declined, sees the public document only |
+
+The accounts are built through the public API rather than inserted directly, so
+they carry real password hashes and have passed the same validation as any
+signup. The script is re-runnable: it removes the four demo usernames first, so
+a second run replaces the previous state instead of colliding with it.
+
+Details are written to `tools/creds.json`, including the generated identifiers,
+which change on every run.
+
+```bash
+make provision              # start everything and seed the demo
+make creds                  # print the accounts again
+SKIP_COMPOSE=1 make provision   # reseed without touching compose
+```
+
+Ports are read from `.env`, so the URLs it prints stay correct if you have
+moved anything off the defaults.
+
+### Make targets
+
+| Target | Does |
+|---|---|
+| `make provision` | Start the stack and seed the demo accounts |
+| `make creds` | Print the demo accounts from `tools/creds.json` |
+| `make up` | `docker compose up -d --build` |
+| `make down` | Stop the stack |
+| `make logs` | Follow the backend logs |
+| `make proto` | Regenerate the gRPC stubs for Go and Python |
 
 ### Optional configuration
 
