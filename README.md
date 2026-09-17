@@ -147,31 +147,44 @@ It has to be static, because the person scanning it is not the patient, so
 anything requiring the patient's phone or password is useless in the only
 situation the card exists for.
 
+```mermaid
+flowchart TD
+    scan["Stranger scans the card<br/><i>sees no name, no records</i>"]
+    report["POST /accidents/:id<br/>photo stored and scored"]
+    alert["Alert queued for the<br/>emergency contact"]
+    decide{"Contact opens<br/>/accept/:id/:key"}
+
+    dismissed["Report dismissed<br/><i>access it opened is revoked</i>"]
+    confirmed["Report confirmed<br/><i>window extended to 7 days</i>"]
+
+    ask["Doctor requests the records"]
+    route{"Contact opens<br/>/grant-access/:token"}
+    granted["That one doctor gains access<br/><i>expires with the report</i>"]
+    denied["Request denied"]
+
+    patient["Patient recovers<br/><i>sees every report, who was contacted,<br/>and which doctors were admitted</i>"]
+    closed["Window closed"]
+
+    scan --> report --> alert --> decide
+    decide -->|"false alarm"| dismissed
+    decide -->|"this is real"| confirmed
+    confirmed --> ask --> route
+    route -->|"approve"| granted
+    route -->|"refuse"| denied
+    granted --> patient
+    patient -->|"stop asking my contact"| closed
+
+    classDef public fill:#f4f1e8,stroke:#8a8578,color:#1f2a24
+    classDef good fill:#e4efe8,stroke:#1f5d45,color:#14231c
+    classDef stop fill:#f3e6e6,stroke:#9c4a4a,color:#3a1f1f
+    class scan,report,alert public
+    class confirmed,granted,patient good
+    class dismissed,denied,closed stop
 ```
-1.  A stranger scans the card and lands on a public page.
-    They see no name, no records, nothing about the patient.
 
-2.  They send a photo.
-    The photo is stored and scored, an accident record is created, and an
-    alert is queued for the patient's emergency contact.
-
-3.  The contact opens the emailed link: /accept/<accident-id>/<key>
-    They see the photo and what the classifier made of it, and choose.
-
-      False alarm  ->  report dismissed, any access it opened is revoked
-      Confirmed    ->  window extended to seven days
-
-4.  A doctor requests the patient's records.
-    Because a live report exists, the request is routed to the contact:
-    /grant-access/<signed-token>
-
-5.  The contact approves, and that one named doctor gains access until the
-    report closes.
-
-6.  The patient recovers and sees every report on their dashboard, including
-    who was contacted and which doctors were admitted. One button closes the
-    window.
-```
+An unconfirmed report still routes doctor requests to the contact, on a
+24 hour window rather than seven days, so a doctor is not blocked while the
+contact has simply not opened their email yet.
 
 Three rules keep this bounded:
 
