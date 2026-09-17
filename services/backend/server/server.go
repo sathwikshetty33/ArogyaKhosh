@@ -17,6 +17,7 @@ import (
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/aiclient"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailer"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailq"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/storage"
 )
 
@@ -33,6 +34,7 @@ type Config struct {
 	Storage         storage.Provider
 	SignedURLTTL    time.Duration
 	Mailer          mailer.Mailer
+	Queue           mailq.Publisher
 	AI              aiclient.Verifier
 	GrantSigner     *utils.GrantSigner
 	AppBaseURL      string
@@ -179,9 +181,17 @@ func (s *Server) ready(c *gin.Context) {
 		model = "configured"
 	}
 
+	queue := "not configured"
+	if s.cfg.Queue != nil {
+		queue = "down"
+		if s.cfg.Queue.Healthy() {
+			queue = "up"
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"status": "ready", "database": "up",
-		"storage": store, "mail": mail, "model": model,
+		"storage": store, "mail": mail, "model": model, "queue": queue,
 	})
 }
 

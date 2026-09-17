@@ -12,6 +12,7 @@ import (
 
 	utils "github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailer"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailq"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/models"
 )
 
@@ -96,7 +97,7 @@ func (s *Server) sendGrantRequest(c *gin.Context, patient *models.Patient, docto
 		HTML:    grantRequestHTML(patient, doctor, accident, link),
 	}
 
-	if err := s.cfg.Mailer.Send(c.Request.Context(), message); err != nil {
+	if err := s.dispatch(c.Request.Context(), mailq.KindGrantRequest, accident.ID, message); err != nil {
 		c.Error(fmt.Errorf("mailing grant request to %s: %w", to, err))
 	}
 }

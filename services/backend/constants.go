@@ -23,6 +23,8 @@ const (
 
 	envAIServiceAddr = "AI_SERVICE_ADDR"
 	envAppBaseURL    = "APP_BASE_URL"
+	envRabbitURL     = "RABBITMQ_URL"
+	envMailWorkers   = "MAIL_WORKERS"
 
 	defaultPort    = "8080"
 	defaultGinMode = "debug"
@@ -44,4 +46,9 @@ const (
 
 	defaultAppBaseURL = "http://localhost:3000"
 	aiCallTimeout     = 15 * time.Second
+
+	defaultMailWorkers = 4
+	publishTimeout     = 10 * time.Second
+	strandedSweepEvery = 2 * time.Minute
+	strandedAfter      = 5 * time.Minute
 )

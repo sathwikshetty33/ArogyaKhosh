@@ -21,6 +21,23 @@ services:
       retries: 10
       start_period: 10s
 
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-arogya}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-arogya}
+    ports:
+      - "${RABBITMQ_PORT:-5673}:5672"
+      - "${RABBITMQ_UI_PORT:-15673}:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
   backend:
     build:
       context: ./services/backend
@@ -43,10 +60,14 @@ services:
       SMTP_ALLOW_INSECURE: ${SMTP_ALLOW_INSECURE:-false}
       AI_SERVICE_ADDR: ${AI_SERVICE_ADDR:-ai:50051}
       APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      RABBITMQ_URL: ${RABBITMQ_URL:-amqp://${RABBITMQ_USER:-arogya}:${RABBITMQ_PASSWORD:-arogya}@rabbitmq:5672/}
+      MAIL_WORKERS: ${MAIL_WORKERS:-4}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
       ai:
         condition: service_started
@@ -74,3 +95,4 @@ services:
 
 volumes:
   postgres-data:
+  rabbitmq-data:

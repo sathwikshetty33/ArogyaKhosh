@@ -1,16 +1,21 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
+
+	"gorm.io/gorm"
 
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/aiclient"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/db"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailer"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailq"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/storage"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/server"
 )
@@ -78,6 +83,15 @@ func main() {
 		log.Printf("model service is not configured; accident photos will not be scored")
 	}
 
+	queue, err := newQueue()
+	if err != nil {
+		log.Fatalf("mail queue: %v", err)
+	}
+
+	if queue != nil {
+		defer queue.Close()
+	}
+
 	cfg := server.Config{
 		Port:            env(envPort, defaultPort),
 		Mode:            ginMode(env(envGinMode, defaultGinMode)),
@@ -94,13 +108,94 @@ func main() {
 		AI:              verifier,
 		GrantSigner:     grantSigner,
 		AppBaseURL:      strings.TrimRight(env(envAppBaseURL, defaultAppBaseURL), "/"),
+		Queue:           queue,
 	}
 
 	srv := server.New(cfg)
 
+	background, stopBackground := context.WithCancel(context.Background())
+	defer stopBackground()
+
+	if queue != nil {
+		go mailq.Run(background, mailq.ConsumerConfig{
+			URL:     strings.TrimSpace(os.Getenv(envRabbitURL)),
+			Workers: mailWorkers(),
+			Handler: mailHandler(gdb, postman),
+			Logger:  log.Default(),
+		})
+
+		go server.StrandedSweeper{
+			DB:         gdb,
+			Queue:      queue,
+			AppBaseURL: cfg.AppBaseURL,
+			Logger:     log.Default(),
+			Every:      strandedSweepEvery,
+			After:      strandedAfter,
+		}.Run(background)
+	}
+
 	log.Printf("arogyakhosh api listening on :%s", cfg.Port)
 	if err := srv.Run(); err != nil {
 		log.Fatalf("server error: %v", err)
+	}
+}
+
+func newQueue() (mailq.Publisher, error) {
+	url := strings.TrimSpace(os.Getenv(envRabbitURL))
+	if url == "" {
+		log.Printf("mail queue is not configured; alerts will be sent inline with no retry")
+		return nil, nil
+	}
+
+	client, err := mailq.Dial(url)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("mail queue ready at %s", redactURL(url))
+
+	return client, nil
+}
+
+func redactURL(raw string) string {
+	parsed, err := url.Parse(raw)
+	if err != nil {
+		return "the configured broker"
+	}
+
+	if parsed.User != nil {
+		parsed.User = url.User(parsed.User.Username())
+	}
+
+	return parsed.String()
+}
+
+func mailWorkers() int {
+	raw := strings.TrimSpace(os.Getenv(envMailWorkers))
+	if raw == "" {
+		return defaultMailWorkers
+	}
+
+	parsed, err := strconv.Atoi(raw)
+	if err != nil || parsed < 1 {
+		log.Printf("%s is not a positive number; using %d", envMailWorkers, defaultMailWorkers)
+		return defaultMailWorkers
+	}
+
+	return parsed
+}
+
+func mailHandler(gdb *gorm.DB, postman mailer.Mailer) mailq.Handler {
+	return func(ctx context.Context, job mailq.Job) error {
+		if err := postman.Send(ctx, job.Message); err != nil {
+			return err
+		}
+
+		if job.Kind != mailq.KindAccidentAlert || len(job.Message.To) == 0 {
+			return nil
+		}
+
+		return server.MarkAlerted(gdb, job.AccidentID, job.Message.To[0])
 	}
 }
 

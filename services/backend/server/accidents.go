@@ -16,6 +16,7 @@ import (
 
 	utils "github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/auth"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailer"
+	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/mailq"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/models"
 	"github.com/sathwikshetty33/ArogyaKhosh/services/backend/internal/storage"
 )
@@ -268,30 +269,33 @@ func (s *Server) notifyEmergencyContact(c *gin.Context, patient *models.Patient,
 		HTML:    accidentAlertHTML(*patient, *accident, link),
 	}
 
-	if err := s.cfg.Mailer.Send(c.Request.Context(), message); err != nil {
-		// The report is already saved, so this can be retried. Failing the
-		// request would only tell a bystander something they cannot act on.
+	if err := s.dispatch(c.Request.Context(), mailq.KindAccidentAlert, accident.ID, message); err != nil {
 		c.Error(fmt.Errorf("alerting %s: %w", to, err))
 		return false
 	}
 
 	now := time.Now()
-	updates := map[string]any{
-		"status":         models.AccidentNotified,
-		"notified_at":    now,
-		"notified_email": to,
-	}
 
-	if err := s.cfg.DB.Model(&models.Accident{}).Where("id = ?", accident.ID).Updates(updates).Error; err != nil {
+	if err := s.cfg.DB.Model(&models.Accident{}).Where("id = ?", accident.ID).
+		Update("alert_queued_at", now).Error; err != nil {
 		c.Error(err)
-		return true
 	}
 
-	accident.Status = models.AccidentNotified
-	accident.NotifiedAt = &now
-	accident.NotifiedEmail = &to
+	accident.AlertQueuedAt = &now
 
 	return true
+}
+
+func MarkAlerted(db *gorm.DB, accidentID uuid.UUID, recipient string) error {
+	now := time.Now()
+
+	return db.Model(&models.Accident{}).
+		Where("id = ? AND status = ?", accidentID, models.AccidentReported).
+		Updates(map[string]any{
+			"status":         models.AccidentNotified,
+			"notified_at":    now,
+			"notified_email": recipient,
+		}).Error
 }
 
 func accidentAlertText(patient models.Patient, accident models.Accident, link string) string {
