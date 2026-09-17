@@ -9,7 +9,7 @@ PY_OUT     := services/ai/gen
 # prerequisite is python plus the two Go plugins below.
 PROTOC := python3 -m grpc_tools.protoc
 
-.PHONY: proto proto-deps proto-go proto-py proto-clean
+.PHONY: proto proto-deps proto-go proto-py proto-clean up down logs provision creds
 
 proto: proto-go proto-py
 	@echo "stubs regenerated"
@@ -42,3 +42,19 @@ proto-py:
 
 proto-clean:
 	rm -rf $(GO_OUT)/internal/gen $(PY_OUT)
+
+up:
+	docker compose up -d --build
+
+down:
+	docker compose down
+
+logs:
+	docker compose logs -f backend
+
+provision:
+	@bash tools/provision.sh
+
+creds:
+	@test -f tools/creds.json || { echo "no tools/creds.json yet; run 'make provision'" >&2; exit 1; }
+	@jq -r '"app       \(.urls.app)\npassword  \(.password)\n\npatient   \(.patient.username)  \(.patient.email)\nrecord    \(.urls.record)\n", (.doctors[] | "doctor    \(.username)  \(.access)  \(.note)")' tools/creds.json

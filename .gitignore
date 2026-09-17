@@ -5,7 +5,6 @@
 bin/
 tmp/
 
-creds.txt
 
 node_modules/
 dist/
